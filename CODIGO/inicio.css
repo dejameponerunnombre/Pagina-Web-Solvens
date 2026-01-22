@@ -48,18 +48,19 @@ body::before {
     color: #aaaaaa;
     text-decoration: none;
     font-size: 14px;
+    font-weight: 500;
     transition: color 0.3s;
 }
 
 .btn-salir:hover {
-    color: #dc2626;
+    color: #dc2626; 
 }
 
 
 .contenedor-principal {
     flex: 1;
     padding: 60px 20px;
-    max-width: 1000px;
+    max-width: 1100px;
     margin: 0 auto;
     text-align: center;
 }
@@ -67,10 +68,11 @@ body::before {
 .bienvenida h1 {
     font-size: 36px;
     margin-bottom: 10px;
+    font-weight: 600;
 }
 
 .bienvenida span {
-    color: #dc2626;
+    color: #dc2626; 
 }
 
 .bienvenida p {
@@ -80,20 +82,18 @@ body::before {
 
 
 .grid-acciones {
-    display: flex;             
-    flex-direction: row;       
-    justify-content: center;   
-    align-items: stretch;      
-    gap: 30px;                 
-    padding: 20px;
-    max-width: 1200px;         
-    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch; 
+    gap: 30px;
+    flex-wrap: nowrap; 
 }
 
 
 .tarjeta-accion {
-    flex: 1;                   
-    max-width: 400px;         
+    flex: 1;
+    max-width: 400px;
     background: rgba(45, 45, 45, 0.3);
     backdrop-filter: blur(10px);
     border: 2px solid #ffffff;
@@ -102,9 +102,8 @@ body::before {
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; 
+    justify-content: space-between;
 }
-
 
 .tarjeta-accion:hover {
     transform: translateY(-10px);
@@ -130,19 +129,22 @@ body::before {
     line-height: 1.6;
 }
 
+
 .btn-entrar {
     background-color: transparent;
     color: white;
     border: 1px solid #dc2626;
-    padding: 10px 25px;
+    padding: 12px 25px;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
+    font-size: 15px;
     transition: 0.3s;
 }
 
 .tarjeta-accion:hover .btn-entrar {
     background-color: #dc2626;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
 }
 
 
@@ -158,12 +160,16 @@ body::before {
 
 @media (max-width: 768px) {
     .grid-acciones {
-        flex-direction: column; 
+        flex-direction: column;
         align-items: center;
     }
     
     .tarjeta-accion {
         width: 100%;
         max-width: 350px;
+    }
+
+    .bienvenida h1 {
+        font-size: 28px;
     }
 }
