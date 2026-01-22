@@ -94,7 +94,7 @@ body::before {
 .tarjeta-accion {
     flex: 1;
     max-width: 400px;
-    background: rgba(45, 45, 45, 0.3);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(10px);
     border: 2px solid #ffffff;
     border-radius: 15px;
