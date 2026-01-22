@@ -45,8 +45,9 @@ body::before
     backdrop-filter: blur(10px);
     border: 2px solid #ffffff;
     border-radius: 12px;
-    padding: 40px;
+    padding: 30px; 
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
 }
 
 h2 
@@ -125,7 +126,7 @@ button[type="submit"]:active
 
 .imagen
 {
-    margin-top: 30px;
+    margin-top: 20px;
     padding-top: 30px;
     border-top: 1px solid #333;
     text-align: center;
@@ -133,9 +134,31 @@ button[type="submit"]:active
 
 .imagen img
 {
-    max-width: 200px;
+    max-width: 200px; 
+    width: 100%;      
     height: auto;
+    display: block;
+    margin: 0 auto;
     background-color: #ffffff;
-    padding: 20px;
+    padding: 15px;    
     border-radius: 8px;
+}
+
+@media (max-width: 480px) {
+    .borde {
+        max-width: 90%;
+    }
+    
+    .datos {
+        padding: 20px;
+    }
+
+    .imagen {
+        margin-top: 15px;  
+        padding-top: 15px; 
+    }
+
+    .imagen img {
+        max-width: 150px; 
+    }
 }
