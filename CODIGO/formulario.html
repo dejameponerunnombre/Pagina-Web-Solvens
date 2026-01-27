@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="formulario.css">
+</head>
+<body>
+
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<main class="contenido">
+    <h1>Carga de <span>Productos</span></h1>
+
+    <form class="formulario">
+        <div class="fila">
+            <select required>
+                <option value="" disabled selected>Cadena</option>
+                <option value="cadena1">Cadena 1</option>
+            </select>
+            <select required>
+                <option value="" disabled selected>Comercio/sucursal</option>
+                <option value="sucursal1">Sucursal 1</option>
+            </select>
+        </div>
+
+        <div class="fila">
+            <input type="text" placeholder="Cluster" required pattern="[A-Za-z]">
+            <input type="text" placeholder="Cluster TP" required pattern="[A-Za-z\s]+">
+        </div>
+        
+        <div class="fila">
+            <input type="text" placeholder="Marca" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+">
+            <input type="text" placeholder="Categoría" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+">
+        </div>
+
+        <div class="fila">
+            <input type="text" placeholder="Producto" required minlength="5" maxlength="120" pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s\-\(\)]+">
+            <input type="number" placeholder="Precio" required min="0" max="5000000" step="999" title="Precio numérico sin símbolo $">
+        </div>
+
+        <label class="checkbox-oferta">
+            <input type="checkbox" name="oferta" value="si">
+            <span class="checkmark"></span>
+            <span class="texto-oferta">Producto en oferta</span>
+        </label>
+
+        <label class="imagenes">
+            Subir imágenes
+            <input type="file" accept="image/*" multiple>
+        </label>
+
+        <button type="submit">Guardar</button>
+    </form>
+</main>
+
+</body>
+</html>
