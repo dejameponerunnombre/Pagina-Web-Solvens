@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Carga de Cadenas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="formulario.css">
+</head>
+<body>
+
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<main class="contenido">
+    <h1>Carga de <span>Cadenas</span></h1>
+    <p class="subtitulo">Complete los datos de la cadena comercial</p>
+
+    <form class="formulario">
+        <div class="fila">
+            <input type="text" placeholder="Nombre de la Cadena" required pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s\-&]+" minlength="3" maxlength="100">
+            <input type="text" placeholder="Código" required pattern="[A-Za-z0-9\-]{2,20}"> <!-- Esto seía un tipo de PK para la base de datos, de ultima se genera internamente-->
+        </div>
+
+        <div class="fila">
+            <input type="text" placeholder="Razón Social" required minlength="3" maxlength="150">
+            <input type="text" placeholder="CUIT" required pattern="[0-9\-]{9,15}">
+        </div>
+
+        <div class="fila">
+            <input type="text" placeholder="Teléfono Principal" required pattern="[0-9\s\-\+\(\)]{8,20}">
+            <input type="text" placeholder="Email Corporativo" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+        </div>
+
+        <div class="fila">
+            <input type="text" placeholder="Sitio Web" pattern="https?://.+">
+            <input type="number" placeholder="Cantidad de Sucursales" min="1" max="10000" step="1">
+        </div>
+
+                            <!-- De aca para abajo no estoy muy convencido de que vaya-->
+
+        <div class="fila">
+            <input type="text" placeholder="Provincia" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" minlength="2" maxlength="50">
+            <input type="text" placeholder="Ciudad" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" minlength="2" maxlength="50">
+        </div>
+
+        <div class="fila">
+            <input type="text" placeholder="Dirección de Casa Central" required minlength="5" maxlength="150">
+        </div>
+
+        <button type="submit">Guardar Cadena</button>
+    </form>
+</main>
+
+</body>
+</html>

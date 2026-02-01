@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Carga de Usuarios</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="formulario.css">
+</head>
+<body>
+
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<main class="contenido">
+    <h1>Carga de <span>Usuarios</span></h1>
+    <p class="subtitulo">Complete los datos del nuevo usuario</p>
+
+    <form class="formulario">
+        <div class="fila">
+            <input type="text" placeholder="Nombre" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" minlength="2" maxlength="50">
+            <input type="text" placeholder="Apellido" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" minlength="2" maxlength="50">
+        </div>
+
+        <div class="fila">
+            <input type="text" placeholder="Email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+            <input type="text" placeholder="Teléfono" required pattern="[0-9\s\-\+\(\)]{8,20}">
+        </div>
+
+        <div class="fila">
+            <input type="text" placeholder="Usuario" required pattern="[A-Za-z0-9_\-]{4,20}" minlength="4" maxlength="20">
+            <input type="text" placeholder="Contraseña" required minlength="6" maxlength="30">
+        </div>
+
+        <div class="fila">
+            <select required>
+                <option value="" disabled selected>Rol</option>
+                <option value="admin">Administrador</option>
+                <option value="repo">Repositor</option>
+                <option value="client">Cliente</option>
+            </select>
+        </div>
+
+  
+
+        <button type="submit">Guardar Usuario</button>
+    </form>
+</main>
+
+</body>
+</html>

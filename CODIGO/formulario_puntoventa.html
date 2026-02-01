@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Carga de Puntos de Venta</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="formulario.css">
+</head>
+<body>
+
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<main class="contenido">
+    <h1>Carga de <span>Puntos de Venta</span></h1>
+    <p class="subtitulo">Complete los datos del comercio/sucursal</p>
+
+    <form class="formulario">
+        <div class="fila">
+            <input type="text" placeholder="Nombre del Comercio" required pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s\-]+" minlength="3" maxlength="100">
+            <input type="text" placeholder="Código" required pattern="[A-Za-z0-9\-]{3,20}">  <!-- Esto seía un tipo de PK para la base de datos, de ultima se genera internamente-->
+        </div>
+
+        <div class="fila">
+            <select required>
+                <option value="" disabled selected>Cadena</option>
+                <option value="cadena1">Cadena 1</option>
+                <option value="cadena2">Cadena 2</option>
+                <option value="cadena3">Cadena 3</option>
+            </select>
+            <select required>
+                <option value="" disabled selected>Zona</option>
+                <option value="norte">Norte</option>
+                <option value="sur">Sur</option>
+                <option value="este">Este</option>
+                <option value="oeste">Oeste</option>
+                <option value="centro">Centro</option>
+            </select>
+
+        </div>
+
+        <div class="fila">
+            <input type="text" placeholder="Dirección" required minlength="5" maxlength="150">
+            <input type="text" placeholder="Ciudad" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" minlength="2" maxlength="50">
+        </div>
+
+        <div class="fila">
+            <input type="text" placeholder="Provincia" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" minlength="2" maxlength="50">
+            <input type="text" placeholder="Código Postal" required pattern="[A-Za-z0-9]{3,10}">
+        </div>
+
+        <div class="fila">
+            <input type="text" placeholder="Teléfono" required pattern="[0-9\s\-\+\(\)]{8,20}">
+            <input type="text" placeholder="Email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+        </div>
+
+
+
+        <button type="submit">Guardar Punto de Venta</button>
+    </form>
+</main>
+
+</body>
+</html>
