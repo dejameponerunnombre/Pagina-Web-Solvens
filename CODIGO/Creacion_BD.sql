@@ -2,6 +2,8 @@ if db_id('Sistema_Solvens') is null
 	create database Sistema_Solvens collate Latin1_General_CI_AS;
 go
 
+
+
 use Sistema_Solvens
 go
 
@@ -17,6 +19,9 @@ CREATE TABLE Usuario
 	ID tinyint identity(1,1),
 	Nombre varchar(40),
 	ID_Tipo_Usuario tinyint,
+	Mail varchar(50),
+	Usuario varchar(40),
+	Clave varchar(40),
 	Constraint PK_Usuario Primary Key(ID),
 	Constraint FK_Usuario_Tipo_Usuario Foreign Key (ID_Tipo_Usuario) References Tipo_Usuario(ID)
 );
@@ -42,29 +47,63 @@ CREATE TABLE Sucursal
 	Constraint CHK_Sucursal_Direccion CHECK (Altura > 0)
 );
 
+CREATE TABLE Categoria
+(
+	ID tinyint identity(1,1),
+	Categoria varchar(50),
+	Constraint PK_Categoria Primary Key(ID)
+);
+
+CREATE TABLE Cliente
+(
+	ID tinyint identity(1,1),
+	Nombre varchar(50),
+	ID_Usuario tinyint,
+	Constraint PK_Cliente Primary Key(ID),
+	Constraint FK_Cliente_Usuario Foreign Key (ID_Usuario) References Usuario(ID)
+);
+
 CREATE TABLE Producto
 (
 	ID tinyint identity(1,1),
-	Marca varchar(20),
+	ID_Cliente tinyint,
 	Descripcion varchar(60),
-	Categoría varchar(40),
+	ID_Categoria tinyint,
 	SKU varchar(80),
 	Constraint PK_Producto Primary Key(ID),
+	Constraint FK_Producto_Cliente Foreign Key (ID_Cliente) References Cliente(ID),
+	Constraint FK_Producto_Categoria Foreign Key (ID_Categoria) References Categoria(ID)
+);
+
+CREATE TABLE Visita
+(
+	ID tinyint identity(1,1),
+	Fecha date,
+	ID_Usuario tinyint,
+	ID_Sucursal tinyint,
+	Constraint PK_Visita Primary Key(ID),
+	Constraint FK_Visita_Usuario Foreign Key (ID_Usuario) References Usuario(ID),
+	Constraint FK_Visita_Sucursal Foreign Key (ID_Sucursal) References Sucursal(ID)
 );
 
 CREATE TABLE Carga
 (
 	ID tinyint identity(1,1),
-	Fecha date,
 	Precio decimal(10,2),
-	Ruta_Imagen varchar(80),
 	ID_Producto tinyint,
-	ID_Usuario tinyint,
-	ID_Sucursal tinyint,
+	ID_Visita tinyint,
 	Constraint PK_Carga Primary Key(ID),
 	Constraint FK_Carga_Producto Foreign Key (ID_Producto) References Producto(ID),
-	Constraint FK_Carga_Usuario Foreign Key (ID_Usuario) References Usuario(ID),
-	Constraint FK_Carga_Sucursal Foreign Key (ID_Sucursal) References Sucursal(ID)
+	Constraint FK_Carga_Visita Foreign Key (ID_Visita) References Visita(ID)
+);
+
+CREATE TABLE Imagen
+(
+	ID tinyint identity(1,1),
+	Ruta_Imagen varchar(100),
+	ID_Visita tinyint,
+	Constraint PK_Imagen Primary Key(ID),
+	Constraint FK_Imagen_Visita Foreign Key (ID_Visita) References Visita(ID)
 );
 
 INSERT INTO Tipo_Usuario (Tipo) VALUES
