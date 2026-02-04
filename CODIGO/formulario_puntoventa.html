@@ -21,7 +21,7 @@
     <form class="formulario">
         <div class="fila">
             <input type="text" placeholder="Nombre del Comercio" required pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s\-]+" minlength="3" maxlength="100">
-            <input type="text" placeholder="Código" required pattern="[A-Za-z0-9\-]{3,20}">  <!-- Esto seía un tipo de PK para la base de datos, de ultima se genera internamente-->
+       <!--      <input type="text" placeholder="Código" required pattern="[A-Za-z0-9\-]{3,20}">  Esto seía un tipo de PK para la base de datos, quedó que se  genera internamente-->
         </div>
 
         <div class="fila">
@@ -32,29 +32,20 @@
                 <option value="cadena3">Cadena 3</option>
             </select>
             <select required>
-                <option value="" disabled selected>Zona</option>
-                <option value="norte">Norte</option>
-                <option value="sur">Sur</option>
-                <option value="este">Este</option>
-                <option value="oeste">Oeste</option>
-                <option value="centro">Centro</option>
+                <option value="" disabled selected>Tipo</option> <!-- NO ME ACUERDO LAS OTRAS OPCIONES -->
+                <option value="norte">Supermercado</option>
+                <option value="sur">Minimarket</option>
             </select>
 
         </div>
 
         <div class="fila">
             <input type="text" placeholder="Dirección" required minlength="5" maxlength="150">
-            <input type="text" placeholder="Ciudad" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" minlength="2" maxlength="50">
+            <input type="number" placeholder="Altura" required pattern="[0-9]+" minlength="2" maxlength="6">
         </div>
 
         <div class="fila">
             <input type="text" placeholder="Provincia" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" minlength="2" maxlength="50">
-            <input type="text" placeholder="Código Postal" required pattern="[A-Za-z0-9]{3,10}">
-        </div>
-
-        <div class="fila">
-            <input type="text" placeholder="Teléfono" required pattern="[0-9\s\-\+\(\)]{8,20}">
-            <input type="text" placeholder="Email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
         </div>
 
 

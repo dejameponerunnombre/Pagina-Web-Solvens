@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Carga de Productos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="formulario.css">
+</head>
+<body>
+
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<main class="contenido">
+    <h1>Carga de <span>Productos</span></h1>
+
+    <form class="formulario">
+
+        <div class="fila">
+            <select required>
+                <option value="" disabled selected>Cliente</option>
+                <option value="ccliente1">Cliente 1</option>
+            </select>
+        </div>
+
+
+        <div class="fila">
+            <input type="text" placeholder="Producto" required minlength="5" maxlength="120" pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ\s\-\(\)]+">
+            <input type="text" placeholder="SKU" required pattern="[A-Za-z0-9\-]{2,20}">
+        </div>
+
+
+        <button type="submit">Guardar</button>
+    </form>
+</main>
+
+</body>
+</html>
