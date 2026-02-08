@@ -14,6 +14,32 @@ CREATE TABLE Tipo_Usuario
 	Constraint PK_Tipo_Usuario Primary Key(ID)
 );
 
+CREATE TABLE Centro_Operativo
+(
+	ID tinyint identity(1,1),
+	Nombre varchar(25),
+	Constraint PK_Centro_Operativo Primary Key(ID)
+);
+
+CREATE TABLE Zona
+(
+	ID tinyint identity(1,1),
+	Nombre varchar(25),
+	ID_CO tinyint,
+	Constraint PK_Zona Primary Key(ID),
+	Constraint FK_Zona_Centro_Operativo Foreign key (ID_CO) References Centro_Operativo(ID)
+);
+
+CREATE TABLE Subzona
+(
+	ID tinyint identity(1,1),
+	Nombre varchar(25),
+	ID_Zona tinyint,
+	Constraint PK_Subzona Primary Key(ID),
+	Constraint FK_Subzona_Zona Foreign key (ID_Zona) References Zona(ID)
+);
+
+
 CREATE TABLE Usuario
 (
 	ID tinyint identity(1,1),
@@ -30,6 +56,7 @@ CREATE TABLE Cadena
 (
 	ID tinyint identity(1,1),
 	Nombre varchar(20),
+	Tipo varchar(30),
 	Constraint PK_Cadena Primary Key(ID)
 );
 
@@ -39,11 +66,11 @@ CREATE TABLE Sucursal
 	Calle varchar(40),
 	Altura int,
 	Localidad varchar(40),
-	Provincia varchar(40),
-	Region varchar(40),
+	ID_Subzona tinyint,
 	ID_Cadena tinyint,
 	Constraint PK_Sucursal Primary Key(ID),
 	Constraint FK_Sucursal_Cadena Foreign Key (ID_Cadena) References Cadena(ID),
+	Constraint FK_Sucursal_Subzona Foreign Key (ID_Subzona) References Subzona(ID),
 	Constraint CHK_Sucursal_Direccion CHECK (Altura > 0)
 );
 
@@ -106,7 +133,19 @@ CREATE TABLE Imagen
 	Constraint FK_Imagen_Visita Foreign Key (ID_Visita) References Visita(ID)
 );
 
+CREATE TABLE Abastece
+(
+	ID tinyint identity(1,1),
+	ID_Cliente tinyint,
+	ID_Sucursal tinyint,
+	Constraint PK_Abastece Primary Key(ID),
+	Constraint FK_Abastece_Cliente Foreign Key (ID_Cliente) References Cliente(ID),
+	Constraint FK_Abastece_Sucursal Foreign Key (ID_Sucursal) References Sucursal(ID)
+);
+
 INSERT INTO Tipo_Usuario (Tipo) VALUES
 ('Administrador'),
 ('Cliente'),
 ('Repositor');
+
+
