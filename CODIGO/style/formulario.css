@@ -1,0 +1,235 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1a1a1a;
+    min-height: 100vh;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(45deg, #1a1a1a 25%, #2a2a2a 25%, #2a2a2a 50%, #1a1a1a 50%, #1a1a1a 75%, #2a2a2a 75%, #2a2a2a);
+    background-size: 100px 100px;
+    opacity: 0.1;
+    z-index: -1;
+}
+
+.header {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 15px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo-nav {
+    height: 40px;
+    background: white;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.btn-salir {
+    color: #aaaaaa;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.btn-salir:hover {
+    color: #dc2626; 
+}
+
+.contenido {
+    width: 98%; 
+    max-width: 98vw; 
+    margin: 60px auto 40px; 
+    padding: 0 20px;
+    box-sizing: border-box; 
+}
+
+h1 {
+    font-size: 34px;
+    margin-bottom: 8px;
+}
+
+h1 span {
+    color: #dc2626;
+}
+
+.subtitulo {
+    color: #aaa;
+    margin-bottom: 50px;
+}
+
+.formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.fila {
+    display: flex;
+    gap: 20px;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #555;
+    padding: 12px 6px;
+    color: white;
+    font-size: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 20px;
+    padding-right: 35px;
+}
+
+select option {
+    background-color: #2a2a2a;
+    color: white;
+    padding: 10px;
+}
+
+select option:disabled {
+    color: #888;
+}
+
+input[type="text"]::placeholder,
+input[type="number"]::placeholder {
+    color: #888;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    outline: none;
+    border-color: #dc2626;
+}
+
+select:hover {
+    border-color: #dc2626;
+}
+
+.checkbox-oferta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: #888;
+    user-select: none;
+    transition: color 0.3s;
+}
+
+.checkbox-oferta input {
+    display: none;
+}
+
+.checkmark {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #555;
+    border-radius: 6px;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.checkbox-oferta:hover .checkmark {
+    border-color: #dc2626;
+}
+
+.checkbox-oferta input:checked + .checkmark {
+    background: #dc2626;
+    border-color: #dc2626;
+    box-shadow: 0 0 10px rgba(220,38,38,0.5);
+}
+
+.checkbox-oferta input:checked + .checkmark::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-oferta input:checked ~ .texto-oferta {
+    color: white;
+}
+
+.imagenes {
+    margin-top: 30px;
+    padding: 30px;
+    border: 2px dashed #666;
+    text-align: center;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: block;
+}
+
+.imagenes:hover {
+    border-color: #dc2626;
+    color: #dc2626;
+}
+
+.imagenes input {
+    display: none;
+}
+
+button {
+    margin-top: 40px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    background: transparent;
+    color: white;
+    border: 2px solid #dc2626;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 15px rgba(220,38,38,0.4);
+}
+
+@media (max-width: 768px) {
+    .fila {
+        flex-direction: column;
+    }
+}

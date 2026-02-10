@@ -1,0 +1,14 @@
+{
+  "name": "proyecto-sql",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon ./js/getUsers.mjs"
+  },
+  "dependencies": {
+    "mssql": "^12.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
