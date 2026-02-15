@@ -14,11 +14,11 @@ CREATE TABLE Tipo_Usuario
 	Constraint PK_Tipo_Usuario Primary Key(ID)
 );
 
-CREATE TABLE Centro_Operativo
+CREATE TABLE Tipo_Cadena
 (
 	ID tinyint identity(1,1),
-	Nombre varchar(25),
-	Constraint PK_Centro_Operativo Primary Key(ID)
+	Tipo varchar(30),
+	Constraint PK_Tipo_Cadena Primary Key(ID)
 );
 
 CREATE TABLE Zona
@@ -27,7 +27,6 @@ CREATE TABLE Zona
 	Nombre varchar(25),
 	ID_CO tinyint,
 	Constraint PK_Zona Primary Key(ID),
-	Constraint FK_Zona_Centro_Operativo Foreign key (ID_CO) References Centro_Operativo(ID)
 );
 
 CREATE TABLE Subzona
@@ -42,10 +41,10 @@ CREATE TABLE Subzona
 
 CREATE TABLE Usuario
 (
-	ID tinyint identity(1,1),
+	ID smallint identity(1,1),
 	Nombre varchar(40),
 	ID_Tipo_Usuario tinyint,
-	Mail varchar(50),
+	Mail varchar(70),
 	Usuario varchar(40),
 	Clave varchar(40),
 	Constraint PK_Usuario Primary Key(ID),
@@ -56,13 +55,14 @@ CREATE TABLE Cadena
 (
 	ID tinyint identity(1,1),
 	Nombre varchar(20),
-	Tipo varchar(30),
-	Constraint PK_Cadena Primary Key(ID)
+	ID_Tipo tinyint,
+	Constraint PK_Cadena Primary Key(ID),
+	Constraint FK_Cadena_Tipo_Cadena Foreign key (ID_Tipo) References Tipo_Cadena(ID)
 );
 
 CREATE TABLE Sucursal
 (
-	ID tinyint identity(1,1),
+	ID smallint identity(1,1),
 	Calle varchar(40),
 	Altura int,
 	Localidad varchar(40),
@@ -81,35 +81,28 @@ CREATE TABLE Categoria
 	Constraint PK_Categoria Primary Key(ID)
 );
 
-CREATE TABLE Cliente
-(
-	ID tinyint identity(1,1),
-	Nombre varchar(50),
-	ID_Usuario tinyint,
-	Constraint PK_Cliente Primary Key(ID),
-	Constraint FK_Cliente_Usuario Foreign Key (ID_Usuario) References Usuario(ID)
-);
-
 CREATE TABLE Producto
 (
-	ID tinyint identity(1,1),
-	ID_Cliente tinyint,
+	ID smallint identity(1,1),
+	ID_Cliente smallint,
 	Descripcion varchar(60),
 	ID_Categoria tinyint,
 	SKU varchar(80),
 	Constraint PK_Producto Primary Key(ID),
-	Constraint FK_Producto_Cliente Foreign Key (ID_Cliente) References Cliente(ID),
+	Constraint FK_Producto_Cliente Foreign Key (ID_Cliente) References Usuario(ID),
 	Constraint FK_Producto_Categoria Foreign Key (ID_Categoria) References Categoria(ID)
 );
 
 CREATE TABLE Visita
 (
-	ID tinyint identity(1,1),
+	ID int identity(1,1),
 	Fecha date,
-	ID_Usuario tinyint,
-	ID_Sucursal tinyint,
+	ID_Repo smallint,
+	ID_Cliente smallint,
+	ID_Sucursal smallint,
 	Constraint PK_Visita Primary Key(ID),
-	Constraint FK_Visita_Usuario Foreign Key (ID_Usuario) References Usuario(ID),
+	Constraint FK_Visita_Usuario_Repo Foreign Key (ID_Repo) References Usuario(ID),
+	Constraint FK_Visita_Usuario_Cliente Foreign Key (ID_Cliente) References Usuario(ID),
 	Constraint FK_Visita_Sucursal Foreign Key (ID_Sucursal) References Sucursal(ID)
 );
 
@@ -117,8 +110,8 @@ CREATE TABLE Carga
 (
 	ID tinyint identity(1,1),
 	Precio decimal(10,2),
-	ID_Producto tinyint,
-	ID_Visita tinyint,
+	ID_Producto smallint,
+	ID_Visita int,
 	Constraint PK_Carga Primary Key(ID),
 	Constraint FK_Carga_Producto Foreign Key (ID_Producto) References Producto(ID),
 	Constraint FK_Carga_Visita Foreign Key (ID_Visita) References Visita(ID)
@@ -126,26 +119,21 @@ CREATE TABLE Carga
 
 CREATE TABLE Imagen
 (
-	ID tinyint identity(1,1),
-	Ruta_Imagen varchar(100),
-	ID_Visita tinyint,
+	ID int identity(1,1),
+	Ruta_Imagen varchar(255),
+	ID_Visita int,
 	Constraint PK_Imagen Primary Key(ID),
 	Constraint FK_Imagen_Visita Foreign Key (ID_Visita) References Visita(ID)
 );
 
 CREATE TABLE Abastece
 (
-	ID tinyint identity(1,1),
-	ID_Cliente tinyint,
-	ID_Sucursal tinyint,
+	ID smallint identity(1,1),
+	ID_Cliente smallint,
+	ID_Sucursal smallint,
 	Constraint PK_Abastece Primary Key(ID),
-	Constraint FK_Abastece_Cliente Foreign Key (ID_Cliente) References Cliente(ID),
+	Constraint FK_Abastece_Cliente Foreign Key (ID_Cliente) References Usuario(ID),
 	Constraint FK_Abastece_Sucursal Foreign Key (ID_Sucursal) References Sucursal(ID)
 );
-
-INSERT INTO Tipo_Usuario (Tipo) VALUES
-('Administrador'),
-('Cliente'),
-('Repositor');
 
 
