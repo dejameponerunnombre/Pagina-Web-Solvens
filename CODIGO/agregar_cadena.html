@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Carga de Cadenas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="style/formulario.css">
+</head>
+<body>
+
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<main class="contenido">
+    <h1>Carga de <span>Cadenas</span></h1>
+    <p class="subtitulo">Complete los datos de la cadena comercial</p>
+
+    <form class="formulario" id="form-cadena">
+        <div class="fila">
+            <input type="text" id="nombre_cadena" placeholder="Nombre de la Cadena" required minlength="3">
+            <select id="tipo_cadena" required>
+                <option value="" disabled selected>Cargando tipos...</option>
+            </select>
+        </div>
+        <button type="submit">Guardar Cadena</button>
+    </form>
+</main>
+
+<script>
+    const URL_BASE = 'http://localhost:3000/api';
+    const form = document.getElementById('form-cadena');
+    const selectTipo = document.getElementById('tipo_cadena');
+
+    // 1. Cargar el menú desplegable al iniciar
+    async function cargarTipos() {
+        try {
+            const res = await fetch(`${URL_BASE}/tipos-cadena`);
+            const data = await res.json();
+
+            // LIMPIEZA TOTAL: Esto elimina cualquier duplicado previo
+            selectTipo.innerHTML = ''; 
+
+            // Crear la opción por defecto
+            const optionDefault = document.createElement('option');
+            optionDefault.value = "";
+            optionDefault.textContent = "Seleccione un Tipo";
+            optionDefault.disabled = true;
+            optionDefault.selected = true;
+            selectTipo.appendChild(optionDefault);
+
+            // Llenar con datos de la BD
+            // Asegúrate de que esta parte en tu fetch de tipos esté así:
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.Tipo; // Enviamos el texto "Supermercado"
+                option.textContent = item.Tipo;
+                selectTipo.appendChild(option);
+            });
+        } catch (err) {
+            console.error("Error al cargar:", err);
+            selectTipo.innerHTML = '<option value="">Error al cargar</option>';
+        }
+    }
+
+    // Ejecutar la carga al iniciar
+    document.addEventListener("DOMContentLoaded", cargarTipos);
+
+    // 2. Enviar los datos al presionar el botón
+    form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const payload = {
+        nombre: document.getElementById('nombre_cadena').value,
+        tipo: selectTipo.value
+    };
+
+    try {
+        const response = await fetch(`${URL_BASE}/agregar-cadena`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Si todo salió bien (Status 200)
+            alert("✅ " + result.message);
+            form.reset();
+        } else {
+            // Si el servidor envió un error (Status 400 o 500)
+            // Aquí se mostrará el mensaje explicativo: "No se puede guardar: La cadena..."
+            alert("⚠️ Atención: " + result.message);
+        }
+    } catch (err) {
+        alert("❌ Error de conexión: No se pudo contactar con el servidor.");
+    }
+});
+</script>
+</body>
+</html>

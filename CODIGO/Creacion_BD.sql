@@ -25,7 +25,6 @@ CREATE TABLE Zona
 (
 	ID tinyint identity(1,1),
 	Nombre varchar(25),
-	ID_CO tinyint,
 	Constraint PK_Zona Primary Key(ID),
 );
 
@@ -37,7 +36,6 @@ CREATE TABLE Subzona
 	Constraint PK_Subzona Primary Key(ID),
 	Constraint FK_Subzona_Zona Foreign key (ID_Zona) References Zona(ID)
 );
-
 
 CREATE TABLE Usuario
 (
@@ -69,7 +67,7 @@ CREATE TABLE Sucursal
 	ID_Subzona tinyint,
 	ID_Cadena tinyint,
 	Constraint PK_Sucursal Primary Key(ID),
-	Constraint FK_Sucursal_Cadena Foreign Key (ID_Cadena) References Cadena(ID),
+	Constraint FK_Sucursal_Cadena Foreign Key (ID_Cadena) References Cadena(ID) ON DELETE CASCADE,
 	Constraint FK_Sucursal_Subzona Foreign Key (ID_Subzona) References Subzona(ID),
 	Constraint CHK_Sucursal_Direccion CHECK (Altura > 0)
 );

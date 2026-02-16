@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Carga de Puntos de Venta</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="style/formulario.css">
+</head>
+<body>
+
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<main class="contenido">
+    <h1>Carga de <span>Sucursales</span></h1>
+    <form class="formulario" id="form-sucursal">
+        <div class="fila">
+            <select id="select-cadena" required>
+                <option value="" disabled selected>Cargando cadenas...</option>
+            </select>
+            <select id="select-subzona" required>
+                <option value="" disabled selected>Cargando zonas...</option>
+            </select>
+        </div>
+
+        <div class="fila">
+            <input type="text" id="calle" placeholder="Calle/Dirección" required>
+            <input type="number" id="altura" placeholder="Altura" required min="1">
+        </div>
+
+        <div class="fila">
+            <input type="text" id="localidad" placeholder="Localidad/Ciudad" required>
+        </div>
+
+        <button type="submit">Guardar Sucursal</button>
+    </form>
+</main>
+
+<script>
+    const URL_BASE = 'http://localhost:3000/api';
+    const form = document.getElementById('form-sucursal');
+
+    // Cargar Selects al iniciar
+    document.addEventListener("DOMContentLoaded", async () => {
+        try {
+            // Cargar Cadenas
+            const resCadenas = await fetch(`${URL_BASE}/cadenas`);
+            const cadenas = await resCadenas.json();
+            const selectCadena = document.getElementById('select-cadena');
+            selectCadena.innerHTML = '<option value="" disabled selected>Seleccione Cadena</option>';
+            cadenas.forEach(c => selectCadena.innerHTML += `<option value="${c.ID}">${c.Nombre}</option>`);
+
+            // Cargar Subzonas
+            const resSub = await fetch(`${URL_BASE}/subzonas`);
+            const subzonas = await resSub.json();
+            const selectSub = document.getElementById('select-subzona');
+            selectSub.innerHTML = '<option value="" disabled selected>Seleccione Subzona/Provincia</option>';
+            subzonas.forEach(s => selectSub.innerHTML += `<option value="${s.ID}">${s.Nombre}</option>`);
+        } catch (err) {
+            alert("Error al cargar datos iniciales");
+        }
+    });
+
+    // Enviar Formulario
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            calle: document.getElementById('calle').value,
+            altura: document.getElementById('altura').value,
+            localidad: document.getElementById('localidad').value,
+            id_subzona: document.getElementById('select-subzona').value,
+            id_cadena: document.getElementById('select-cadena').value
+        };
+
+        const response = await fetch(`${URL_BASE}/agregar-sucursal`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert("✅ " + result.message);
+            form.reset();
+        } else {
+            alert("⚠️ " + result.message);
+        }
+    });
+</script>
+
+</body>
+</html>

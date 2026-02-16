@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Carga de Puntos de Venta</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="style/formulario.css">
+</head>
+<body>
+
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<main class="contenido">
+    <h1>Eliminar <span>Sucursal</span></h1>
+    <p class="subtitulo">Filtre para encontrar la sucursal a eliminar</p>
+
+    <div class="formulario">
+        <div class="fila">
+            <select id="select-cadena">
+                <option value="" disabled selected>1. Seleccione Cadena</option>
+            </select>
+        </div>
+
+        <div class="fila">
+            <select id="select-subzona" disabled>
+                <option value="" disabled selected>2. Seleccione Subzona</option>
+            </select>
+        </div>
+
+        <div class="fila">
+            <select id="select-sucursal" disabled>
+                <option value="" disabled selected>3. Seleccione la Sucursal</option>
+            </select>
+        </div>
+
+        <button id="btn-eliminar" disabled style="background-color: #d9534f;">Eliminar Sucursal</button>
+    </div>
+</main>
+
+<script>
+    const URL_BASE = 'http://localhost:3000/api';
+    const selCadena = document.getElementById('select-cadena');
+    const selSubzona = document.getElementById('select-subzona');
+    const selSucursal = document.getElementById('select-sucursal');
+    const btnEliminar = document.getElementById('btn-eliminar');
+
+    // Inicialización: Cargar Cadenas
+    document.addEventListener("DOMContentLoaded", async () => {
+        const res = await fetch(`${URL_BASE}/cadenas`);
+        const data = await res.json();
+        data.forEach(c => selCadena.innerHTML += `<option value="${c.ID}">${c.Nombre}</option>`);
+    });
+
+    // Evento 1: Al elegir Cadena, cargar Subzonas y habilitar
+    selCadena.addEventListener('change', async () => {
+        const res = await fetch(`${URL_BASE}/subzonas`);
+        const data = await res.json();
+        selSubzona.innerHTML = '<option value="" disabled selected>2. Seleccione Subzona</option>';
+        data.forEach(s => selSubzona.innerHTML += `<option value="${s.ID}">${s.Nombre}</option>`);
+        selSubzona.disabled = false;
+        
+        // Resetear siguientes pasos
+        selSucursal.disabled = true;
+        btnEliminar.disabled = true;
+    });
+
+    // Evento 2: Al elegir Subzona, buscar sucursales filtradas
+    selSubzona.addEventListener('change', async () => {
+        const res = await fetch(`${URL_BASE}/buscar-sucursales?id_cadena=${selCadena.value}&id_subzona=${selSubzona.value}`);
+        const data = await res.json();
+        
+        selSucursal.innerHTML = '<option value="" disabled selected>3. Seleccione la Sucursal</option>';
+        if(data.length === 0) {
+            selSucursal.innerHTML = '<option value="" disabled>No hay sucursales en esta zona</option>';
+        } else {
+            data.forEach(s => {
+                // Combinamos Calle + Altura + Localidad como solicitaste
+                selSucursal.innerHTML += `<option value="${s.ID}">${s.Calle} ${s.Altura}, ${s.Localidad}</option>`;
+            });
+            selSucursal.disabled = false;
+        }
+        btnEliminar.disabled = true;
+    });
+
+    // Evento 3: Al elegir Sucursal, habilitar botón
+    selSucursal.addEventListener('change', () => {
+        btnEliminar.disabled = false;
+    });
+
+    // Acción de Eliminar
+    btnEliminar.addEventListener('click', async () => {
+        if (!confirm("¿Está seguro de que desea eliminar esta sucursal?")) return;
+
+        const id = selSucursal.value;
+        const res = await fetch(`${URL_BASE}/eliminar-sucursal/${id}`, { method: 'DELETE' });
+        const result = await res.json();
+
+        if (result.success) {
+            alert("✅ " + result.message);
+            location.reload(); // Recargar para limpiar filtros
+        } else {
+            alert("❌ " + result.message);
+        }
+    });
+</script>
+
+</body>
+</html>
