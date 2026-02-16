@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Eliminar Producto</title>
+    <link rel="stylesheet" href="style/formulario.css">
+</head>
+<body>
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="agregar_producto.html" class="btn-salir" style="background: #555;">Ir a Agregar</a>
+</header>
+
+<main class="contenido">
+    <h1>Eliminar <span>Producto</span></h1>
+    <div class="formulario">
+        <input type="text" id="buscador-prod" placeholder="Buscar por descripción o SKU...">
+        <div id="resultados" style="margin-top: 20px; background: #fff; border-radius: 8px;"></div>
+    </div>
+</main>
+
+<script>
+    const buscador = document.getElementById('buscador-prod');
+    const contenedor = document.getElementById('resultados');
+
+    buscador.addEventListener('input', async () => {
+        const q = buscador.value;
+        if (q.length < 2) { contenedor.innerHTML = ''; return; }
+
+        const res = await fetch(`http://localhost:3000/api/buscar-productos?q=${q}`);
+        const productos = await res.json();
+
+        contenedor.innerHTML = productos.map(p => `
+            <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; color: #333;">
+                <span><strong>${p.Descripcion}</strong> (SKU: ${p.SKU}) - <small>${p.Cliente}</small></span>
+                <button onclick="eliminar(${p.ID})" style="background:#dc3545; color:white; border:none; padding:5px; cursor:pointer;">Eliminar</button>
+            </div>
+        `).join('');
+    });
+
+    async function eliminar(id) {
+        if(!confirm("¿Eliminar producto?")) return;
+        await fetch(`http://localhost:3000/api/eliminar-producto/${id}`, { method: 'DELETE' });
+        buscador.dispatchEvent(new Event('input'));
+    }
+</script>
+</body>
+</html>

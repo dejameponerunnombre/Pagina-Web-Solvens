@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Eliminar Categoría</title>
+    <link rel="stylesheet" href="style/formulario.css">
+</head>
+<body>
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="agregar_categoria.html" class="btn-salir" style="background: #555;">Ir a Agregar</a>
+</header>
+
+<main class="contenido">
+    <h1>Eliminar <span>Categoría</span></h1>
+    <p class="subtitulo">Busque la categoría que desea quitar del sistema</p>
+
+    <div class="formulario">
+        <div class="fila">
+            <input type="text" id="buscador-cat" placeholder="Escriba para buscar (ej: Lácteos)...">
+        </div>
+        
+        <div id="resultados-busqueda" style="margin-top: 20px; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #ddd;">
+            </div>
+    </div>
+</main>
+
+<script>
+    const buscador = document.getElementById('buscador-cat');
+    const contenedor = document.getElementById('resultados-busqueda');
+
+    buscador.addEventListener('input', async () => {
+        const texto = buscador.value.trim();
+        
+        if (texto.length < 1) {
+            contenedor.innerHTML = '';
+            return;
+        }
+
+        try {
+            const res = await fetch(`http://localhost:3000/api/buscar-categorias?q=${texto}`);
+            const categorias = await res.json();
+
+            contenedor.innerHTML = '';
+            if (categorias.length === 0) {
+                contenedor.innerHTML = '<p style="padding: 15px; color: #999;">No se encontraron coincidencias.</p>';
+                return;
+            }
+
+            categorias.forEach(c => {
+                const item = document.createElement('div');
+                item.style = "display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; color: #333;";
+                item.innerHTML = `
+                    <span>${c.Categoria}</span>
+                    <button onclick="confirmarEliminar(${c.ID}, '${c.Categoria}')" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+                        Eliminar
+                    </button>
+                `;
+                contenedor.appendChild(item);
+            });
+        } catch (err) { console.error("Error buscando:", err); }
+    });
+
+    async function confirmarEliminar(id, nombre) {
+        if (!confirm(`¿Estás seguro de que quieres eliminar la categoría "${nombre}"? Se eliminarán también los productos dentro de ella`)) return;
+
+        try {
+            const res = await fetch(`http://localhost:3000/api/eliminar-categoria/${id}`, { method: 'DELETE' });
+            const result = await res.json();
+            alert(result.message);
+            buscador.value = ''; // Limpiar buscador
+            contenedor.innerHTML = ''; // Limpiar resultados
+        } catch (err) { alert("Error al eliminar."); }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Agregar Producto</title>
+    <link rel="stylesheet" href="style/formulario.css">
+</head>
+<body>
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="eliminar_producto.html" class="btn-salir" style="background: #555;">Ir a Eliminar</a>
+</header>
+
+<main class="contenido">
+    <h1>Nuevo <span>Producto</span></h1>
+    <form class="formulario" id="form-producto">
+        <div class="fila">
+            <select id="select-cliente" required><option value="">Cargando Clientes...</option></select>
+            <select id="select-categoria" required><option value="">Cargando Categorías...</option></select>
+        </div>
+        <div class="fila">
+            <input type="text" id="descripcion" placeholder="Descripción del Producto" required>
+            <input type="text" id="sku" placeholder="SKU / Código" required>
+        </div>
+        <button type="submit">Guardar Producto</button>
+    </form>
+</main>
+
+<script>
+    const URL_BASE = 'http://localhost:3000/api';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Cargar Clientes (Asumimos que tipo 2 es Cliente en tu BD)
+        const resCli = await fetch(`${URL_BASE}/usuarios?tipo=2`); 
+        const clientes = await resCli.json();
+        document.getElementById('select-cliente').innerHTML = '<option value="" disabled selected>Seleccione Cliente</option>' + 
+            clientes.map(c => `<option value="${c.ID}">${c.Nombre}</option>`).join('');
+
+        // Cargar Categorías
+        const resCat = await fetch(`${URL_BASE}/categorias`);
+        const categorias = await resCat.json();
+        document.getElementById('select-categoria').innerHTML = '<option value="" disabled selected>Seleccione Categoría</option>' + 
+            categorias.map(c => `<option value="${c.ID}">${c.Categoria}</option>`).join('');
+    });
+
+    document.getElementById('form-producto').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            id_cliente: document.getElementById('select-cliente').value,
+            id_categoria: document.getElementById('select-categoria').value,
+            descripcion: document.getElementById('descripcion').value,
+            sku: document.getElementById('sku').value
+        };
+
+        const res = await fetch(`${URL_BASE}/agregar-producto`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        alert(result.message);
+        if(res.ok) e.target.reset();
+    });
+</script>
+</body>
+</html>

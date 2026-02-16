@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Agregar Categoría</title>
+    <link rel="stylesheet" href="style/formulario.css">
+</head>
+<body>
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="eliminar_categoria.html" class="btn-salir" style="background: #555;">Ir a Eliminar</a>
+</header>
+
+<main class="contenido">
+    <h1>Nueva <span>Categoría</span></h1>
+    <form class="formulario" id="form-agregar">
+        <div class="fila">
+            <input type="text" id="nombre-cat" placeholder="Nombre de la Categoría" required>
+        </div>
+        <button type="submit">Guardar Categoría</button>
+    </form>
+</main>
+
+<script>
+    const form = document.getElementById('form-agregar');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const categoria = document.getElementById('nombre-cat').value;
+        try {
+            const res = await fetch('http://localhost:3000/api/agregar-categoria', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ categoria })
+            });
+            const result = await res.json();
+            alert(result.message);
+            if (res.ok) form.reset();
+        } catch (err) { alert("Error al conectar."); }
+    });
+</script>
+</body>
+</html>

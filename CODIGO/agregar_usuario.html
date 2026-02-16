@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo Solvens - Registro de Usuarios</title>
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="style/formulario.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<main class="contenido">
+    <h1>Registro de <span>Usuarios</span></h1>
+    <p class="subtitulo">Complete los datos del nuevo integrante del sistema</p>
+
+    <form class="formulario" id="form-usuario">
+        <div class="fila">
+            <input type="text" id="nombre" placeholder="Nombre Completo" required minlength="3">
+            <select id="tipo-usuario" required>
+                <option value="" disabled selected>Cargando roles...</option>
+            </select>
+        </div>
+
+        <div class="fila">
+            <input type="email" id="mail" placeholder="Correo Electrónico" required>
+        </div>
+
+        <div class="fila">
+            <input type="text" id="usuario" placeholder="Nombre de Usuario" required minlength="4">
+            <input type="password" id="clave" placeholder="Contraseña" required minlength="4">
+        </div>
+
+        <div id="seccion-abastece" style="display: none; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 20px;">
+            <h3>Asignar Sucursales que Abastece</h3>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">
+                Filtre por cadena y seleccione los puntos de venta.
+            </p>
+            
+            <div class="fila">
+                <select id="filtro-cadena-abastece">
+                    <option value="" disabled selected>Seleccione una Cadena...</option>
+                </select>
+            </div>
+
+            <div id="lista-sucursales-check" style="max-height: 200px; overflow-y: auto; background: #fff; padding: 10px; border: 1px solid #ddd; margin-top: 10px;">
+                <p style="color: #999; text-align: center;">Seleccione una cadena para ver sucursales</p>
+            </div>
+            
+            <p id="contador-seleccion" style="margin-top: 10px; font-weight: bold; color: #0056b3;">
+                Sucursales seleccionadas: 0
+            </p>
+        </div>
+
+        <button type="submit" style="margin-top: 20px;">Registrar Usuario</button>
+    </form>
+</main>
+
+<script>
+    const URL_BASE = 'http://localhost:3000/api';
+    const form = document.getElementById('form-usuario');
+    const selectTipo = document.getElementById('tipo-usuario');
+    const seccionAbastece = document.getElementById('seccion-abastece');
+    const filtroCadena = document.getElementById('filtro-cadena-abastece');
+    const listaCheck = document.getElementById('lista-sucursales-check');
+    const contadorText = document.getElementById('contador-seleccion');
+
+    // Set para mantener IDs seleccionados de diferentes cadenas
+    let sucursalesSeleccionadas = new Set();
+
+    // 1. Cargar Roles al iniciar
+    document.addEventListener("DOMContentLoaded", async () => {
+        try {
+            const res = await fetch(`${URL_BASE}/tipos-usuario`);
+            const data = await res.json();
+            selectTipo.innerHTML = '<option value="" disabled selected>Seleccione un Rol</option>';
+            data.forEach(t => {
+                selectTipo.innerHTML += `<option value="${t.ID}">${t.Tipo}</option>`;
+            });
+        } catch (err) {
+            console.error("Error al cargar roles");
+        }
+    });
+
+    // 2. Mostrar/Ocultar sección de sucursales según el rol
+    selectTipo.addEventListener('change', async () => {
+        const rolSeleccionado = selectTipo.options[selectTipo.selectedIndex].text.toLowerCase();
+        
+        if (rolSeleccionado === "cliente") {
+            seccionAbastece.style.display = 'block';
+            // Cargar cadenas si el select está vacío
+            if (filtroCadena.options.length <= 1) {
+                const res = await fetch(`${URL_BASE}/cadenas`);
+                const cadenas = await res.json();
+                filtroCadena.innerHTML = '<option value="" disabled selected>Filtrar por Cadena...</option>';
+                cadenas.forEach(c => {
+                    filtroCadena.innerHTML += `<option value="${c.ID}">${c.Nombre}</option>`;
+                });
+            }
+        } else {
+            seccionAbastece.style.display = 'none';
+            sucursalesSeleccionadas.clear();
+            actualizarContador();
+        }
+    });
+
+    // 3. Cargar sucursales por cadena (checkboxes)
+    filtroCadena.addEventListener('change', async () => {
+        // Es vital que filtroCadena.value tenga el ID numérico de la cadena
+        const idCadena = filtroCadena.value; 
+        
+        listaCheck.innerHTML = '<p>Buscando sucursales...</p>';
+        
+        try {
+            // Llamada a la API (ahora el backend solo pedirá id_cadena si no mandas subzona)
+            const res = await fetch(`${URL_BASE}/buscar-sucursales?id_cadena=${idCadena}`);
+            const sucursales = await res.json();
+            
+            listaCheck.innerHTML = '';
+            
+            if (sucursales.length === 0) {
+                listaCheck.innerHTML = '<p style="color: gray; padding: 10px;">Esta cadena no tiene sucursales registradas.</p>';
+                return;
+            }
+
+            sucursales.forEach(s => {
+            const estaSeleccionada = sucursalesSeleccionadas.has(s.ID.toString()) ? 'checked' : '';
+            listaCheck.innerHTML += `
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <input type="checkbox" value="${s.ID}" ${estaSeleccionada} onchange="gestionarSeleccion(this)" style="width: auto; margin-right: 10px;">
+                    <label style="color: #333; font-size: 0.9rem; cursor: pointer;">
+                        ${s.Calle} ${s.Altura}, ${s.Localidad}
+                    </label>
+                </div>`;
+        });
+        } catch (err) {
+            listaCheck.innerHTML = '<p style="color: red;">Error al conectar con el servidor.</p>';
+        }
+    });
+
+    // 4. Guardar selección en el Set
+    function gestionarSeleccion(checkbox) {
+        if (checkbox.checked) {
+            sucursalesSeleccionadas.add(checkbox.value);
+        } else {
+            sucursalesSeleccionadas.delete(checkbox.value);
+        }
+        actualizarContador();
+    }
+
+    function actualizarContador() {
+        contadorText.textContent = `Sucursales seleccionadas: ${sucursalesSeleccionadas.size}`;
+    }
+
+    // 5. Enviar formulario
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const payload = {
+            nombre: document.getElementById('nombre').value,
+            id_tipo: selectTipo.value,
+            mail: document.getElementById('mail').value,
+            usuario: document.getElementById('usuario').value,
+            clave: document.getElementById('clave').value,
+            sucursalesIds: Array.from(sucursalesSeleccionadas) // Convertimos el Set a Array
+        };
+
+        try {
+            const response = await fetch(`${URL_BASE}/crear-usuario`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert("✅ " + result.message);
+                form.reset();
+                sucursalesSeleccionadas.clear();
+                actualizarContador();
+                seccionAbastece.style.display = 'none';
+            } else {
+                alert("⚠️ " + result.message);
+            }
+        } catch (err) {
+            alert("❌ Error de comunicación con el servidor.");
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -33,11 +33,15 @@ app.post('/login', async (req, res, next) => {
 });
 
 // --- RUTAS DE CADENAS ---
-app.get('/api/tipos-cadena', async (req, res, next) => {
+app.get('/api/tipos-cadena', async (req, res) => {
     try {
-        const result = await ejecutarQuery("SELECT ID, Tipo FROM Tipo_Cadena");
+        const pool = await getConnection();
+        // Agregamos ID para que el select del frontend funcione
+        const result = await pool.request().query("SELECT ID, Tipo FROM Tipo_Cadena");
         res.json(result.recordset);
-    } catch (error) { next(error); }
+    } catch (error) {
+        res.status(500).json({ error: "Error al consultar tipos" });
+    }
 });
 
 app.get('/api/cadenas', async (req, res, next) => {
@@ -90,16 +94,25 @@ app.get('/api/subzonas', async (req, res, next) => {
     } catch (error) { next(error); }
 });
 
-app.get('/api/buscar-sucursales', async (req, res, next) => {
+app.get('/api/buscar-sucursales', async (req, res) => {
     const { id_cadena, id_subzona } = req.query;
     try {
-        const query = "SELECT ID, Calle, Altura, Localidad FROM Sucursal WHERE ID_Cadena = @id_cadena AND ID_Subzona = @id_subzona";
-        const result = await ejecutarQuery(query, [
-            { name: 'id_cadena', type: mssql.TinyInt, value: id_cadena },
-            { name: 'id_subzona', type: mssql.TinyInt, value: id_subzona }
-        ]);
+        const pool = await getConnection();
+        
+        // Hacemos que la subzona sea opcional para que funcione al crear usuarios
+        let query = "SELECT ID, Calle, Altura, Localidad FROM Sucursal WHERE ID_Cadena = @id_cadena";
+        const request = pool.request().input('id_cadena', mssql.TinyInt, id_cadena);
+
+        if (id_subzona && id_subzona !== 'undefined') {
+            query += " AND ID_Subzona = @id_subzona";
+            request.input('id_subzona', mssql.TinyInt, id_subzona);
+        }
+
+        const result = await request.query(query);
         res.json(result.recordset);
-    } catch (error) { next(error); }
+    } catch (error) {
+        res.status(500).json({ error: "Error al buscar sucursales" });
+    }
 });
 
 app.post('/api/agregar-sucursal', async (req, res, next) => {
@@ -141,5 +154,184 @@ app.use((err, req, res, next) => {
     res.status(500).json({ success: false, message: "Error interno del servidor", error: err.message });
 });
 
+app.get('/api/tipos-usuario', async (req, res, next) => {
+    try {
+        const result = await ejecutarQuery("SELECT ID, Tipo FROM Tipo_Usuario");
+        res.json(result.recordset);
+    } catch (error) { next(error); }
+});
+
+app.post('/api/crear-usuario', async (req, res, next) => {
+    // Añadimos sucursalesIds al body
+    const { nombre, id_tipo, mail, usuario, clave, sucursalesIds } = req.body; 
+    
+    try {
+        const pool = await getConnection();
+        const transaction = new mssql.Transaction(pool);
+        await transaction.begin();
+
+        try {
+            // 1. Insertar el Usuario y obtener su ID
+            const userResult = await transaction.request()
+                .input('nom', mssql.VarChar, nombre)
+                .input('tipo', mssql.TinyInt, id_tipo)
+                .input('mail', mssql.VarChar, mail)
+                .input('user', mssql.VarChar, usuario)
+                .input('pass', mssql.VarChar, clave)
+                .query(`INSERT INTO Usuario (Nombre, ID_Tipo_Usuario, Mail, Usuario, Clave) 
+                        OUTPUT INSERTED.ID
+                        VALUES (@nom, @tipo, @mail, @user, @pass)`);
+
+            const newUserId = userResult.recordset[0].ID;
+
+            // 2. Si es cliente y tiene sucursales, insertar en Abastece
+            if (sucursalesIds && sucursalesIds.length > 0) {
+                for (const sucursalId of sucursalesIds) {
+                    await transaction.request()
+                        .input('uId', mssql.SmallInt, newUserId)
+                        .input('sId', mssql.SmallInt, sucursalId)
+                        .query("INSERT INTO Abastece (ID_Cliente, ID_Sucursal) VALUES (@uId, @sId)");
+                }
+            }
+
+            await transaction.commit();
+            res.json({ success: true, message: "Usuario y asignaciones creados con éxito." });
+
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
+    } catch (error) { next(error); }
+});
+
+app.get('/api/categorias', async (req, res, next) => {
+    try {
+        const result = await ejecutarQuery("SELECT ID, Categoria FROM Categoria");
+        res.json(result.recordset);
+    } catch (error) { next(error); }
+});
+
+app.get('/api/buscar-categorias', async (req, res, next) => {
+    const { q } = req.query; // El término de búsqueda
+    try {
+        const query = "SELECT ID, Categoria FROM Categoria WHERE Categoria LIKE @termino";
+        const result = await ejecutarQuery(query, [
+            { name: 'termino', type: mssql.VarChar, value: `%${q}%` }
+        ]);
+        res.json(result.recordset);
+    } catch (error) { next(error); }
+});
+
+// Agregar una nueva categoría
+app.post('/api/agregar-categoria', async (req, res, next) => {
+    const { categoria } = req.body;
+    try {
+        // Validamos si ya existe
+        const check = await ejecutarQuery("SELECT 1 FROM Categoria WHERE Categoria = @cat", [
+            { name: 'cat', type: mssql.VarChar, value: categoria }
+        ]);
+
+        if (check.recordset.length > 0) {
+            return res.status(400).json({ success: false, message: "La categoría ya existe." });
+        }
+
+        await ejecutarQuery("INSERT INTO Categoria (Categoria) VALUES (@cat)", [
+            { name: 'cat', type: mssql.VarChar, value: categoria }
+        ]);
+        
+        res.json({ success: true, message: "Categoría creada con éxito." });
+    } catch (error) { next(error); }
+});
+
+// Eliminar categoría
+app.delete('/api/eliminar-categoria/:id', async (req, res, next) => {
+    try {
+        await ejecutarQuery("DELETE FROM Categoria WHERE ID = @id", [
+            { name: 'id', type: mssql.TinyInt, value: req.params.id }
+        ]);
+        res.json({ success: true, message: "Categoría eliminada." });
+    } catch (error) { next(error); }
+});
+
+
+// --- RUTAS DE PRODUCTOS ---
+
+// A. Obtener usuarios por tipo (Necesario para el selector de Clientes)
+app.get('/api/usuarios', async (req, res, next) => {
+    const { tipo } = req.query;
+    try {
+        const query = "SELECT ID, Nombre FROM Usuario WHERE ID_Tipo_Usuario = @tipo";
+        const result = await ejecutarQuery(query, [
+            { name: 'tipo', type: mssql.TinyInt, value: tipo }
+        ]);
+        res.json(result.recordset);
+    } catch (error) { next(error); }
+});
+
+// B. Agregar Producto
+app.post('/api/agregar-producto', async (req, res, next) => {
+    const { id_cliente, descripcion, id_categoria, sku } = req.body;
+    try {
+        const query = `INSERT INTO Producto (ID_Cliente, Descripcion, ID_Categoria, SKU) 
+                       VALUES (@uId, @desc, @catId, @sku)`;
+        await ejecutarQuery(query, [
+            { name: 'uId', type: mssql.SmallInt, value: id_cliente },
+            { name: 'desc', type: mssql.VarChar, value: descripcion },
+            { name: 'catId', type: mssql.TinyInt, value: id_categoria },
+            { name: 'sku', type: mssql.VarChar, value: sku }
+        ]);
+        res.json({ success: true, message: "Producto registrado con éxito." });
+    } catch (error) { next(error); }
+});
+
+// C. Buscar y Eliminar Productos
+app.get('/api/buscar-productos', async (req, res, next) => {
+    const { q } = req.query;
+    try {
+        const query = `
+            SELECT p.ID, p.Descripcion, p.SKU, u.Nombre as Cliente 
+            FROM Producto p
+            JOIN Usuario u ON p.ID_Cliente = u.ID
+            WHERE p.Descripcion LIKE @termino OR p.SKU LIKE @termino`;
+        const result = await ejecutarQuery(query, [
+            { name: 'termino', type: mssql.VarChar, value: `%${q}%` }
+        ]);
+        res.json(result.recordset);
+    } catch (error) { next(error); }
+});
+
+app.delete('/api/eliminar-producto/:id', async (req, res, next) => {
+    try {
+        await ejecutarQuery("DELETE FROM Producto WHERE ID = @id", [
+            { name: 'id', type: mssql.SmallInt, value: req.params.id }
+        ]);
+        res.json({ success: true, message: "Producto eliminado correctamente." });
+    } catch (error) { next(error); }
+});
+
+
+
+// --- RUTA DE BUSQUEDA DE USUARIOS (Soluciona error en image_b3e7e3.png) ---
+app.get('/api/buscar-usuarios-eliminar', async (req, res, next) => {
+    const { q } = req.query;
+    try {
+        const query = `SELECT u.ID, u.Nombre, u.Usuario, t.Tipo 
+                       FROM Usuario u JOIN Tipo_Usuario t ON u.ID_Tipo_Usuario = t.ID
+                       WHERE u.Nombre LIKE @q OR u.Usuario LIKE @q`;
+        const result = await ejecutarQuery(query, [{ name: 'q', type: mssql.VarChar, value: `%${q}%` }]);
+        res.json(result.recordset);
+    } catch (error) { next(error); }
+});
+
+
+// --- ELIMINAR USUARIO ---
+app.delete('/api/eliminar-usuario/:id', async (req, res, next) => {
+    try {
+        await ejecutarQuery("DELETE FROM Usuario WHERE ID = @id", [
+            { name: 'id', type: mssql.SmallInt, value: req.params.id }
+        ]);
+        res.json({ success: true, message: "Usuario eliminado con éxito." });
+    } catch (error) { next(error); }
+});
 const PORT = 3000;
 app.listen(PORT, () => console.log(`🚀 Servidor listo en http://localhost:${PORT}`));

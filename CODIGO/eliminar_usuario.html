@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo Solvens - Eliminar Usuario</title>
+    <link rel="stylesheet" href="style/formulario.css">
+</head>
+<body>
+<header class="header">
+    <img src="../IMG/logo.png" alt="Grupo Solvens" class="logo-nav">
+    <a href="agregar_usuario.html" class="btn-salir" style="background: #555;">Volver a Registro</a>
+</header>
+
+<main class="contenido">
+    <h1>Eliminar <span>Usuario</span></h1>
+    <p class="subtitulo">Busque al usuario que desea dar de baja del sistema</p>
+
+    <div class="formulario">
+        <input type="text" id="buscador-user" placeholder="Escriba nombre o nombre de usuario...">
+        
+        <div id="lista-usuarios" style="margin-top: 20px; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #ddd;">
+            </div>
+    </div>
+</main>
+
+<script>
+    const buscador = document.getElementById('buscador-user');
+    const contenedor = document.getElementById('lista-usuarios');
+
+    buscador.addEventListener('input', async () => {
+        const q = buscador.value.trim();
+        if (q.length < 2) { contenedor.innerHTML = ''; return; }
+
+        try {
+            // Reutilizamos la lógica de búsqueda que aplicamos en productos/categorías
+            const res = await fetch(`http://localhost:3000/api/buscar-usuarios-eliminar?q=${q}`);
+            const usuarios = await res.json();
+
+            contenedor.innerHTML = usuarios.map(u => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; color: #333;">
+                    <div>
+                        <strong style="display: block;">${u.Nombre}</strong>
+                        <small style="color: #777;">Usuario: ${u.Usuario} | Rol: ${u.Tipo}</small>
+                    </div>
+                    <button onclick="eliminarUsuario(${u.ID}, '${u.Nombre}')" 
+                            style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
+                        Eliminar
+                    </button>
+                </div>
+            `).join('');
+            
+            if(usuarios.length === 0) contenedor.innerHTML = '<p style="padding: 15px; color: #999;">No hay coincidencias.</p>';
+        } catch (err) { console.error(err); }
+    });
+
+    async function eliminarUsuario(id, nombre) {
+        if (!confirm(`¿Seguro que deseas eliminar a "${nombre}"?\nSe borrarán sus productos y asignaciones permanentemente.`)) return;
+
+        try {
+            const res = await fetch(`http://localhost:3000/api/eliminar-usuario/${id}`, { method: 'DELETE' });
+            const result = await res.json();
+            
+            if (res.ok) {
+                alert("✅ " + result.message);
+                buscador.value = '';
+                contenedor.innerHTML = '';
+            }
+        } catch (err) { alert("Error al eliminar."); }
+    }
+</script>
+</body>
+</html>
