@@ -1,5 +1,9 @@
 import express from 'express';
 import cors from 'cors';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import sharp from 'sharp';
 import { getConnection, mssql } from './conexion.mjs';
 
 const app = express();
@@ -14,23 +18,6 @@ const ejecutarQuery = async (query, params = []) => {
     return await request.query(query);
 };
 
-// --- RUTAS DE LOGIN ---
-app.post('/login', async (req, res, next) => {
-    const { user, password } = req.body;
-    try {
-        const query = 'SELECT Usuario, Nombre, ID_Tipo_Usuario as tipo FROM Usuario WHERE Usuario = @usuario AND Clave = @clave';
-        const result = await ejecutarQuery(query, [
-            { name: 'usuario', type: mssql.VarChar, value: user },
-            { name: 'clave', type: mssql.VarChar, value: password }
-        ]);
-
-        if (result.recordset.length > 0) {
-            res.json({ success: true, tipo: result.recordset[0].tipo, nombre: result.recordset[0].Nombre });
-        } else {
-            res.status(401).json({ success: false, message: "Usuario o contraseña incorrectos" });
-        }
-    } catch (error) { next(error); }
-});
 
 // --- RUTAS DE CADENAS ---
 app.get('/api/tipos-cadena', async (req, res) => {
@@ -311,7 +298,7 @@ app.delete('/api/eliminar-producto/:id', async (req, res, next) => {
 
 
 
-// --- RUTA DE BUSQUEDA DE USUARIOS (Soluciona error en image_b3e7e3.png) ---
+// --- RUTA DE BUSQUEDA DE USUARIOS ---
 app.get('/api/buscar-usuarios-eliminar', async (req, res, next) => {
     const { q } = req.query;
     try {
@@ -332,6 +319,136 @@ app.delete('/api/eliminar-usuario/:id', async (req, res, next) => {
         ]);
         res.json({ success: true, message: "Usuario eliminado con éxito." });
     } catch (error) { next(error); }
+});
+
+// A. LOGIN: Ahora devuelve el ID para guardarlo en el navegador
+app.post('/login', async (req, res, next) => {
+    const { user, password } = req.body;
+    try {
+        const query = 'SELECT ID, Nombre, ID_Tipo_Usuario as tipo FROM Usuario WHERE Usuario = @usuario AND Clave = @clave';
+        const result = await ejecutarQuery(query, [
+            { name: 'usuario', type: mssql.VarChar, value: user },
+            { name: 'clave', type: mssql.VarChar, value: password }
+        ]);
+
+        if (result.recordset.length > 0) {
+            res.json({ 
+                success: true, 
+                id: result.recordset[0].ID, 
+                tipo: result.recordset[0].tipo, 
+                nombre: result.recordset[0].Nombre 
+            });
+        } else {
+            res.status(401).json({ success: false, message: "Usuario o contraseña incorrectos" });
+        }
+    } catch (error) { next(error); }
+});
+
+// B. SUCURSALES: Filtra por cliente usando la tabla Abastece
+app.get('/api/mis-sucursales', async (req, res, next) => {
+    const { id_cliente } = req.query;
+    try {
+        const query = `
+            SELECT s.ID, s.Calle, s.Altura, s.Localidad 
+            FROM Sucursal s
+            JOIN Abastece a ON s.ID = a.ID_Sucursal
+            WHERE a.ID_Cliente = @cli`;
+        const result = await ejecutarQuery(query, [{ name: 'cli', type: mssql.SmallInt, value: id_cliente }]);
+        res.json(result.recordset);
+    } catch (e) { next(e); }
+});
+
+// C. PRODUCTOS: Obtiene los productos del cliente seleccionado
+app.get('/api/productos-cliente', async (req, res, next) => {
+    const { id_cliente } = req.query;
+    try {
+        const query = "SELECT ID, Descripcion FROM Producto WHERE ID_Cliente = @cli";
+        const result = await ejecutarQuery(query, [{ name: 'cli', type: mssql.SmallInt, value: id_cliente }]);
+        res.json(result.recordset);
+    } catch (e) { next(e); }
+});
+
+// D. GUARDAR VISITA: Maneja la transacción completa
+// Ruta de carga en server.mjs
+const storage = multer.memoryStorage(); 
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 2 * 1024 * 1024 } // Límite de 2MB por archivo
+});
+
+app.post('/api/cargar-visita', upload.array('imagenes', 3), async (req, res, next) => {
+    // 1. Extraer datos (Importante: productos viene como STRING en FormData)
+    const { id_repo, id_cliente, id_sucursal, productos } = req.body;
+    
+    if (!productos) return res.status(400).json({ success: false, error: "No hay productos" });
+
+    const listaProd = JSON.parse(productos);
+    const pool = await getConnection();
+    const transaction = new mssql.Transaction(pool);
+
+    try {
+        await transaction.begin();
+
+        // A. INSERTAR VISITA
+        const vRes = await transaction.request()
+            .input('f', mssql.Date, new Date())
+            .input('r', mssql.SmallInt, id_repo)
+            .input('c', mssql.SmallInt, id_cliente)
+            .input('s', mssql.SmallInt, id_sucursal)
+            .query(`INSERT INTO Visita (Fecha, ID_Repo, ID_Cliente, ID_Sucursal) 
+                    OUTPUT INSERTED.ID VALUES (@f,@r,@c,@s)`);
+        
+        const vId = vRes.recordset[0].ID;
+
+        // B. INSERTAR EN TABLA CARGA (Aquí estaba el fallo)
+        for (const p of listaProd) {
+            await transaction.request()
+                .input('pre', mssql.Decimal(10,2), p.precio)
+                .input('pId', mssql.SmallInt, p.id_prod)
+                .input('vId', mssql.Int, vId)
+                .input('ofe', mssql.Bit, p.oferta ? 1 : 0)
+                .query(`INSERT INTO Carga (Precio, ID_Producto, ID_Visita, Estado, Oferta) 
+                        VALUES (@pre, @pId, @vId, 'Pendiente', @ofe)`);
+        }
+
+        // C. PROCESAR IMÁGENES CON SHARP (Solo si existen)
+        if (req.files && req.files.length > 0) {
+            const fechaHoy = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            
+            for (const f of req.files) {
+                const nroRandom = Math.floor(10000 + Math.random() * 90000);
+                const nuevoNombre = `${fechaHoy}_${vId}_${nroRandom}.jpg`;
+                const rutaDestino = path.join('IMG', nuevoNombre);
+
+                // Comprimir y guardar
+                await sharp(f.buffer)
+                    .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+                    .jpeg({ quality: 80 })
+                    .toFile(rutaDestino);
+
+                // Guardar en tabla Imagen
+                await transaction.request()
+                    .input('ruta', mssql.VarChar, nuevoNombre)
+                    .input('vId', mssql.Int, vId)
+                    .query("INSERT INTO Imagen (Ruta_Imagen, ID_Visita) VALUES (@ruta, @vId)");
+            }
+        }
+
+        await transaction.commit();
+        res.json({ success: true, message: "Visita y productos guardados" });
+
+    } catch (err) {
+        if (transaction) await transaction.rollback();
+        console.error("Error al guardar carga:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+// Agrega esta ruta específica para que el 404 desaparezca
+app.get('/api/clientes-activos', async (req, res, next) => {
+    try {
+        const result = await ejecutarQuery("SELECT ID, Nombre FROM Usuario WHERE ID_Tipo_Usuario = 2");
+        res.json(result.recordset);
+    } catch (e) { next(e); }
 });
 const PORT = 3000;
 app.listen(PORT, () => console.log(`🚀 Servidor listo en http://localhost:${PORT}`));

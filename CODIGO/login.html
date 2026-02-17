@@ -41,7 +41,6 @@
     <script>
     document.getElementById('loginform').addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const user = document.getElementById('user').value;
         const password = document.getElementById('password').value;
 
@@ -51,37 +50,22 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user, password })
             });
-
             const data = await response.json();
 
             if (data.success) {
-                
-                // OPCIONAL: Guardamos el nombre para mostrarlo en la siguiente página
+                // ESTA LÍNEA ES VITAL:
+                localStorage.setItem('id_usuario', data.id); 
                 localStorage.setItem('nombreUsuario', data.nombre);
-
-                const tipoUsuario = Number(data.tipo);
                 
-                switch (tipoUsuario) {
-                    case 1:
-                        window.location.href = 'inicioAdmin.html';
-                        break;
-                    case 2:
-                        window.location.href = 'inicioCliente.html';
-                        break;
-                    default:
-                        window.location.href = 'inicioRepositor.html';
-                        break;
-                }
-                // --------------------------------------
-
+                const tipo = Number(data.tipo);
+                if (tipo === 1) window.location.href = 'inicioAdmin.html';
+                else if (tipo === 2) window.location.href = 'inicioCliente.html';
+                else window.location.href = 'inicioRepositor.html';
             } else {
-                // Si las credenciales fallan (error 401 definido en server.mjs)
                 alert(data.message);
             }
-
         } catch (error) {
-            console.error('Error:', error);
-            alert('No se pudo conectar con el servidor.');
+            alert('Error de conexión');
         }
     });
 </script>

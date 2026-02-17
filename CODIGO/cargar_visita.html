@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carga de Visita - Solvens</title>
+    <link rel="stylesheet" href="style/formulario.css">
+    <style>
+        :root { --rojo: #ff0000; --gris-oscuro: #1a1a1a; }
+        body { background-color: #000; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; }
+        .contenedor { max-width: 800px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .logo { height: 40px; }
+        h1 span { color: var(--rojo); }
+        .seccion { background: var(--gris-oscuro); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        select, input[type="text"], input[type="number"] { 
+            width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; 
+        }
+        #buscarProducto { border-left: 4px solid var(--rojo); }
+        .prod-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px; border-bottom: 1px solid #333; 
+        }
+        .prod-controles { display: flex; gap: 10px; align-items: center; }
+        .precio-input { width: 100px !important; text-align: right; margin: 0 !important; }
+        .btn-registrar { 
+            width: 100%; padding: 15px; background: none; border: 2px solid var(--rojo); 
+            color: #fff; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px;
+        }
+        .btn-registrar:hover { background: var(--rojo); }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <header class="header">
+            <img src="../IMG/logo.png" alt="Solvens" class="logo">
+            <a href="inicioRepositor.html" style="color: #666; text-decoration: none;">Volver</a>
+        </header>
+
+        <h1>Carga de <span>Visita</span></h1>
+        <p style="color: #888;">Complete los datos de la sucursal y precios de productos.</p>
+
+        <form id="visitaForm">
+            <div class="seccion">
+                <select id="cliente" required>
+                    <option value="" disabled selected>Seleccione Cliente</option>
+                </select>
+                <select id="sucursal" required disabled>
+                    <option value="" disabled selected>Seleccione Sucursal</option>
+                </select>
+            </div>
+
+            <div class="seccion" id="seccionProductos" style="display:none;">
+                <h3>Productos</h3>
+                <input type="text" id="buscarProducto" placeholder="🔍 Buscar producto por nombre...">
+                <div id="listaProductos">
+                    </div>
+            </div>
+
+            <div class="seccion">
+                <h3>Evidencia Fotográfica (Máx 3)</h3>
+                <input type="file" id="fotos" accept="image/*" multiple>
+                <p style="font-size: 12px; color: #666;">Opcional: puede registrar la visita sin imágenes.</p>
+            </div>
+
+            <button type="submit" class="btn-registrar">Registrar Visita</button>
+        </form>
+    </div>
+
+    <script>
+    // --- VARIABLES DE ESTADO ---
+    let productosOriginales = []; // Cache de lo que viene de la DB
+    let datosIngresados = {};     // Memoria temporal: { id_prod: { precio: X, oferta: Y } }
+    
+    // --- ELEMENTOS DEL DOM ---
+    const clienteSel = document.getElementById('cliente');
+    const sucursalSel = document.getElementById('sucursal');
+    const buscarInput = document.getElementById('buscarProducto');
+    const prodContenedor = document.getElementById('listaProductos');
+    const seccionProd = document.getElementById('seccionProductos');
+    const inputFotos = document.getElementById('fotos');
+
+    // 1. CARGA INICIAL DE CLIENTES (Tipo 2)
+    fetch('http://localhost:3000/api/clientes-activos')
+        .then(r => r.json())
+        .then(data => {
+            data.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.ID;
+                opt.textContent = c.Nombre;
+                clienteSel.appendChild(opt);
+            });
+        })
+        .catch(err => console.error("Error al cargar clientes:", err));
+
+    // 2. EVENTO: CAMBIO DE CLIENTE
+    clienteSel.addEventListener('change', async () => {
+        const idCli = clienteSel.value;
+        datosIngresados = {}; // Limpiar memoria al cambiar de cliente
+        buscarInput.value = ''; // Limpiar buscador
+
+        // Cargar Sucursales asignadas al cliente (Tabla Abastece)
+        const resS = await fetch(`http://localhost:3000/api/mis-sucursales?id_cliente=${idCli}`);
+        const sucursales = await resS.json();
+        
+        sucursalSel.innerHTML = '<option value="" disabled selected>Seleccione Sucursal</option>';
+        sucursales.forEach(s => {
+            sucursalSel.innerHTML += `<option value="${s.ID}">${s.Calle} ${s.Altura}</option>`;
+        });
+        sucursalSel.disabled = false;
+
+        // Cargar Productos del cliente
+        const resP = await fetch(`http://localhost:3000/api/productos-cliente?id_cliente=${idCli}`);
+        productosOriginales = await resP.json();
+        seccionProd.style.display = 'block';
+        renderizar(productosOriginales);
+    });
+
+    // 3. FUNCIÓN DE RENDERIZADO (Dibuja la lista en pantalla)
+    function renderizar(lista) {
+        prodContenedor.innerHTML = '';
+        
+        if (lista.length === 0) {
+            prodContenedor.innerHTML = '<p style="color:#666; padding:10px;">No se encontraron productos.</p>';
+            return;
+        }
+
+        lista.forEach(p => {
+            // Recuperar lo que el usuario ya escribió si existe
+            const guardado = datosIngresados[p.ID] || { precio: '', oferta: false };
+            
+            const div = document.createElement('div');
+            div.className = 'prod-item';
+            div.innerHTML = `
+                <span>${p.Descripcion}</span>
+                <div class="prod-controles">
+                    <input type="number" step="0.01" class="precio-input" 
+                           placeholder="$ 0.00" value="${guardado.precio}" 
+                           oninput="guardarProgreso(${p.ID}, this.value, null)">
+                    <label style="cursor:pointer;">
+                        <input type="checkbox" ${guardado.oferta ? 'checked' : ''} 
+                               onchange="guardarProgreso(${p.ID}, null, this.checked)"> Oferta
+                    </label>
+                </div>
+            `;
+            prodContenedor.appendChild(div);
+        });
+    }
+
+    // 4. MEMORIA TEMPORAL (Evita perder datos al filtrar con el buscador)
+    window.guardarProgreso = (id, precio, oferta) => {
+        if (!datosIngresados[id]) {
+            datosIngresados[id] = { precio: '', oferta: false };
+        }
+        if (precio !== null) datosIngresados[id].precio = precio;
+        if (oferta !== null) datosIngresados[id].oferta = oferta;
+    };
+
+    // 5. LÓGICA DEL BUSCADOR (Filtro en tiempo real)
+    buscarInput.addEventListener('input', (e) => {
+        const busqueda = e.target.value.toLowerCase();
+        const filtrados = productosOriginales.filter(p => 
+            p.Descripcion.toLowerCase().includes(busqueda)
+        );
+        renderizar(filtrados);
+    });
+
+    // 6. ENVÍO DEL FORMULARIO Y VALIDACIONES
+    document.getElementById('visitaForm').addEventListener('submit', async (e) => {
+    // 1. Evitamos que la página se recargue inmediatamente
+    e.preventDefault();
+
+    // 2. VALIDACIÓN DEL PUNTO 2 (Límite de 3 fotos)
+    const archivos = inputFotos.files; // Accedemos a los archivos seleccionados
+    
+    if (archivos.length > 3) {
+        // Mostramos el mensaje de error
+        alert("❌ Error: No puedes subir más de 3 fotos. Has seleccionado " + archivos.length + ".");
+        
+        // IMPORTANTE: El 'return' detiene todo el proceso de envío
+        return; 
+    }
+
+    // 3. Validación de tamaño (2MB)
+    for (let i = 0; i < archivos.length; i++) {
+        if (archivos[i].size > 2 * 1024 * 1024) {
+            alert(`❌ La foto "${archivos[i].name}" supera el límite de 2MB.`);
+            return; // También detiene el proceso
+        }
+    }
+
+    // 4. Si pasó las validaciones anteriores, recién aquí preparamos los datos
+    const idRepo = localStorage.getItem('id_usuario');
+    if (!idRepo) {
+        alert("❌ Sesión expirada.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('id_repo', idRepo);
+    formData.append('id_cliente', clienteSel.value);
+    formData.append('id_sucursal', sucursalSel.value);
+
+    // Filtrar solo productos con precio
+    const productosParaEnviar = Object.keys(datosIngresados)
+        .filter(id => datosIngresados[id].precio !== '' && parseFloat(datosIngresados[id].precio) > 0)
+        .map(id => ({
+            id_prod: parseInt(id),
+            precio: parseFloat(datosIngresados[id].precio),
+            oferta: datosIngresados[id].oferta
+        }));
+
+    if (productosParaEnviar.length === 0) {
+        alert("❌ Debes cargar al menos un precio.");
+        return;
+    }
+
+    formData.append('productos', JSON.stringify(productosParaEnviar));
+
+    // Añadimos las fotos al FormData (sabemos que son 3 o menos por el check de arriba)
+    for (let i = 0; i < archivos.length; i++) {
+        formData.append('imagenes', archivos[i]);
+    }
+
+    // 5. Envío al servidor
+    try {
+        const res = await fetch('http://localhost:3000/api/cargar-visita', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            alert("✅ Registro exitoso");
+            window.location.href = 'inicioRepositor.html';
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch (err) {
+        alert("Error de conexión con el servidor");
+    }
+});
+inputFotos.addEventListener('change', function() {
+    if (this.files.length > 3) {
+        alert("Has seleccionado demasiadas fotos. Por favor, elige máximo 3.");
+        this.value = ""; // Esto limpia la selección automáticamente
+    }
+});
+</script>
+</body>
+</html>
