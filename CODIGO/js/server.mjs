@@ -450,5 +450,136 @@ app.get('/api/clientes-activos', async (req, res, next) => {
         res.json(result.recordset);
     } catch (e) { next(e); }
 });
+
+
+// TABLAS Y FILTROS
+
+
+// Listado filtros
+app.get('/api/zonas', async (req, res, next) => {
+    try {
+        const result = await ejecutarQuery("SELECT ID, Nombre FROM Zona ORDER BY Nombre");
+        res.json(result.recordset);
+    } catch (e) { next(e); }
+});
+
+// Listado filtros
+app.get('/api/sucursales-lista', async (req, res, next) => {
+    try {
+        const result = await ejecutarQuery(
+            "SELECT ID, Calle + ' ' + CAST(Altura AS VARCHAR) AS Nombre FROM Sucursal ORDER BY Calle"
+        );
+        res.json(result.recordset);
+    } catch (e) { next(e); }
+});
+
+// filtracion
+app.get('/api/filtros-opciones', async (req, res, next) => {
+    try {
+        const [cadenas, sucursales, canales, regiones, categorias] = await Promise.all([
+            ejecutarQuery("SELECT ID, Nombre FROM Cadena ORDER BY Nombre"),
+            ejecutarQuery("SELECT ID, Calle + ' ' + CAST(Altura AS VARCHAR) AS Nombre FROM Sucursal ORDER BY Calle"),
+            ejecutarQuery("SELECT ID, Tipo AS Nombre FROM Tipo_Cadena ORDER BY Tipo"),
+            ejecutarQuery("SELECT ID, Nombre FROM Zona ORDER BY Nombre"),
+            ejecutarQuery("SELECT ID, Categoria AS Nombre FROM Categoria ORDER BY Categoria")
+        ]);
+        res.json({
+            cadenas:    cadenas.recordset,
+            sucursales: sucursales.recordset,
+            canales:    canales.recordset,
+            regiones:   regiones.recordset,
+            categorias: categorias.recordset
+        });
+    } catch (e) { next(e); }
+});
+
+// Consulta tabla
+const BASE_SELECT_REPORTE = `
+    SELECT
+        v.Fecha,
+        ca.Nombre                                       AS Cadena,
+        s.Calle + ' ' + CAST(s.Altura AS VARCHAR)       AS Comercio,
+        s.Localidad,
+        z.Nombre                                        AS Region,
+        sz.Nombre                                       AS Cluster,
+        tc.Tipo                                         AS Canal,
+        uRepo.Nombre                                    AS Usuario,
+        cat.Categoria                                   AS Categoria,
+        p.Descripcion                                   AS Producto,
+        p.SKU,
+        c.Precio,
+        CASE WHEN c.Oferta = 1 THEN 'Sí' ELSE 'No' END AS Oferta
+    FROM Visita v
+    JOIN Sucursal s      ON v.ID_Sucursal  = s.ID
+    JOIN Cadena ca       ON s.ID_Cadena    = ca.ID
+    JOIN Tipo_Cadena tc  ON ca.ID_Tipo     = tc.ID
+    JOIN Subzona sz      ON s.ID_Subzona   = sz.ID
+    JOIN Zona z          ON sz.ID_Zona     = z.ID
+    JOIN Usuario uRepo   ON v.ID_Repo      = uRepo.ID
+    JOIN Carga c         ON v.ID           = c.ID_Visita
+    JOIN Producto p      ON c.ID_Producto  = p.ID
+    JOIN Categoria cat   ON p.ID_Categoria = cat.ID
+`;
+
+//  WHERE dinámico según los query parametros recibidos
+function buildFiltrosReporte(query, request, extraWhere = '') {
+    const { fecha_desde, fecha_hasta, id_cadena, id_sucursal, id_canal, id_region, id_categoria } = query;
+    const conds = [];
+
+    if (extraWhere)   conds.push(extraWhere);
+    if (fecha_desde)  { conds.push('v.Fecha >= @fecha_desde');  request.input('fecha_desde',  mssql.Date,     fecha_desde);  }
+    if (fecha_hasta)  { conds.push('v.Fecha <= @fecha_hasta');  request.input('fecha_hasta',  mssql.Date,     fecha_hasta);  }
+    if (id_cadena)    { conds.push('ca.ID = @id_cadena');       request.input('id_cadena',    mssql.TinyInt,  id_cadena);    }
+    if (id_sucursal)  { conds.push('s.ID = @id_sucursal');      request.input('id_sucursal',  mssql.SmallInt, id_sucursal);  }
+    if (id_canal)     { conds.push('ca.ID_Tipo = @id_canal');   request.input('id_canal',     mssql.TinyInt,  id_canal);     }
+    if (id_region)    { conds.push('z.ID = @id_region');        request.input('id_region',    mssql.TinyInt,  id_region);    }
+    if (id_categoria) { conds.push('cat.ID = @id_categoria');   request.input('id_categoria', mssql.TinyInt,  id_categoria); }
+
+    return conds.length > 0 ? 'WHERE ' + conds.join(' AND ') : '';
+}
+
+// TODO , filtros opcionales
+app.get('/api/reporte-visitas', async (req, res, next) => {
+    try {
+        const pool    = await getConnection();
+        const request = pool.request();
+        const where   = buildFiltrosReporte(req.query, request);
+        const result  = await request.query(`${BASE_SELECT_REPORTE} ${where} ORDER BY v.Fecha DESC`);
+        res.json(result.recordset);
+    } catch (e) { next(e); }
+});
+
+// Visitas/producto cliente, filtros opcionales
+app.get('/api/reporte-visitas-cliente', async (req, res, next) => {
+    const { id_cliente } = req.query;
+    if (!id_cliente) return res.status(400).json({ error: 'Falta id_cliente' });
+    try {
+        // Verificar que el ID recibido corresponde a un usuario de tipo 'Cliente'
+        const check = await ejecutarQuery(`
+            SELECT ID FROM Usuario 
+            WHERE ID = @id 
+            AND ID_Tipo_Usuario = (SELECT ID FROM Tipo_Usuario WHERE Tipo = 'Cliente')`,
+            [{ name: 'id', type: mssql.SmallInt, value: id_cliente }]
+        );
+        if (check.recordset.length === 0)
+            return res.status(403).json({ error: 'Acceso no autorizado' });
+
+        const pool    = await getConnection();
+        const request = pool.request();
+        request.input('id_cliente', mssql.SmallInt, id_cliente);
+        const where  = buildFiltrosReporte(req.query, request, 'v.ID_Cliente = @id_cliente');
+        const result = await request.query(`${BASE_SELECT_REPORTE} ${where} ORDER BY v.Fecha DESC`);
+        res.json(result.recordset);
+    } catch (e) { next(e); }
+});
+
+// --- MANEJO GLOBAL DE ERRORES ---
+app.use((err, req, res, next) => {
+    console.error("Error:", err.message);
+    res.status(500).json({ success: false, message: "Error interno del servidor", error: err.message });
+});
+
+
+
 const PORT = 3000;
 app.listen(PORT, () => console.log(`🚀 Servidor listo en http://localhost:${PORT}`));

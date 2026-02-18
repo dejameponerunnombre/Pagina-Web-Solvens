@@ -25,6 +25,7 @@ body::before {
     z-index: -1;
 }
 
+/* ── HEADER ── */
 .header {
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(10px);
@@ -52,14 +53,12 @@ body::before {
     font-weight: 500;
     transition: color 0.3s;
 }
+.btn-salir:hover { color: #dc2626; }
 
-.btn-salir:hover {
-    color: #dc2626; 
-}
-
+/* ── BOTÓN ABRIR SIDEBAR (derecha) ── */
 .btn-toggle-sidebar {
     position: fixed;
-    left: 20px;
+    right: 20px;
     top: 90px;
     background-color: #dc2626;
     color: #ffffff;
@@ -71,28 +70,25 @@ body::before {
     gap: 15px;
     font-size: 20px;
     font-weight: 700;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     cursor: pointer;
     z-index: 99;
     transition: all 0.3s ease;
     box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
 }
-
-.btn-toggle-sidebar i {
-    font-size: 24px;
-}
-
+.btn-toggle-sidebar i { font-size: 24px; }
 .btn-toggle-sidebar:hover {
     background-color: #b91c1c;
     transform: translateY(-3px) scale(1.05);
     box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6);
 }
-
 .btn-toggle-sidebar.oculto {
     opacity: 0;
     pointer-events: none;
-    transform: translateX(-100px);
+    transform: translateX(100px);
 }
 
+/* ── LAYOUT ── */
 .contenedor-layout {
     display: flex;
     flex: 1;
@@ -100,24 +96,23 @@ body::before {
     position: relative;
 }
 
+/* ── SIDEBAR (desde la derecha) ── */
 .sidebar-filtros {
     width: 280px;
     background: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(10px);
-    border-right: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
     padding: 20px;
     overflow-y: auto;
     position: fixed;
-    left: -280px;
+    right: -280px;
+    left: auto;
     top: 70px;
     height: calc(100vh - 70px);
     z-index: 98;
-    transition: left 0.3s ease;
+    transition: right 0.3s ease;
 }
-
-.sidebar-filtros.activo {
-    left: 0;
-}
+.sidebar-filtros.activo { right: 0; }
 
 .sidebar-header {
     display: flex;
@@ -144,22 +139,19 @@ body::before {
     transition: all 0.3s ease;
     padding: 5px 10px;
 }
-
 .btn-cerrar-sidebar:hover {
     color: #dc2626;
     transform: rotate(90deg);
 }
 
+/* ── GRUPOS FILTRO ── */
 .grupo-filtro {
     margin-bottom: 15px;
     padding-bottom: 15px;
     border-bottom: 1px solid #333;
     overflow: hidden;
 }
-
-.grupo-filtro:last-of-type {
-    border-bottom: none;
-}
+.grupo-filtro:last-of-type { border-bottom: none; }
 
 .filtro-header {
     display: flex;
@@ -170,16 +162,11 @@ body::before {
     user-select: none;
     transition: all 0.3s ease;
 }
-
 .filtro-header:hover {
     background-color: rgba(220, 38, 38, 0.1);
     padding-left: 5px;
 }
-
-.filtro-header .label-filtro {
-    margin: 0;
-    flex: 1;
-}
+.filtro-header .label-filtro { margin: 0; flex: 1; }
 
 .icono-toggle {
     color: #dc2626;
@@ -193,10 +180,7 @@ body::before {
     transition: max-height 0.3s ease;
     padding-bottom: 0;
 }
-
-.grupo-filtro:not(.colapsado) .filtro-contenido {
-    padding-bottom: 15px;
-}
+.grupo-filtro:not(.colapsado) .filtro-contenido { padding-bottom: 15px; }
 
 .label-filtro {
     display: block;
@@ -221,25 +205,20 @@ body::before {
     border-radius: 4px;
     color: #ffffff;
     font-size: 13px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin-bottom: 10px;
 }
-
 .select-filtro:focus {
     outline: none;
     border-color: #dc2626;
 }
-
 .select-filtro option {
     background-color: #2a2a2a;
     color: #ffffff;
     padding: 5px;
 }
 
-.rango-fechas {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+.rango-fechas { display: flex; flex-direction: column; gap: 10px; }
 
 .label-pequeno {
     display: block;
@@ -256,20 +235,21 @@ body::before {
     border-radius: 4px;
     color: #ffffff;
     font-size: 12px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color-scheme: dark;
 }
-
 .input-fecha:focus {
     outline: none;
     border-color: #dc2626;
 }
 
+/* ── BOTONES FILTRO ── */
 .botones-filtro {
     margin-top: 30px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     padding-top: 20px;
-
 }
 
 .btn-aplicar-filtros {
@@ -281,10 +261,10 @@ body::before {
     border-radius: 6px;
     font-size: 14px;
     font-weight: 600;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     cursor: pointer;
     transition: all 0.3s ease;
 }
-
 .btn-aplicar-filtros:hover {
     background-color: #b91c1c;
     transform: translateY(-2px);
@@ -300,62 +280,226 @@ body::before {
     border-radius: 6px;
     font-size: 14px;
     font-weight: 600;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     cursor: pointer;
     transition: all 0.3s ease;
 }
-
 .btn-limpiar-filtros:hover {
     background-color: #333;
     border-color: #aaaaaa;
 }
 
+/* ── ÁREA CONTENIDO ── */
+.area-contenido {
+    flex: 1;
+    padding: 32px 36px;
+    min-width: 0;
+}
+
+.page-titulo {
+    font-size: 34px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 8px;
+    line-height: 1;
+}
+.page-titulo span { color: #dc2626; }
+
+.page-subtitulo {
+    color: #aaaaaa;
+    font-size: 14px;
+    margin-bottom: 28px;
+}
+
+/* ── BARRA RESULTADOS ── */
+.barra-resultados {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #333;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #aaaaaa;
+}
+.barra-resultados strong { color: #ffffff; }
+
+.tag-filtro-activo {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    color: #ff6b6b;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+}
+
+/* ── TABLA WRAPPER ── */
+.tabla-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* ── TABLA ── */
+.tabla-reporte {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    white-space: nowrap;
+}
+
+.tabla-reporte thead tr {
+    background: #0d0d0d;
+    border-bottom: 2px solid #dc2626;
+}
+.tabla-reporte thead th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: #aaaaaa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+.tabla-reporte thead th:hover { color: #ffffff; }
+.tabla-reporte thead th .sort-icon {
+    display: inline-block;
+    margin-left: 5px;
+    color: #dc2626;
+    font-size: 10px;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+}
+.tabla-reporte thead th:hover .sort-icon,
+.tabla-reporte thead th.sort-asc .sort-icon,
+.tabla-reporte thead th.sort-desc .sort-icon { opacity: 1; }
+
+.tabla-reporte tbody tr {
+    border-bottom: 1px solid #2a2a2a;
+    transition: background 0.15s;
+}
+.tabla-reporte tbody tr:last-child { border-bottom: none; }
+.tabla-reporte tbody tr:hover { background: rgba(255, 255, 255, 0.04); }
+.tabla-reporte tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+.tabla-reporte tbody tr:nth-child(even):hover { background: rgba(255, 255, 255, 0.05); }
+
+.tabla-reporte tbody td {
+    padding: 11px 16px;
+    color: #ffffff;
+    vertical-align: middle;
+}
+
+.tabla-reporte td.col-precio {
+    font-weight: 600;
+    color: #4ade80;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+.tabla-reporte td.col-fecha {
+    color: #aaaaaa;
+    font-size: 12px;
+}
+
+/* Badge oferta */
+.badge-oferta {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.badge-oferta.si {
+    background: rgba(220, 38, 38, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+}
+.badge-oferta.no {
+    background: rgba(255, 255, 255, 0.06);
+    color: #aaaaaa;
+    border: 1px solid #333;
+}
+
+/* ── ESTADO VACÍO / CARGANDO ── */
+.estado-tabla {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #aaaaaa;
+    gap: 12px;
+}
+.estado-tabla i { font-size: 36px; opacity: 0.3; }
+.estado-tabla p { font-size: 14px; }
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #333;
+    border-top-color: #dc2626;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── PAGINACIÓN ── */
+.paginacion {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+}
+.paginacion button {
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #333;
+    color: #aaaaaa;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.paginacion button:hover { background: #2a2a2a; color: #ffffff; }
+.paginacion button.activa {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: #ffffff;
+}
+.paginacion button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ── RESPONSIVE ── */
 @media (max-width: 1024px) {
     .sidebar-filtros {
         width: 100%;
-        left: -100%;
-        border-right: none;
+        right: -100%;
+        border-left: none;
         border-bottom: 2px solid #ffffff;
+        max-height: 80vh;
+        top: 70px;
     }
-
-    .sidebar-filtros.activo {
-        left: 0;
-    }
-
-    .contenido-principal {
-        margin-left: 0 !important;
-    }
-
-    .btn-toggle-sidebar {
-        left: 10px;
-        top: 80px;
-    }
+    .sidebar-filtros.activo { right: 0; }
+    .area-contenido { padding: 20px 16px; }
+    .btn-toggle-sidebar { right: 10px; top: 80px; }
 }
 
 @media (max-width: 768px) {
-    .header {
-        padding: 15px 20px;
-    }
-
-    .sidebar-filtros {
-        padding: 15px;
-    }
-
-    .area-contenido h1 {
-        font-size: 24px;
-    }
-
-    .ejemplo-contenido {
-        grid-template-columns: 1fr;
-    }
-
-    .btn-toggle-sidebar {
-        left: 10px;
-        top: 80px;
-        padding: 18px 30px;
-        font-size: 18px;
-    }
-    
-    .btn-toggle-sidebar i {
-        font-size: 22px;
-    }
+    .header { padding: 15px 20px; }
+    .page-titulo { font-size: 26px; }
+    .btn-toggle-sidebar { right: 10px; top: 80px; padding: 18px 30px; font-size: 18px; }
+    .btn-toggle-sidebar i { font-size: 22px; }
+    .barra-resultados { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
