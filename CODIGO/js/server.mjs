@@ -489,7 +489,7 @@ app.get('/api/zonas', async (req, res, next) => {
 app.get('/api/sucursales-lista', async (req, res, next) => {
     try {
         const result = await ejecutarQuery(
-            "SELECT ID, Calle + ' ' + CAST(Altura AS VARCHAR) AS Nombre FROM Sucursal ORDER BY Calle"
+            "SELECT ID, Calle + ISNULL(' ' + CAST(Altura AS VARCHAR), ' S/N') AS Nombre FROM Sucursal ORDER BY Calle"
         );
         res.json(result.recordset);
     } catch (e) { next(e); }
@@ -500,7 +500,7 @@ app.get('/api/filtros-opciones', async (req, res, next) => {
     try {
         const [cadenas, sucursales, canales, regiones, categorias] = await Promise.all([
             ejecutarQuery("SELECT ID, Nombre FROM Cadena ORDER BY Nombre"),
-            ejecutarQuery("SELECT ID, Calle + ' ' + CAST(Altura AS VARCHAR) AS Nombre FROM Sucursal ORDER BY Calle"),
+            ejecutarQuery("SELECT ID, Calle + ISNULL(' ' + CAST(Altura AS VARCHAR), ' S/N') AS Nombre FROM Sucursal ORDER BY Calle"),
             ejecutarQuery("SELECT ID, Tipo AS Nombre FROM Tipo_Cadena ORDER BY Tipo"),
             ejecutarQuery("SELECT ID, Nombre FROM Zona ORDER BY Nombre"),
             ejecutarQuery("SELECT ID, Categoria AS Nombre FROM Categoria ORDER BY Categoria")
@@ -520,7 +520,7 @@ const BASE_SELECT_REPORTE = `
     SELECT
         v.Fecha,
         ca.Nombre                                       AS Cadena,
-        s.Calle + ' ' + CAST(s.Altura AS VARCHAR)       AS Comercio,
+        s.Calle + ISNULL(' ' + CAST(s.Altura AS VARCHAR), ' S/N') AS Comercio,
         s.Localidad,
         z.Nombre                                        AS Region,
         sz.Nombre                                       AS Cluster,
@@ -530,7 +530,9 @@ const BASE_SELECT_REPORTE = `
         p.Descripcion                                   AS Producto,
         p.SKU,
         c.Precio,
-        CASE WHEN c.Oferta = 1 THEN 'Sí' ELSE 'No' END AS Oferta
+        CASE WHEN c.Oferta = 1 THEN 'Sí' ELSE 'No' END AS Oferta,
+        v.ID                                            AS ID_Visita,
+        c.Estado
     FROM Visita v
     JOIN Sucursal s      ON v.ID_Sucursal  = s.ID
     JOIN Cadena ca       ON s.ID_Cadena    = ca.ID
@@ -667,7 +669,106 @@ app.put('/api/actualizar-abastece', async (req, res) => {
     }
 });
 
+// 1. Carga de selectores (Cadenas, Sucursales, etc.)
+app.get('/api/filtros-opciones-visitas', async (req, res) => {
+    try {
+        const pool = await getConnection();
+        const [cadenas, sucursales, canales, regiones, clientes] = await Promise.all([
+            pool.request().query("SELECT id_cadena AS ID, nombre_cadena AS Nombre FROM cadenas"),
+            pool.request().query("SELECT id_sucursal AS ID, nombre_sucursal AS Nombre FROM sucursales"),
+            pool.request().query("SELECT id_canal AS ID, nombre_canal AS Nombre FROM canales"),
+            pool.request().query("SELECT id_region AS ID, nombre_region AS Nombre FROM regiones"),
+            pool.request().query("SELECT id_cliente AS ID, nombre_cliente AS Nombre FROM clientes")
+        ]);
 
+        res.json({
+            cadenas: cadenas.recordset,
+            sucursales: sucursales.recordset,
+            canales: canales.recordset,
+            regiones: regiones.recordset,
+            clientes: clientes.recordset
+        });
+    } catch (err) {
+        console.error("Error en filtros:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/visitas', async (req, res) => {
+    const { fecha_desde, fecha_hasta, id_cadena, id_sucursal, id_cliente } = req.query;
+
+    try {
+        const pool = await getConnection();
+        const request = pool.request();
+
+
+        let query = `
+            SELECT 
+                V.ID AS ID_Visita,
+                V.Fecha,
+                ISNULL(U_REPO.Nombre, 'Sin Repositor') AS Repositor,
+                ISNULL(CAD.Nombre, 'S/C') + ' - ' + ISNULL(S.Calle, 'S/N') AS Sucursal,
+                ISNULL(U_CLI.Nombre, 'Sin Cliente') AS Cliente
+            FROM Visita V
+            LEFT JOIN Usuario U_REPO ON V.ID_Repo = U_REPO.ID    -- Primera unión para el Repositor
+            LEFT JOIN Usuario U_CLI  ON V.ID_Cliente = U_CLI.ID -- Segunda unión para el Cliente
+            LEFT JOIN Sucursal S    ON V.ID_Sucursal = S.ID
+            LEFT JOIN Cadena CAD     ON S.ID_Cadena = CAD.ID
+            WHERE 1 = 1`;
+
+        // Filtros dinámicos basados en los IDs de la tabla Visita
+        if (fecha_desde) {
+            query += " AND V.Fecha >= @fdesde";
+            request.input('fdesde', mssql.Date, fecha_desde);
+        }
+        if (fecha_hasta) {
+            query += " AND V.Fecha <= @fhasta";
+            request.input('fhasta', mssql.Date, fecha_hasta);
+        }
+        if (id_cadena) {
+            query += " AND S.ID_Cadena = @cadena";
+            request.input('cadena', mssql.Int, id_cadena);
+        }
+        if (id_sucursal) {
+            query += " AND V.ID_Sucursal = @sucursal";
+            request.input('sucursal', mssql.Int, id_sucursal);
+        }
+        if (id_cliente) {
+            query += " AND V.ID_Cliente = @cliente";
+            request.input('cliente', mssql.Int, id_cliente);
+        }
+
+        query += " ORDER BY V.Fecha DESC";
+
+        const result = await request.query(query);
+        
+        console.log(`Enviando ${result.recordset.length} visitas. Registros encontrados para hoy.`);
+        res.json(result.recordset);
+
+    } catch (err) {
+        console.error("Error en SQL:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+// 1. API para cargar los selectores del Sidebar
+app.get('/api/filtros-opciones', async (req, res) => {
+    try {
+        const pool = await getConnection(); // Tu función de conexión a SQL Server
+
+        // Ejecutamos las consultas para llenar los filtros
+        const cadenas = await pool.request().query("SELECT ID, Nombre FROM Cadena ORDER BY Nombre");
+        const sucursales = await pool.request().query("SELECT ID, Calle + ISNULL(' ' + CAST(Altura AS VARCHAR), ' S/N') AS Nombre FROM Sucursal ORDER BY Nombre");
+        
+        // Enviamos los datos al frontend
+        res.json({
+            cadenas: cadenas.recordset,
+            sucursales: sucursales.recordset
+        });
+    } catch (err) {
+        console.error("Error en filtros-opciones:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 
 

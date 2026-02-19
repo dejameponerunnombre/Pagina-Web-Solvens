@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Visitas - Solvens</title>
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="../CODIGO/style/filtros.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../CODIGO/style/tablas_pendientes.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<header class="header">
+    <style>
+        .btn-volver {
+            display: flex;
+            align-items: center;
+            opacity: 0.8;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .btn-volver:hover {
+            opacity: 1;
+            transform: translateX(-3px);
+        }
+    </style>
+    <a href="Admin_gestion_visitas.html" class="btn-volver">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+        </svg>
+    </a>
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<button class="btn-toggle-sidebar" id="btnToggleSidebar">
+    <i class="fas fa-filter"></i>
+    <span>Filtros</span>
+</button>
+
+<div class="contenedor-layout">
+
+    <aside class="sidebar-filtros" id="sidebarFiltros">
+        <div class="sidebar-header">
+            <h2 class="titulo-filtros">Filtros</h2>
+            <button class="btn-cerrar-sidebar" id="btnCerrarSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Periodo -->
+        <div class="grupo-filtro">
+            <div class="filtro-header">
+                <label class="label-filtro">Periodo</label>
+                <i class="fas fa-chevron-down icono-toggle"></i>
+            </div>
+            <div class="filtro-contenido">
+                <p class="descripcion-filtro">Seleccione un rango de fechas:</p>
+                <div class="rango-fechas">
+                    <div>
+                        <label class="label-pequeno">Desde:</label>
+                        <input type="date" class="input-fecha" id="fechaDesde">
+                    </div>
+                    <div>
+                        <label class="label-pequeno">Hasta:</label>
+                        <input type="date" class="input-fecha" id="fechaHasta">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cadenas -->
+        <div class="grupo-filtro">
+            <div class="filtro-header">
+                <label class="label-filtro">Cadenas</label>
+                <i class="fas fa-chevron-down icono-toggle"></i>
+            </div>
+            <div class="filtro-contenido">
+                <p class="descripcion-filtro">Seleccione la cadena:</p>
+                <select class="select-filtro" id="filtroCadena">
+                    <option value="">Todas</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Bocas -->
+        <div class="grupo-filtro">
+            <div class="filtro-header">
+                <label class="label-filtro">Bocas</label>
+                <i class="fas fa-chevron-down icono-toggle"></i>
+            </div>
+            <div class="filtro-contenido">
+                <p class="descripcion-filtro">Seleccione la sucursal:</p>
+                <select class="select-filtro" id="filtroSucursal">
+                    <option value="">Todas</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Canales -->
+        <div class="grupo-filtro">
+            <div class="filtro-header">
+                <label class="label-filtro">Canales</label>
+                <i class="fas fa-chevron-down icono-toggle"></i>
+            </div>
+            <div class="filtro-contenido">
+                <p class="descripcion-filtro">Seleccione el canal:</p>
+                <select class="select-filtro" id="filtroCanal">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Región -->
+        <div class="grupo-filtro">
+            <div class="filtro-header">
+                <label class="label-filtro">Región</label>
+                <i class="fas fa-chevron-down icono-toggle"></i>
+            </div>
+            <div class="filtro-contenido">
+                <p class="descripcion-filtro">Seleccione la región:</p>
+                <select class="select-filtro" id="filtroRegion">
+                    <option value="">Todas</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Clientes -->
+        <div class="grupo-filtro">
+            <div class="filtro-header">
+                <label class="label-filtro">Clientes</label>
+                <i class="fas fa-chevron-down icono-toggle"></i>
+            </div>
+            <div class="filtro-contenido">
+                <p class="descripcion-filtro">Seleccione el cliente:</p>
+                <select class="select-filtro" id="filtroCliente">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="botones-filtro">
+            <button class="btn-aplicar-filtros" id="btnAplicar">Aplicar Filtros</button>
+            <button class="btn-limpiar-filtros" id="btnLimpiar">Limpiar Filtros</button>
+        </div>
+    </aside>
+
+    <main class="area-contenido">
+        <h1 class="page-titulo">Reporte de <span>Visitas</span></h1>
+        <p class="page-subtitulo">Visualización y exportación de registros del sistema.</p>
+
+        <div class="barra-resultados">
+            <span>Mostrando <strong id="conteoResultados">0</strong> registros</span>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div id="tagsActivos" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+                <button id="btnExportar" style="background-color: #107c10; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold;">
+                    <i class="fas fa-file-excel"></i> Exportar a Excel
+                </button>
+            </div>
+        </div>
+
+        <div class="tabla-wrapper">
+            <table class="tabla-reporte">
+                <thead>
+                    <tr>
+                        <th data-col="Fecha">Fecha <span class="sort-icon">↕</span></th>
+                        <th data-col="Repositor">Repositor <span class="sort-icon">↕</span></th>
+                        <th data-col="Sucursal">Sucursal <span class="sort-icon">↕</span></th>
+                        <th data-col="Cliente">Cliente <span class="sort-icon">↕</span></th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTabla">
+                    <tr><td colspan="4">
+                        <div class="estado-tabla">
+                            <div class="spinner"></div>
+                            <p>Cargando datos...</p>
+                        </div>
+                    </td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="paginacion" id="paginacion"></div>
+    </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API_BASE     = 'http://localhost:3000/api';
+const FILAS_PAGINA = 50;
+
+let datosCompletos = [];
+let paginaActual   = 1;
+let sortCol        = null;
+let sortDir        = 'asc';
+
+const cuerpo       = document.getElementById('cuerpoTabla');
+const conteoEl     = document.getElementById('conteoResultados');
+const paginacionEl = document.getElementById('paginacion');
+const tagsEl       = document.getElementById('tagsActivos');
+
+// ══════════════════════════════════════════════════════════════════════════════
+// INICIALIZACIÓN
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Toggle sidebar
+document.getElementById('btnToggleSidebar').addEventListener('click', () => {
+    document.getElementById('sidebarFiltros').classList.add('activo');
+    document.getElementById('btnToggleSidebar').classList.add('oculto');
+});
+document.getElementById('btnCerrarSidebar').addEventListener('click', () => {
+    document.getElementById('sidebarFiltros').classList.remove('activo');
+    document.getElementById('btnToggleSidebar').classList.remove('oculto');
+});
+
+// Grupos colapsables
+document.querySelectorAll('.filtro-header').forEach(header => {
+    header.addEventListener('click', () => {
+        const grupo    = header.parentElement;
+        const contenido = header.nextElementSibling;
+        const icono    = header.querySelector('.icono-toggle');
+        grupo.classList.toggle('colapsado');
+        if (grupo.classList.contains('colapsado')) {
+            contenido.style.maxHeight = '0';
+            icono.style.transform = 'rotate(-90deg)';
+        } else {
+            contenido.style.maxHeight = contenido.scrollHeight + 'px';
+            icono.style.transform = 'rotate(0deg)';
+        }
+    });
+});
+
+// Inicializar grupos colapsados
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.grupo-filtro').forEach(g => {
+        g.classList.add('colapsado');
+        g.querySelector('.filtro-contenido').style.maxHeight = '0';
+        g.querySelector('.icono-toggle').style.transform = 'rotate(-90deg)';
+    });
+    cargarOpciones();
+    cargarDatos();
+    document.getElementById('btnExportar').addEventListener('click', exportarAExcel);
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CARGAR OPCIONES DE FILTROS
+// ══════════════════════════════════════════════════════════════════════════════
+
+async function cargarOpciones() {
+    try {
+        // 1. Cargar Cadenas y Sucursales para los filtros
+        // Si tu API del servidor se llama /filtros-opciones, déjalo así.
+        const res = await fetch(`${API_BASE}/filtros-opciones`); 
+        const data = await res.json();
+        
+        poblarSelect('filtroCadena', data.cadenas || []);
+        poblarSelect('filtroSucursal', data.sucursales || []);
+        
+        // 2. Cargar Clientes
+        const resCli = await fetch(`${API_BASE}/clientes-activos`);
+        const clientes = await resCli.json();
+        poblarSelect('filtroCliente', clientes || []);
+    } catch (e) { 
+        console.error('Error cargando selectores de filtros:', e); 
+    }
+}
+
+function poblarSelect(id, lista) {
+    const sel = document.getElementById(id);
+    lista.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value       = item.ID;
+        opt.textContent = item.Nombre;
+        sel.appendChild(opt);
+    });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CARGAR DATOS CON FILTROS
+// ══════════════════════════════════════════════════════════════════════════════
+
+function buildParams() {
+    const p = new URLSearchParams();
+    const fDesde = document.getElementById('fechaDesde').value;
+    const fHasta = document.getElementById('fechaHasta').value;
+    const cadena = document.getElementById('filtroCadena').value;
+    const sucursal = document.getElementById('filtroSucursal').value;
+    const cliente = document.getElementById('filtroCliente').value;
+
+    if (fDesde) p.set('fecha_desde', fDesde);
+    if (fHasta) p.set('fecha_hasta', fHasta);
+    if (cadena) p.set('id_cadena', cadena);
+    if (sucursal) p.set('id_sucursal', sucursal);
+    if (cliente) p.set('id_cliente', cliente);
+    
+    return p;
+}
+
+async function cargarDatos() {
+    mostrarCargando();
+    try {
+        const URL_BASE = 'http://localhost:3000/api';
+        const params = buildParams(); // Esto toma los valores de los filtros
+        const res = await fetch(`${URL_BASE}/visitas?${params}`);
+        
+        if (!res.ok) throw new Error("Error en el servidor");
+        
+        datosCompletos = await res.json();
+        paginaActual = 1;
+        renderTabla(); // Esta función dibuja las filas
+    } catch (e) {
+        console.error("Error al cargar visitas:", e);
+        mostrarError();
+    }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RENDERIZAR TABLA
+// ══════════════════════════════════════════════════════════════════════════════
+
+function renderTabla() {
+    let datos = [...datosCompletos];
+
+    if (sortCol) {
+        datos.sort((a, b) => {
+            const av = a[sortCol], bv = b[sortCol];
+            if (av == null) return 1;
+            if (bv == null) return -1;
+            const cmp = String(av).localeCompare(String(bv), 'es', { numeric: true });
+            return sortDir === 'asc' ? cmp : -cmp;
+        });
+    }
+
+    const total  = datos.length;
+    const inicio = (paginaActual - 1) * FILAS_PAGINA;
+    const pagina = datos.slice(inicio, inicio + FILAS_PAGINA);
+
+    conteoEl.textContent = total;
+
+    if (total === 0) {
+        cuerpo.innerHTML = `<tr><td colspan="4"><div class="estado-tabla">
+            <i class="fas fa-search" style="color:#3b82f6;opacity:0.5;font-size:48px;"></i>
+            <p>No se encontraron registros con los filtros aplicados.</p>
+        </div></td></tr>`;
+        paginacionEl.innerHTML = '';
+        return;
+    }
+
+    // El formateo debe ocurrir dentro del map para cada registro 'r'
+    cuerpo.innerHTML = pagina.map(r => {
+        const fechaObj = new Date(r.Fecha); 
+        const dia = String(fechaObj.getUTCDate()).padStart(2, '0');
+        const mes = String(fechaObj.getUTCMonth() + 1).padStart(2, '0');
+        const anio = fechaObj.getUTCFullYear();
+        const fechaFormateada = `${dia}/${mes}/${anio}`;
+
+        return `
+            <tr>
+                <td class="col-fecha">${fechaFormateada}</td>
+                <td>${r.Repositor || '-'}</td>
+                <td>${r.Sucursal || '-'}</td>
+                <td>${r.Cliente || '-'}</td>
+            </tr>`;
+    }).join('');
+
+    renderPaginacion(total);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EXPORTAR A EXCEL
+// ══════════════════════════════════════════════════════════════════════════════
+
+function exportarAExcel() {
+    if (datosCompletos.length === 0) {
+        mostrarToast("No hay datos para exportar", "error");
+        return;
+    }
+
+    // Formatear datos para el archivo Excel
+    const datosParaExportar = datosCompletos.map(r => ({
+        "Fecha": formatFecha(r.Fecha),
+        "Repositor": r.Repositor || '-',
+        "Sucursal": r.Sucursal || '-',
+        "Cliente": r.Cliente || '-'
+    }));
+
+    const hoja = XLSX.utils.json_to_sheet(datosParaExportar);
+    const libro = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(libro, hoja, "Visitas");
+    
+    // Descargar el archivo con fecha actual
+    const nombreArchivo = `Reporte_Visitas_${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.writeFile(libro, nombreArchivo);
+    
+    mostrarToast("Archivo exportado exitosamente", "success");
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PAGINACIÓN
+// ══════════════════════════════════════════════════════════════════════════════
+
+function renderPaginacion(total) {
+    const totalPags = Math.ceil(total / FILAS_PAGINA);
+    if (totalPags <= 1) { paginacionEl.innerHTML = ''; return; }
+    let html = `<button ${paginaActual===1?'disabled':''} onclick="irPagina(${paginaActual-1})">‹</button>`;
+    for (let i = 1; i <= totalPags; i++) {
+        if (i===1 || i===totalPags || Math.abs(i-paginaActual)<=2)
+            html += `<button class="${i===paginaActual?'activa':''}" onclick="irPagina(${i})">${i}</button>`;
+        else if (Math.abs(i-paginaActual)===3)
+            html += `<button disabled>…</button>`;
+    }
+    html += `<button ${paginaActual===totalPags?'disabled':''} onclick="irPagina(${paginaActual+1})">›</button>`;
+    paginacionEl.innerHTML = html;
+}
+
+window.irPagina = (p) => { 
+    paginaActual = p; 
+    renderTabla(); 
+    window.scrollTo(0,0); 
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ORDENAMIENTO DE COLUMNAS
+// ══════════════════════════════════════════════════════════════════════════════
+
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+    th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        sortDir = sortCol === col && sortDir === 'asc' ? 'desc' : 'asc';
+        sortCol = col;
+        document.querySelectorAll('thead th').forEach(t => {
+            t.classList.remove('sort-asc','sort-desc');
+            const si = t.querySelector('.sort-icon');
+            if (si) si.textContent = '↕';
+        });
+        th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+        th.querySelector('.sort-icon').textContent = sortDir === 'asc' ? '↑' : '↓';
+        renderTabla();
+    });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TAGS DE FILTROS ACTIVOS
+// ══════════════════════════════════════════════════════════════════════════════
+
+const LABEL_FILTRO = { 
+    fecha_desde: 'Desde', 
+    fecha_hasta: 'Hasta', 
+    id_cadena: 'Cadena', 
+    id_sucursal: 'Boca', 
+    id_canal: 'Canal', 
+    id_region: 'Región', 
+    id_cliente: 'Cliente' 
+};
+
+function actualizarTags(params) {
+    tagsEl.innerHTML = '';
+    params.forEach((val, key) => {
+        const tag = document.createElement('span');
+        tag.className   = 'tag-filtro-activo';
+        tag.innerHTML   = `<i class="fas fa-tag"></i> ${LABEL_FILTRO[key] || key}`;
+        tagsEl.appendChild(tag);
+    });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BOTONES DE FILTROS
+// ══════════════════════════════════════════════════════════════════════════════
+
+document.getElementById('btnAplicar').addEventListener('click', cargarDatos);
+document.getElementById('btnLimpiar').addEventListener('click', () => {
+    ['fechaDesde','fechaHasta','filtroCadena','filtroSucursal','filtroCanal','filtroRegion','filtroCliente']
+        .forEach(id => document.getElementById(id).value = '');
+    cargarDatos();
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FUNCIONES AUXILIARES
+// ══════════════════════════════════════════════════════════════════════════════
+
+let toastTimer;
+function mostrarToast(msg, tipo) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className   = `show ${tipo}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+}
+
+function formatFecha(f) {
+    if (!f) return '-';
+    const fecha = new Date(f);
+    return fecha.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+function mostrarCargando() {
+    cuerpo.innerHTML = `<tr><td colspan="4"><div class="estado-tabla"><div class="spinner"></div><p>Cargando datos...</p></div></td></tr>`;
+}
+
+function mostrarError() {
+    cuerpo.innerHTML = `<tr><td colspan="4"><div class="estado-tabla"><i class="fas fa-exclamation-circle" style="color:#dc2626;font-size:48px;"></i><p>Error al conectar con el servidor.</p></div></td></tr>`;
+}
+</script>
+</body>
+</html>
