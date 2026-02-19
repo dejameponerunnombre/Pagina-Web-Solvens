@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Visitas - Grupo Solvens</title>
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="style/inicio.css">
+    <link rel="stylesheet" href="style/inicioAdmin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <style>
+            .btn-volver {
+                display: flex;
+                align-items: center;
+                opacity: 0.8;
+                transition: opacity 0.2s, transform 0.2s;
+            }
+            .btn-volver:hover {
+                opacity: 1;
+                transform: translateX(-3px);
+            }
+        </style>
+        <a href="inicioAdmin.html" class="btn-volver">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+        </a>
+        <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+    </header>
+
+    <main class="contenedor-principal">
+        <div class="bienvenida">
+            <h1>Gestión de <span>Visitas</span></h1>
+            <p>Consultá el detalle de visitas, productos relevados e imágenes capturadas.</p>
+        </div>
+
+        <div class="grid-acciones">
+            <div class="tarjeta-accion">
+                <i class="fa-solid fa-chart-bar"></i>
+                <h3>Ver Visitas Pendiente</h3>
+                <p>Reporte completo de todas las visitas registradas con filtros por fecha, cadena, región y más.</p>
+                <a class="btn-entrar" href="tabla_visitas_pendientes.html">Ver Reporte</a>
+            </div>
+
+            <div class="tarjeta-accion">
+                <i class="fa-solid fa-box-open"></i>
+                <h3>Ver Productos</h3>
+                <p>Consultá los productos relevados por los repositores en cada una de sus visitas.</p>
+                <a class="btn-entrar" href="tabla_todo_admin.html">Ver listado de Productos</a>
+            </div>
+
+            <div class="tarjeta-accion">
+                <i class="fa-solid fa-images"></i>
+                <h3>Ver Imágenes</h3>
+                <p>Revisá la evidencia fotográfica capturada durante las visitas a sucursales.</p>
+                <a class="btn-entrar" href="#">Ver imagenes</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer-contacto">
+        <p>Panel de Control Interno | Grupo Solvens</p>
+    </footer>
+</body>
+</html>

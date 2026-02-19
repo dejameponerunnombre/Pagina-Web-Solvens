@@ -1,0 +1,71 @@
+.btn-volver {
+    display: flex;
+    align-items: center;
+    opacity: 0.8;
+    transition: opacity 0.2s, transform 0.2s;
+}
+.btn-volver:hover {
+    opacity: 1;
+    transform: translateX(-3px);
+}
+
+/* ── Botón aprobar ── */
+.btn-aprobar {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background-color: #16a34a;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+.btn-aprobar:hover {
+    background-color: #15803d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+}
+.btn-aprobar:disabled {
+    background-color: #2a2a2a;
+    color: #555;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    border: 1px solid #333;
+}
+.btn-aprobar.aprobado {
+    background-color: transparent;
+    color: #4ade80;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    cursor: default;
+    pointer-events: none;
+}
+
+/* ── Columna acción centrada ── */
+.col-accion { text-align: center; }
+
+/* ── Toast de notificación ── */
+#toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+#toast.show  { opacity: 1; transform: translateY(0); }
+#toast.exito { background: #16a34a; box-shadow: 0 4px 16px rgba(22, 163, 74, 0.5); }
+#toast.error { background: #dc2626; box-shadow: 0 4px 16px rgba(220, 38, 38, 0.5); }

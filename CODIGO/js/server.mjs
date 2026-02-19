@@ -573,13 +573,66 @@ app.get('/api/reporte-visitas-cliente', async (req, res, next) => {
     } catch (e) { next(e); }
 });
 
+
+//  LISTADO DE VISITAS PENDIENTES fila por visita con fecha, repositor, sucursal y cliente
+app.get('/api/visitas-pendientes', async (req, res, next) => {
+    try {
+        const result = await ejecutarQuery(`
+            SELECT
+                v.ID                                                        AS ID_Visita,
+                v.Fecha,
+                uRepo.Nombre                                                AS Repositor,
+                uCliente.Nombre                                             AS Cliente,
+                s.Calle + ' ' + ISNULL(CAST(s.Altura AS VARCHAR), 'S/N')   AS Sucursal
+            FROM Visita v
+            JOIN Sucursal s       ON v.ID_Sucursal = s.ID
+            JOIN Usuario uRepo    ON v.ID_Repo     = uRepo.ID
+            JOIN Usuario uCliente ON v.ID_Cliente  = uCliente.ID
+            WHERE EXISTS (
+                SELECT 1 FROM Carga c
+                WHERE c.ID_Visita = v.ID AND c.Estado = 'Pendiente'
+            )
+            ORDER BY v.Fecha DESC
+        `);
+        res.json(result.recordset);
+    } catch (e) { next(e); }
+});
+
+
+
+// APROBAR VISITA
+app.patch('/api/aprobar-visita/:id', async (req, res, next) => {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ success: false, message: 'ID inválido' });
+    try {
+        const result = await ejecutarQuery(
+            `UPDATE Carga SET Estado = 'Aprobado' WHERE ID_Visita = @id AND Estado = 'Pendiente'`,
+            [{ name: 'id', type: mssql.Int, value: id }]
+        );
+        if (result.rowsAffected[0] === 0)
+            return res.status(404).json({ success: false, message: 'No se encontraron cargas pendientes para esa visita.' });
+        res.json({ success: true, message: `Visita #${id} aprobada correctamente.` });
+    } catch (e) { next(e); }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // --- MANEJO GLOBAL DE ERRORES ---
 app.use((err, req, res, next) => {
     console.error("Error:", err.message);
     res.status(500).json({ success: false, message: "Error interno del servidor", error: err.message });
 });
-
-
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`🚀 Servidor listo en http://localhost:${PORT}`));
