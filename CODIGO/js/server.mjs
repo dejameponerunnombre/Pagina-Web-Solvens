@@ -85,19 +85,18 @@ app.get('/api/buscar-sucursales', async (req, res) => {
     const { id_cadena, id_subzona } = req.query;
     try {
         const pool = await getConnection();
-        
-        // Hacemos que la subzona sea opcional para que funcione al crear usuarios
-        let query = "SELECT ID, Calle, Altura, Localidad FROM Sucursal WHERE ID_Cadena = @id_cadena";
-        const request = pool.request().input('id_cadena', mssql.TinyInt, id_cadena);
+let query = 'SELECT ID, Calle AS "Calle", Altura AS "Altura", Localidad AS "Localidad" FROM Sucursal WHERE ID_Cadena = @id_cadena';        const request = pool.request().input('id_cadena', mssql.Int, id_cadena); // Cambiado a Int por seguridad
 
-        if (id_subzona && id_subzona !== 'undefined') {
+        // Validación más robusta para evitar que 'undefined' o 'null' rompan la consulta
+        if (id_subzona && id_subzona !== 'undefined' && id_subzona !== 'null' && id_subzona !== '') {
             query += " AND ID_Subzona = @id_subzona";
-            request.input('id_subzona', mssql.TinyInt, id_subzona);
+            request.input('id_subzona', mssql.Int, id_subzona);
         }
 
         const result = await request.query(query);
         res.json(result.recordset);
     } catch (error) {
+        console.error("Error SQL:", error); // Esto te ayudará a ver el error real en la terminal
         res.status(500).json({ error: "Error al buscar sucursales" });
     }
 });
@@ -149,16 +148,36 @@ app.get('/api/tipos-usuario', async (req, res, next) => {
 });
 
 app.post('/api/crear-usuario', async (req, res, next) => {
-    // Añadimos sucursalesIds al body
     const { nombre, id_tipo, mail, usuario, clave, sucursalesIds } = req.body; 
     
     try {
         const pool = await getConnection();
+
+        // 1. VALIDACIÓN: Verificar si el usuario o el mail ya existen
+        const existe = await pool.request()
+            .input('u', mssql.VarChar, usuario)
+            .input('m', mssql.VarChar, mail)
+            .query("SELECT Usuario, Mail FROM Usuario WHERE Usuario = @u OR Mail = @m");
+
+        if (existe.recordset.length > 0) {
+            const duplicado = existe.recordset[0];
+            let msg = "El registro ya existe.";
+            
+            if (duplicado.Usuario === usuario) msg = "El nombre de usuario ya está en uso.";
+            else if (duplicado.Mail === mail) msg = "El correo electrónico ya está registrado.";
+
+            return res.status(400).json({ 
+                success: false, 
+                message: msg 
+            });
+        }
+
+        // 2. INICIO DE TRANSACCIÓN (Si pasó la validación)
         const transaction = new mssql.Transaction(pool);
         await transaction.begin();
 
         try {
-            // 1. Insertar el Usuario y obtener su ID
+            // 3. Insertar el Usuario y obtener su ID
             const userResult = await transaction.request()
                 .input('nom', mssql.VarChar, nombre)
                 .input('tipo', mssql.TinyInt, id_tipo)
@@ -171,7 +190,7 @@ app.post('/api/crear-usuario', async (req, res, next) => {
 
             const newUserId = userResult.recordset[0].ID;
 
-            // 2. Si es cliente y tiene sucursales, insertar en Abastece
+            // 4. Si tiene sucursales asignadas (Rol Cliente), insertar en Abastece
             if (sucursalesIds && sucursalesIds.length > 0) {
                 for (const sucursalId of sucursalesIds) {
                     await transaction.request()
@@ -186,9 +205,12 @@ app.post('/api/crear-usuario', async (req, res, next) => {
 
         } catch (error) {
             await transaction.rollback();
-            throw error;
+            throw error; // Re-lanzar para que lo atrape el catch externo
         }
-    } catch (error) { next(error); }
+    } catch (error) { 
+        console.error("Error en crear-usuario:", error);
+        next(error); 
+    }
 });
 
 app.get('/api/categorias', async (req, res, next) => {
@@ -613,6 +635,36 @@ app.patch('/api/aprobar-visita/:id', async (req, res, next) => {
             return res.status(404).json({ success: false, message: 'No se encontraron cargas pendientes para esa visita.' });
         res.json({ success: true, message: `Visita #${id} aprobada correctamente.` });
     } catch (e) { next(e); }
+});
+app.put('/api/actualizar-abastece', async (req, res) => {
+    const { id_cliente, sucursalesIds } = req.body;
+    const pool = await getConnection();
+    const transaction = new mssql.Transaction(pool);
+
+    try {
+        await transaction.begin();
+
+        // 1. Eliminar asignaciones anteriores
+        await transaction.request()
+            .input('cli', mssql.SmallInt, id_cliente)
+            .query("DELETE FROM Abastece WHERE ID_Cliente = @cli");
+
+        // 2. Insertar las nuevas selecciones
+        if (sucursalesIds.length > 0) {
+            for (const sId of sucursalesIds) {
+                await transaction.request()
+                    .input('cli', mssql.SmallInt, id_cliente)
+                    .input('suc', mssql.SmallInt, sId)
+                    .query("INSERT INTO Abastece (ID_Cliente, ID_Sucursal) VALUES (@cli, @suc)");
+            }
+        }
+
+        await transaction.commit();
+        res.json({ success: true });
+    } catch (err) {
+        await transaction.rollback();
+        res.status(500).json({ error: err.message });
+    }
 });
 
 

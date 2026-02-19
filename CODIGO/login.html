@@ -53,7 +53,6 @@
             const data = await response.json();
 
             if (data.success) {
-                // ESTA LÍNEA ES VITAL:
                 localStorage.setItem('id_usuario', data.id); 
                 localStorage.setItem('nombreUsuario', data.nombre);
                 

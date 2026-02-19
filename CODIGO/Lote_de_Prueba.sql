@@ -25,7 +25,9 @@ INSERT INTO Zona (Nombre) VALUES
 ('Mendoza'),
 ('Santa Fe');
 GO
-
+Select * from Carga
+Select * from Visita
+Select * from Imagen
 INSERT INTO Subzona (Nombre, ID_Zona) VALUES
 ('Sur', 1),
 ('Oeste', 1),
@@ -189,5 +191,177 @@ INSERT INTO Sucursal (Calle, Altura, Localidad, ID_Subzona, ID_Cadena) VALUES
 ('Av. Gral. Francisco Fernández', 4602, 'San Isidro', 3, 8),
 ('Av. Calchaquí', 3950, 'Quilmes', 1, 8),
 ('Av. Int. Bullrich', 345, 'Palermo', 4, 8);
+GO
+
+INSERT INTO Usuario (Nombre, ID_Tipo_Usuario, Mail, Usuario, Clave) VALUES
+('FABRICA JUSTO', 2, 'fabricajusto@cliente.com', 'fabricajusto', 'fabricajusto1234'),
+('GOLOCAN', 2, 'golocan@cliente.com', 'golocan', 'golocan1234'),
+('BONGIOVANNI', 2, 'bongiovanni@cliente.com', 'bongiovanni', 'bongiovanni1234'),
+('PRODUCTOS CARILO', 2, 'productoscarilo@cliente.com', 'productoscarilo', 'productoscarilo1234'),
+('317', 2, '317@cliente.com', '317', '3171234'),
+('DEL VALLE', 2, 'delvalle@cliente.com', 'delvalle', 'delvalle1234');
+GO
+
+-- Verificar usuarios insertados
+PRINT 'Usuarios (Clientes) insertados: 6';
+SELECT * FROM Usuario WHERE ID_Tipo_Usuario = 2 ORDER BY ID;
+GO
+-- ============================================================================
+-- TABLA: Abastece
+-- Relaciona Clientes (Usuario) con Sucursales
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- Cliente: FABRICA JUSTO (13 sucursales - MAKRO)
+-- ----------------------------------------------------------------------------
+INSERT INTO Abastece (ID_Cliente, ID_Sucursal) VALUES
+(1, 20),  -- MAKRO - Avellaneda
+(1, 21),  -- MAKRO - Quilmes
+(1, 22),  -- MAKRO - Haedo
+(1, 23),  -- MAKRO - Ituzaingo
+(1, 24),  -- MAKRO - Lomas de Zamora
+(1, 25),  -- MAKRO - Olivos
+(1, 26),  -- MAKRO - San Justo
+(1, 29),  -- MAKRO - Benavidez
+(1, 30),  -- MAKRO - San Martín
+(1, 31),  -- MAKRO - Rosario
+(1, 32),  -- MAKRO - Córdoba
+(1, 33),  -- MAKRO - Mar Del Plata
+(1, 34);  -- MAKRO - Godoy Cruz
+GO
+
+-- ----------------------------------------------------------------------------
+-- Cliente: GOLOCAN (22 sucursales - CARREFOUR y CHANGO MAS)
+-- ----------------------------------------------------------------------------
+INSERT INTO Abastece (ID_Cliente, ID_Sucursal) VALUES
+(2, 1),   -- CARREFOUR - Adrogue
+(2, 2),   -- CARREFOUR - La Plata Híper
+(2, 3),   -- CARREFOUR - Monte Grande
+(2, 4),   -- CARREFOUR - Quilmes
+(2, 5),   -- CARREFOUR - Vélez
+(2, 6),   -- CARREFOUR - San Fernando Híper
+(2, 7),   -- CARREFOUR - San Isidro Híper
+(2, 8),   -- CARREFOUR - Vicente López
+(2, 9),   -- CARREFOUR - Pilar
+(2, 10),  -- CARREFOUR - San Miguel
+(2, 11),  -- CARREFOUR - Moreno
+(2, 12),  -- CARREFOUR - Tesei
+(2, 13),  -- CARREFOUR - San Justo
+(2, 14),  -- CARREFOUR - San Martín
+(2, 36),  -- CHANGO MAS - Moron
+(2, 37),  -- CHANGO MAS - José C Paz
+(2, 38),  -- CHANGO MAS - Moreno
+(2, 39),  -- CHANGO MAS - Lanus
+(2, 40),  -- CHANGO MAS - Lomas de Zamora
+(2, 41),  -- CHANGO MAS - Claypole
+(2, 42),  -- CHANGO MAS - Adrogué
+(2, 43);  -- CHANGO MAS - CABA
+GO
+
+-- ----------------------------------------------------------------------------
+-- Cliente: BONGIOVANNI (19 sucursales - CARREFOUR completo)
+-- ----------------------------------------------------------------------------
+INSERT INTO Abastece (ID_Cliente, ID_Sucursal) VALUES
+(3, 1),   -- CARREFOUR - Adrogue
+(3, 2),   -- CARREFOUR - La Plata Híper
+(3, 3),   -- CARREFOUR - Monte Grande
+(3, 4),   -- CARREFOUR - Quilmes
+(3, 5),   -- CARREFOUR - Vélez
+(3, 6),   -- CARREFOUR - San Fernando Híper
+(3, 7),   -- CARREFOUR - San Isidro Híper
+(3, 8),   -- CARREFOUR - Vicente López
+(3, 9),   -- CARREFOUR - Pilar
+(3, 10),  -- CARREFOUR - San Miguel
+(3, 11),  -- CARREFOUR - Moreno
+(3, 12),  -- CARREFOUR - Tesei
+(3, 13),  -- CARREFOUR - San Justo
+(3, 14),  -- CARREFOUR - San Martín
+(3, 15),  -- CARREFOUR - Mar Del Plata
+(3, 16),  -- CARREFOUR - Rosario
+(3, 17),  -- CARREFOUR - Guaymallen
+(3, 18),  -- CARREFOUR - Colón
+(3, 19);  -- CARREFOUR - Jardín
+GO
+
+-- ----------------------------------------------------------------------------
+-- Cliente: PRODUCTOS CARILO (6 sucursales - TOLEDO completo)
+-- ----------------------------------------------------------------------------
+INSERT INTO Abastece (ID_Cliente, ID_Sucursal) VALUES
+(4, 44),  -- TOLEDO - Falucho
+(4, 45),  -- TOLEDO - Saavedra
+(4, 46),  -- TOLEDO - Av. Libertad
+(4, 47),  -- TOLEDO - Av. Juan B. Justo
+(4, 48),  -- TOLEDO - Saavedra (2)
+(4, 49);  -- TOLEDO - Balcarce
+GO
+
+-- ----------------------------------------------------------------------------
+-- Cliente: 317 (43 sucursales - MAKRO, CHANGO MAS, VITAL, NINI, YAGUAR)
+-- ----------------------------------------------------------------------------
+INSERT INTO Abastece (ID_Cliente, ID_Sucursal) VALUES
+(5, 20),  -- MAKRO - Avellaneda
+(5, 21),  -- MAKRO - Quilmes
+(5, 22),  -- MAKRO - Haedo
+(5, 23),  -- MAKRO - Ituzaingo
+(5, 24),  -- MAKRO - Lomas de Zamora
+(5, 25),  -- MAKRO - Olivos
+(5, 26),  -- MAKRO - San Justo
+(5, 27),  -- MAKRO - Pilar
+(5, 28),  -- MAKRO - Benavidez
+(5, 29),  -- MAKRO - San Martín
+(5, 36),  -- CHANGO MAS - Moron
+(5, 37),  -- CHANGO MAS - José C Paz
+(5, 38),  -- CHANGO MAS - Moreno
+(5, 39),  -- CHANGO MAS - Lanus
+(5, 40),  -- CHANGO MAS - Lomas de Zamora
+(5, 41),  -- CHANGO MAS - Claypole
+(5, 42),  -- CHANGO MAS - Adrogué
+(5, 50),  -- VITAL - Merlo
+(5, 51),  -- VITAL - Laferrere
+(5, 52),  -- VITAL - Loma Hermosa
+(5, 53),  -- VITAL - Malvinas
+(5, 54),  -- VITAL - El Talar
+(5, 55),  -- VITAL - Pilar
+(5, 56),  -- VITAL - La Plata
+(5, 57),  -- VITAL - Quilmes
+(5, 58),  -- VITAL - Burzaco
+(5, 59),  -- VITAL - Avellaneda
+(5, 60),  -- VITAL - Villa Ortuzar
+(5, 61),  -- VITAL - Abasto
+(5, 62),  -- VITAL - San Justo
+(5, 63),  -- VITAL - Neuquen
+(5, 64),  -- VITAL - Bahia Blanca
+(5, 65),  -- VITAL - Mar Del Plata
+(5, 66),  -- VITAL - Salta
+(5, 67),  -- VITAL - Posadas
+(5, 68),  -- VITAL - Resistencia
+(5, 69),  -- NINI - La Plata
+(5, 70),  -- NINI - San Justo
+(5, 71),  -- YAGUAR - CABA
+(5, 72),  -- YAGUAR - Tigre
+(5, 73),  -- YAGUAR - Moreno
+(5, 74),  -- YAGUAR - Mashcwitz
+(5, 75);  -- YAGUAR - Escobar
+GO
+
+-- ----------------------------------------------------------------------------
+-- Cliente: DEL VALLE (15 sucursales - MAKRO, VITAL, JUMBO)
+-- ----------------------------------------------------------------------------
+INSERT INTO Abastece (ID_Cliente, ID_Sucursal) VALUES
+(6, 25),  -- MAKRO - Olivos
+(6, 27),  -- MAKRO - Pilar
+(6, 28),  -- MAKRO - Benavidez
+(6, 30),  -- MAKRO - San Martín
+(6, 35),  -- MAKRO - Neuquen
+(6, 50),  -- VITAL - Merlo
+(6, 51),  -- VITAL - Laferrere
+(6, 55),  -- VITAL - Pilar
+(6, 58),  -- VITAL - Burzaco
+(6, 59),  -- VITAL - Avellaneda
+(6, 76),  -- JUMBO - Pilar
+(6, 77),  -- JUMBO - Martínez
+(6, 78),  -- JUMBO - San Isidro
+(6, 79),  -- JUMBO - Quilmes
+(6, 80);  -- JUMBO - Palermo
 GO
 

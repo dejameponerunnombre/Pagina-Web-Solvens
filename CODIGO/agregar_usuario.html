@@ -151,7 +151,7 @@
                 <div style="display: flex; align-items: center; margin-bottom: 8px;">
                     <input type="checkbox" value="${s.ID}" ${estaSeleccionada} onchange="gestionarSeleccion(this)" style="width: auto; margin-right: 10px;">
                     <label style="color: #333; font-size: 0.9rem; cursor: pointer;">
-                        ${s.Calle} ${s.Altura}, ${s.Localidad}
+                        ${s.Calle} ${s.Altura || ''}, ${s.Localidad}
                     </label>
                 </div>`;
         });

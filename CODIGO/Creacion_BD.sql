@@ -111,6 +111,8 @@ CREATE TABLE Carga
 	Precio decimal(10,2),
 	ID_Producto smallint,
 	ID_Visita int,
+	Oferta bit default 0,
+	Estado varchar(15),
 	Constraint PK_Carga Primary Key(ID),
 	Constraint FK_Carga_Producto Foreign Key (ID_Producto) References Producto(ID),
 	Constraint FK_Carga_Visita Foreign Key (ID_Visita) References Visita(ID) ON DELETE CASCADE
@@ -121,6 +123,7 @@ CREATE TABLE Imagen
 	ID int identity(1,1),
 	Ruta_Imagen varchar(255),
 	ID_Visita int,
+	Estado varchar(20) default 'Pendiente',
 	Constraint PK_Imagen Primary Key(ID),
 	Constraint FK_Imagen_Visita Foreign Key (ID_Visita) References Visita(ID) ON DELETE CASCADE
 );
