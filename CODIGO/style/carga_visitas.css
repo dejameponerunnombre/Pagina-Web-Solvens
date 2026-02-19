@@ -1,0 +1,278 @@
+/* ── RESET Y BASE ── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1a1a1a;
+    min-height: 100vh;
+    color: #ffffff;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(45deg, #1a1a1a 25%, #2a2a2a 25%, #2a2a2a 50%, #1a1a1a 50%, #1a1a1a 75%, #2a2a2a 75%, #2a2a2a);
+    background-size: 100px 100px;
+    opacity: 0.1;
+    z-index: -1;
+}
+
+/* ── HEADER ── */
+.header {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 15px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.btn-volver {
+    display: flex;
+    align-items: center;
+    opacity: 0.8;
+    transition: opacity 0.2s, transform 0.2s;
+}
+.btn-volver:hover {
+    opacity: 1;
+    transform: translateX(-3px);
+}
+
+.btn-salir {
+    color: #aaaaaa;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+.btn-salir:hover { color: #dc2626; }
+
+/* ── CONTENEDOR ── */
+.contenedor {
+    max-width: 760px;
+    margin: 40px auto;
+    padding: 0 24px 60px;
+}
+
+/* ── TÍTULOS ── */
+.page-titulo {
+    font-size: 34px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 6px;
+    line-height: 1;
+}
+.page-titulo span { color: #dc2626; }
+
+.page-subtitulo {
+    color: #aaaaaa;
+    font-size: 14px;
+    margin-bottom: 32px;
+}
+
+/* ── SECCIONES ── */
+.seccion {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.seccion-titulo {
+    font-size: 15px;
+    font-weight: 600;
+    color: #aaaaaa;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+/* ── SELECTS E INPUTS ── */
+select,
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 11px 14px;
+    background-color: #1e1e1e;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 14px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+}
+select:focus,
+input[type="text"]:focus,
+input[type="number"]:focus {
+    outline: none;
+    border-color: #dc2626;
+}
+select:disabled { opacity: 0.4; cursor: not-allowed; }
+select option { background-color: #1e1e1e; }
+
+/* Flecha custom para selects */
+.select-wrapper {
+    position: relative;
+}
+.select-wrapper::after {
+    content: '▾';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #dc2626;
+    pointer-events: none;
+    font-size: 14px;
+}
+.select-wrapper + .select-wrapper { margin-top: 12px; }
+
+/* ── BUSCADOR ── */
+.buscador-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+.buscador-wrapper i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #dc2626;
+    font-size: 14px;
+}
+#buscarProducto {
+    padding-left: 38px;
+}
+
+/* ── LISTA DE PRODUCTOS ── */
+.prod-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px;
+    border-bottom: 1px solid #2a2a2a;
+    gap: 12px;
+}
+.prod-item:last-child { border-bottom: none; }
+
+.prod-nombre {
+    font-size: 14px;
+    color: #e0e0e0;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.prod-controles {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.precio-input {
+    width: 110px !important;
+    text-align: right;
+    padding: 8px 10px !important;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Checkbox oferta */
+.label-oferta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #aaaaaa;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+}
+.label-oferta input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: #dc2626;
+    cursor: pointer;
+}
+
+.prod-vacio {
+    color: #555;
+    font-size: 14px;
+    padding: 20px 0;
+    text-align: center;
+}
+
+/* ── INPUT ARCHIVO ── */
+.file-wrapper {
+    position: relative;
+}
+.file-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #1e1e1e;
+    border: 1px dashed #3a3a3a;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #aaaaaa;
+    transition: border-color 0.2s, color 0.2s;
+}
+.file-label:hover { border-color: #dc2626; color: #ffffff; }
+.file-label i { color: #dc2626; font-size: 18px; }
+#fotos { display: none; }
+.file-hint {
+    font-size: 12px;
+    color: #555;
+    margin-top: 8px;
+}
+
+/* ── BOTÓN REGISTRAR ── */
+.btn-registrar {
+    width: 100%;
+    padding: 14px;
+    background: #dc2626;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 8px;
+    letter-spacing: 0.03em;
+}
+.btn-registrar:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+}
+.btn-registrar:active { transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+    .header { padding: 15px 20px; }
+    .contenedor { padding: 0 16px 60px; }
+    .page-titulo { font-size: 26px; }
+    .prod-item { flex-direction: column; align-items: flex-start; }
+    .prod-controles { width: 100%; justify-content: flex-end; }
+}

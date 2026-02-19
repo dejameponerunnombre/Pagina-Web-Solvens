@@ -4,37 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Administrador - Grupo Solvens</title>
-    
     <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
-    
     <link rel="stylesheet" href="style/inicio.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <header class="header">
-        <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
+                <style>
+            .btn-volver {
+                display: flex;
+                align-items: center;
+                opacity: 0.8;
+                transition: opacity 0.2s, transform 0.2s;
+            }
+            .btn-volver:hover {
+                opacity: 1;
+                transform: translateX(-3px);
+            }
+        </style>
+        <a href="inicioAdmin.html" class="btn-volver">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+        </a>
         <a href="login.html" class="btn-salir">Cerrar Sesión</a>
     </header>
 
     <main class="contenedor-principal">
         <div class="bienvenida">
             <h1>Panel de <span>Administrador</span></h1>
-            <p>Gestión de Usuraios</p>
+            <p>Gestión de Usuarios</p>
         </div>
 
         <div class="grid-acciones">
             <div class="tarjeta-accion">
-                <i class="fa-solid fa-boxes-stacked"></i>
+                <i class="fa-solid fa-user-plus"></i>
                 <h3>Agregar Usuario</h3>
                 <p>Agrega el usuario necesario al sistema</p>
                 <a class="btn-entrar" href="agregar_usuario.html">Agregar</a>
             </div>
 
             <div class="tarjeta-accion">
-                <i class="fa-solid fa-users-gear"></i>
+                <i class="fa-solid fa-user-minus"></i>
                 <h3>Eliminar Usuario</h3>
                 <p>Elimina el usuario que no trabaje más en el sistema</p>
                 <a class="btn-entrar" href="eliminar_usuario.html">Eliminar</a>
+            </div>
+
+            <div class="tarjeta-accion">
+                <i class="fa-solid fa-user-pen"></i>
+                <h3>Actualizar Cliente</h3>
+                <p>Modifica los datos o sucursales asignadas a un cliente</p>
+                <a class="btn-entrar" href="actualizar_cliente.html">Actualizar</a>
             </div>
         </div>
     </main>
