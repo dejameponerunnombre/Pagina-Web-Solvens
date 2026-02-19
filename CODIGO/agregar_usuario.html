@@ -11,18 +11,6 @@
 <body>
 
 <header class="header">
-        <style>
-        .btn-volver {
-            display: flex;
-            align-items: center;
-            opacity: 0.8;
-            transition: opacity 0.2s, transform 0.2s;
-        }
-        .btn-volver:hover {
-            opacity: 1;
-            transform: translateX(-3px);
-        }
-    </style>
     <a href="Admin_gestion_usuario.html" class="btn-volver">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"/>
@@ -53,30 +41,59 @@
             <input type="password" id="clave" placeholder="Contraseña" required minlength="4">
         </div>
 
-        <div id="seccion-abastece" style="display: none; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 20px;">
+        <div id="seccion-abastece">
             <h3>Asignar Sucursales que Abastece</h3>
-            <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">
-                Filtre por cadena y seleccione los puntos de venta.
-            </p>
-            
+            <p>Filtre por cadena y seleccione los puntos de venta.</p>
+
             <div class="fila">
                 <select id="filtro-cadena-abastece">
-                    <option value="" disabled selected>Seleccione una Cadena...</option>
+                    <option value="" disabled selected>Filtrar por Cadena...</option>
                 </select>
             </div>
 
-            <div id="lista-sucursales-check" style="max-height: 200px; overflow-y: auto; background: #fff; padding: 10px; border: 1px solid #ddd; margin-top: 10px;">
-                <p style="color: #999; text-align: center;">Seleccione una cadena para ver sucursales</p>
+            <div id="lista-sucursales-check">
+                <p>Seleccione una cadena para ver sucursales</p>
             </div>
-            
-            <p id="contador-seleccion" style="margin-top: 10px; font-weight: bold; color: #0056b3;">
-                Sucursales seleccionadas: 0
-            </p>
+
+            <p id="contador-seleccion">Sucursales seleccionadas: 0</p>
         </div>
 
-        <button type="submit" style="margin-top: 20px;">Registrar Usuario</button>
+        <button type="submit">Registrar Usuario</button>
     </form>
 </main>
+
+<style>
+    #seccion-abastece {
+        display: none;
+        border-top: 1px solid #2a2a2a;
+        padding-top: 20px;
+        margin-top: 4px;
+    }
+    #seccion-abastece h3 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #aaaaaa;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 4px;
+    }
+    #seccion-abastece > p {
+        font-size: 13px;
+        color: #555;
+        margin-bottom: 14px;
+    }
+    #lista-sucursales-check > div label {
+        color: #cccccc;
+        font-size: 13px;
+        cursor: pointer;
+    }
+    #lista-sucursales-check > p {
+        color: #555;
+        font-size: 13px;
+        text-align: center;
+        padding: 8px 0;
+    }
+</style>
 
 <script>
     const URL_BASE = 'http://localhost:3000/api';
@@ -87,10 +104,8 @@
     const listaCheck = document.getElementById('lista-sucursales-check');
     const contadorText = document.getElementById('contador-seleccion');
 
-    // Set para mantener IDs seleccionados de diferentes cadenas
     let sucursalesSeleccionadas = new Set();
 
-    // 1. Cargar Roles al iniciar
     document.addEventListener("DOMContentLoaded", async () => {
         try {
             const res = await fetch(`${URL_BASE}/tipos-usuario`);
@@ -104,13 +119,11 @@
         }
     });
 
-    // 2. Mostrar/Ocultar sección de sucursales según el rol
     selectTipo.addEventListener('change', async () => {
         const rolSeleccionado = selectTipo.options[selectTipo.selectedIndex].text.toLowerCase();
         
         if (rolSeleccionado === "cliente") {
             seccionAbastece.style.display = 'block';
-            // Cargar cadenas si el select está vacío
             if (filtroCadena.options.length <= 1) {
                 const res = await fetch(`${URL_BASE}/cadenas`);
                 const cadenas = await res.json();
@@ -126,41 +139,33 @@
         }
     });
 
-    // 3. Cargar sucursales por cadena (checkboxes)
     filtroCadena.addEventListener('change', async () => {
-        // Es vital que filtroCadena.value tenga el ID numérico de la cadena
-        const idCadena = filtroCadena.value; 
-        
+        const idCadena = filtroCadena.value;
         listaCheck.innerHTML = '<p>Buscando sucursales...</p>';
         
         try {
-            // Llamada a la API (ahora el backend solo pedirá id_cadena si no mandas subzona)
             const res = await fetch(`${URL_BASE}/buscar-sucursales?id_cadena=${idCadena}`);
             const sucursales = await res.json();
-            
             listaCheck.innerHTML = '';
             
             if (sucursales.length === 0) {
-                listaCheck.innerHTML = '<p style="color: gray; padding: 10px;">Esta cadena no tiene sucursales registradas.</p>';
+                listaCheck.innerHTML = '<p>Esta cadena no tiene sucursales registradas.</p>';
                 return;
             }
 
             sucursales.forEach(s => {
-            const estaSeleccionada = sucursalesSeleccionadas.has(s.ID.toString()) ? 'checked' : '';
-            listaCheck.innerHTML += `
-                <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                    <input type="checkbox" value="${s.ID}" ${estaSeleccionada} onchange="gestionarSeleccion(this)" style="width: auto; margin-right: 10px;">
-                    <label style="color: #333; font-size: 0.9rem; cursor: pointer;">
-                        ${s.Calle} ${s.Altura || ''}, ${s.Localidad}
-                    </label>
-                </div>`;
-        });
+                const estaSeleccionada = sucursalesSeleccionadas.has(s.ID.toString()) ? 'checked' : '';
+                listaCheck.innerHTML += `
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <input type="checkbox" value="${s.ID}" ${estaSeleccionada} onchange="gestionarSeleccion(this)" style="margin-right: 10px;">
+                        <label>${s.Calle} ${s.Altura || ''}, ${s.Localidad}</label>
+                    </div>`;
+            });
         } catch (err) {
-            listaCheck.innerHTML = '<p style="color: red;">Error al conectar con el servidor.</p>';
+            listaCheck.innerHTML = '<p style="color: #dc2626;">Error al conectar con el servidor.</p>';
         }
     });
 
-    // 4. Guardar selección en el Set
     function gestionarSeleccion(checkbox) {
         if (checkbox.checked) {
             sucursalesSeleccionadas.add(checkbox.value);
@@ -174,7 +179,6 @@
         contadorText.textContent = `Sucursales seleccionadas: ${sucursalesSeleccionadas.size}`;
     }
 
-    // 5. Enviar formulario
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -184,7 +188,7 @@
             mail: document.getElementById('mail').value,
             usuario: document.getElementById('usuario').value,
             clave: document.getElementById('clave').value,
-            sucursalesIds: Array.from(sucursalesSeleccionadas) // Convertimos el Set a Array
+            sucursalesIds: Array.from(sucursalesSeleccionadas)
         };
 
         try {
