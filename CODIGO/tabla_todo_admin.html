@@ -16,16 +16,27 @@
         .btn-toggle-sidebar.oculto { display: none !important; }
 
         /* Estilos de botones de estado y tabla */
-        .btn-accion { padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 11px; font-weight: bold; margin: 2px; text-transform: uppercase; }
+        .btn-accion { padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 11px; font-weight: bold; margin: 2px; text-transform: uppercase; transition: 0.2s; }
         .btn-accion.aprobar { background-color: #22c55e; color: white; }
         .btn-accion.rechazar { background-color: #ef4444; color: white; }
+        .btn-accion:hover { transform: scale(1.1); }
+        
         .btn-excel { background-color: #15803d; color: white; padding: 10px 16px; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
         
         .badge-oferta { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
         .badge-oferta.si { background: #dcfce7; color: #166534; }
         .badge-oferta.no { background: #fee2e2; color: #991b1b; }
 
-        /* Ajuste para que el área de contenido use todo el espacio si no hay filtros */
+        /* Estilos para la nueva columna de Estado */
+        .status-pill { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .status-aprobado { background: #dcfce7; color: #166534; }
+        .status-rechazado { background: #fee2e2; color: #991b1b; }
+        .status-pendiente { background: #fef3c7; color: #92400e; }
+
+        /* Corrección línea de más en filtros */
+        .grupo-filtro { border-bottom: 1px solid #eee; margin-bottom: 0; }
+        .filtro-header { border-bottom: none !important; }
+
         .area-contenido { width: 100%; transition: margin 0.3s; }
     </style>
 </head>
@@ -55,7 +66,6 @@
             </button>
         </div>
 
-        <!-- Periodo -->
         <div class="grupo-filtro">
             <div class="filtro-header">
                 <label class="label-filtro">Periodo</label>
@@ -76,7 +86,6 @@
             </div>
         </div>
 
-        <!-- Cadenas -->
         <div class="grupo-filtro">
             <div class="filtro-header">
                 <label class="label-filtro">Cadenas</label>
@@ -90,7 +99,6 @@
             </div>
         </div>
 
-        <!-- Bocas -->
         <div class="grupo-filtro">
             <div class="filtro-header">
                 <label class="label-filtro">Bocas</label>
@@ -104,7 +112,6 @@
             </div>
         </div>
 
-        <!-- Canales -->
         <div class="grupo-filtro">
             <div class="filtro-header">
                 <label class="label-filtro">Canales</label>
@@ -118,7 +125,6 @@
             </div>
         </div>
 
-        <!-- Región -->
         <div class="grupo-filtro">
             <div class="filtro-header">
                 <label class="label-filtro">Región</label>
@@ -132,7 +138,6 @@
             </div>
         </div>
 
-        <!-- Clientes -->
         <div class="grupo-filtro">
             <div class="filtro-header">
                 <label class="label-filtro">Clientes</label>
@@ -170,7 +175,7 @@
             <table class="tabla-reporte">
                 <thead>
                     <tr>
-                        <th>FECHA</th>
+                        <th>ESTADO</th> <th>FECHA</th>
                         <th>CADENA</th>
                         <th>COMERCIO</th>
                         <th>LOCALIDAD</th>
@@ -183,8 +188,7 @@
                         <th>SKU</th>
                         <th>PRECIO</th>
                         <th>OFERTA</th>
-                        <th>ESTADO</th>
-                    </tr>
+                        <th>ACCIONES</th> </tr>
                 </thead>
                 <tbody id="cuerpoTabla"></tbody>
             </table>
@@ -200,17 +204,17 @@ const cuerpo = document.getElementById('cuerpoTabla');
 const tagsEl = document.getElementById('tagsActivos');
 
 // ══════════════════════════════════════════════════════════════════════════════
-// TOGGLE SIDEBAR
+// TOGGLE SIDEBAR (BOTÓN DESAPARECE AL PRESIONAR)
 // ══════════════════════════════════════════════════════════════════════════════
 
 btnToggle.addEventListener('click', () => {
     sidebar.classList.add('activo');
-    btnToggle.classList.add('oculto');
+    btnToggle.classList.add('oculto'); // Desaparece al abrir
 });
 
 document.getElementById('btnCerrarSidebar').addEventListener('click', () => {
     sidebar.classList.remove('activo');
-    btnToggle.classList.remove('oculto');
+    btnToggle.classList.remove('oculto'); // Reaparece al cerrar
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -300,7 +304,7 @@ function buildParams() {
 }
 
 async function cargarDatos() {
-    cuerpo.innerHTML = '<tr><td colspan="14">Cargando datos...</td></tr>';
+    cuerpo.innerHTML = '<tr><td colspan="15">Cargando datos...</td></tr>';
     
     try {
         const params = buildParams();
@@ -311,7 +315,7 @@ async function cargarDatos() {
         actualizarTags(params);
         
         if (datos.length === 0) {
-            cuerpo.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:40px;">No se encontraron registros con los filtros aplicados.</td></tr>';
+            cuerpo.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:40px;">No se encontraron registros.</td></tr>';
             return;
         }
         
@@ -319,7 +323,12 @@ async function cargarDatos() {
             const f = new Date(r.Fecha);
             const fechaF = `${String(f.getUTCDate()).padStart(2,'0')}/${String(f.getUTCMonth()+1).padStart(2,'0')}/${f.getUTCFullYear()}`;
             
+            // Si el estado viene vacío de la DB, mostramos Pendiente
+            const estActual = r.Estado || 'Pendiente';
+            const estClass = estActual.toLowerCase();
+            
             return `<tr>
+                <td><span class="status-pill status-${estClass}">${estActual}</span></td>
                 <td>${fechaF}</td>
                 <td>${r.Cadena || '-'}</td>
                 <td>${r.Comercio || '-'}</td>
@@ -332,17 +341,42 @@ async function cargarDatos() {
                 <td>${r.Producto || '-'}</td>
                 <td>${r.SKU || '-'}</td>
                 <td>$${Number(r.Precio).toFixed(2)}</td>
-                <td><span class="badge-oferta ${r.Oferta === 'Sí' ? 'si' : 'no'}">${r.Oferta || 'No'}</span></td>
+                <td><span class="badge-oferta ${r.Oferta === 'Sí' ? 'si' : 'no'}">${r.Oferta}</span></td>
                 <td>
-                    <button class="btn-accion aprobar" onclick="actualizarEstado(${r.ID_Visita}, 'Aprobado')">Ok</button>
-                    <button class="btn-accion rechazar" onclick="actualizarEstado(${r.ID_Visita}, 'Rechazado')">X</button>
+                    <button class="btn-accion aprobar" title="Aprobar" onclick="actualizarEstado(${r.ID_Carga}, 'Aprobado')">Aprobar</button>
+                    <button class="btn-accion rechazar" title="Rechazar" onclick="actualizarEstado(${r.ID_Carga}, 'Rechazado')">Rechazar</button>
                 </td>
             </tr>`;
         }).join('');
         
     } catch (e) {
         console.error('Error:', e);
-        cuerpo.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:40px;color:#dc2626;">Error al cargar la tabla. Verifique la conexión con el servidor.</td></tr>';
+        cuerpo.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:40px;color:#dc2626;">Error al cargar la tabla.</td></tr>';
+    }
+}
+
+async function actualizarEstado(idCarga, nuevoEstado) {
+    if(!confirm(`¿Cambiar estado a ${nuevoEstado}?`)) return;
+    
+    try {
+        const res = await fetch(`${API_BASE}/visitas/estado`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ 
+                id: idCarga, 
+                estado: nuevoEstado 
+            })
+        });
+
+        if (res.ok) {
+            // Recargamos la tabla para que el usuario vea el cambio de color y texto inmediatamente
+            cargarDatos();
+        } else {
+            alert('No se pudo actualizar el registro en el servidor.');
+        }
+    } catch (e) {
+        console.error('Error en fetch:', e);
+        alert('Error de conexión al intentar actualizar.');
     }
 }
 
@@ -371,7 +405,7 @@ function actualizarTags(params) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// BOTONES DE ACCIÓN
+// BOTONES DE ACCIÓN Y EXPORTACIÓN
 // ══════════════════════════════════════════════════════════════════════════════
 
 document.getElementById('btnAplicar').addEventListener('click', cargarDatos);
@@ -382,29 +416,10 @@ document.getElementById('btnLimpiar').addEventListener('click', () => {
     cargarDatos();
 });
 
-// ══════════════════════════════════════════════════════════════════════════════
-// EXPORTAR Y ESTADO
-// ══════════════════════════════════════════════════════════════════════════════
-
 function exportarExcel() {
     const table = document.querySelector(".tabla-reporte");
     const wb = XLSX.utils.table_to_book(table);
     XLSX.writeFile(wb, "Reporte_Productos.xlsx");
-}
-
-async function actualizarEstado(id, nuevoEstado) {
-    if(!confirm(`¿Cambiar estado a ${nuevoEstado}?`)) return;
-    
-    try {
-        await fetch(`${API_BASE}/visitas/estado`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ id, estado: nuevoEstado })
-        });
-        cargarDatos();
-    } catch (e) {
-        alert('Error al actualizar');
-    }
 }
 </script>
 </body>

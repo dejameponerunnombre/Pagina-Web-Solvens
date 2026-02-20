@@ -518,6 +518,7 @@ app.get('/api/filtros-opciones', async (req, res, next) => {
 // Consulta tabla
 const BASE_SELECT_REPORTE = `
     SELECT
+        c.ID as ID_Carga,
         v.Fecha,
         ca.Nombre                                       AS Cadena,
         s.Calle + ISNULL(' ' + CAST(s.Altura AS VARCHAR), ' S/N') AS Comercio,
@@ -770,7 +771,21 @@ app.get('/api/filtros-opciones', async (req, res) => {
     }
 });
 
-
+// 2. Actualizar Estado (POST)
+app.post('/api/visitas/estado', async (req, res) => {
+    try {
+        let pool = await getConnection(); // Abre conexión cada vez
+        await pool.request()
+            .input('id', mssql.Int, req.body.id)
+            .input('estado', mssql.VarChar, req.body.estado)
+            .query("UPDATE Carga SET Estado = @estado WHERE ID = @id");
+        
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Error actualizando estado:", err);
+        res.status(500).send(err.message);
+    }
+});
 
 
 
