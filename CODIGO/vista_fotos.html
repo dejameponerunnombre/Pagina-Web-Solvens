@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo Solvens - Evidencia de Visita</title>
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href ="style/vista_fotos.css">
+</head>
+<body>
+
+<header class="header">
+    <a href="login.html" class="btn-volver"> <!-- PROVICIONAL-->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+        </svg>
+    </a>
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<main class="contenido">
+
+    <h1>Evidencia <span>Fotográfica</span></h1>
+    <p class="page-subtitulo">Registro visual de visitas realizadas por los repositores</p>
+
+    <!-- ESTO TENDRIA QUE BUCLEAR PERO ES PROVICIONAL-->
+    <div class="visita-bloque">
+        <ul class="carousel">
+            <li><div class="scroll-start"><div class="img"><img src="https://placehold.co/400x530/1a1a1a/dc2626?text=Foto+1" alt="Foto 1"></div></div></li>
+            <li><div><div class="img"><img src="https://placehold.co/400x530/1a1a1a/dc2626?text=Foto+2" alt="Foto 2"></div></div></li>
+            <li><div><div class="img"><img src="https://placehold.co/400x530/1a1a1a/dc2626?text=Foto+3" alt="Foto 3"></div></div></li>
+        </ul>
+        <div class="visita-meta">
+            <span><i class="fas fa-calendar-alt"></i>FECHA</span>
+            <span><i class="fas fa-user"></i>REPO</span>
+            <span><i class="fas fa-store"></i>CADENA/LOCALIDAD/SUCURSAL</span>
+        </div>
+    </div>
+
+
+    <div class="visita-bloque">
+        <ul class="carousel">
+            <li><div class="scroll-start"><div class="img"><img src="https://placehold.co/400x530/1a1a1a/dc2626?text=Foto+A" alt="Foto A"></div></div></li>
+            <li><div><div class="img"><img src="https://placehold.co/400x530/1a1a1a/dc2626?text=Foto+B" alt="Foto B"></div></div></li>
+        </ul>
+        <div class="visita-meta">
+            <span><i class="fas fa-calendar-alt"></i>FECHA</span>
+            <span><i class="fas fa-user"></i>REPO</span>
+            <span><i class="fas fa-store"></i>CADENA/LOCALIDAD/SUCURSAL</span>
+        </div>
+    </div>
+
+</main>
+
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close"><i class="fas fa-times"></i></button>
+    <button class="lightbox-prev" id="lightbox-prev"><i class="fas fa-chevron-left"></i></button>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="">
+    <button class="lightbox-next" id="lightbox-next"><i class="fas fa-chevron-right"></i></button>
+</div>
+
+<script>
+    const imgs = Array.from(document.querySelectorAll('.carousel .img img'));
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightbox-img');
+    let current = 0;
+
+    function openLightbox(index) {
+        current = index;
+        lbImg.src = imgs[current].src;
+        lightbox.classList.add('activo');
+    }
+
+    function closeLightbox() {
+        lightbox.classList.remove('activo');
+    }
+
+    imgs.forEach((img, i) => {
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', () => openLightbox(i));
+    });
+
+    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+    document.getElementById('lightbox-prev').addEventListener('click', () => {
+        current = (current - 1 + imgs.length) % imgs.length;
+        lbImg.src = imgs[current].src;
+    });
+    document.getElementById('lightbox-next').addEventListener('click', () => {
+        current = (current + 1) % imgs.length;
+        lbImg.src = imgs[current].src;
+    });
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('activo')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') document.getElementById('lightbox-prev').click();
+        if (e.key === 'ArrowRight') document.getElementById('lightbox-next').click();
+    });
+</script>
+
+</body>
+</html>
