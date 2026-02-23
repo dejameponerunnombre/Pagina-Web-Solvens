@@ -54,11 +54,19 @@
             </select>
         </div>
 
-        <button id="btn-eliminar" disabled style="background-color: #d9534f;">Eliminar Sucursal</button>
+        <button id="btn-eliminar" disabled >Eliminar Sucursal</button>
     </div>
 </main>
 
 <script>
+    function mostrarToast(mensaje, tipo = 'exito') {
+        const t = document.getElementById('toast');
+        t.textContent = mensaje;
+        t.className = 'toast ' + tipo;
+        t.classList.add('visible');
+        setTimeout(() => t.classList.remove('visible'), 3500);
+    }
+
     const URL_BASE = 'http://localhost:3000/api';
     const selCadena = document.getElementById('select-cadena');
     const selSubzona = document.getElementById('select-subzona');
@@ -117,13 +125,39 @@
         const result = await res.json();
 
         if (result.success) {
-            alert("✅ " + result.message);
+            mostrarToast(result.message, "exito");
             location.reload(); // Recargar para limpiar filtros
         } else {
-            alert("❌ " + result.message);
+            mostrarToast(result.message, "error");
         }
     });
 </script>
+
+
+<style>
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 14px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    max-width: 360px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.toast.exito  { background: #1a2e1a; border: 1px solid #4ade80; color: #4ade80; }
+.toast.error  { background: #2e1a1a; border: 1px solid #dc2626; color: #f87171; }
+.toast.aviso  { background: #2e2a1a; border: 1px solid #f59e0b; color: #fbbf24; }
+.toast.visible { opacity: 1; transform: translateY(0); }
+</style>
+<div class="toast" id="toast"></div>
 
 </body>
 </html>
