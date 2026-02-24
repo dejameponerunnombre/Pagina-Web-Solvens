@@ -147,6 +147,10 @@ body::before {
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
 }
 
+.btn-entrar:visited {
+    color: white;
+    text-decoration: none;
+}
 
 .footer-contacto {
     background: rgba(0, 0, 0, 0.8);

@@ -72,6 +72,12 @@ body::before {
     padding: 0 24px;
 }
 
+.btn-salir:visited {
+    color: white;
+    text-decoration: none;
+}
+
+
 h1 {
     font-size: 34px;
     font-weight: 600;

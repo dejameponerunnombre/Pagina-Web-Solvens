@@ -20,6 +20,11 @@
     text-decoration: none;
 }
 
+.btn-entrar:visited {
+    color: white;
+    text-decoration: none;
+}
+
 @media (max-width: 900px) {
     .grid-acciones {
         grid-template-columns: repeat(2, 1fr);
