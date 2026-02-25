@@ -4,6 +4,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
+import bcrypt from 'bcrypt';
 import { getConnection, mssql } from './conexion.mjs';
 
 const app = express();
@@ -172,6 +173,9 @@ app.post('/api/crear-usuario', async (req, res, next) => {
             });
         }
 
+        // HASH DEL PASSWORD ANTES DE INSERTAR
+        const hashedPass = await bcrypt.hash(clave, 10);
+
         // 2. INICIO DE TRANSACCIÓN (Si pasó la validación)
         const transaction = new mssql.Transaction(pool);
         await transaction.begin();
@@ -183,7 +187,7 @@ app.post('/api/crear-usuario', async (req, res, next) => {
                 .input('tipo', mssql.TinyInt, id_tipo)
                 .input('mail', mssql.VarChar, mail)
                 .input('user', mssql.VarChar, usuario)
-                .input('pass', mssql.VarChar, clave)
+                .input('pass', mssql.VarChar, hashedPass)
                 .query(`INSERT INTO Usuario (Nombre, ID_Tipo_Usuario, Mail, Usuario, Clave) 
                         OUTPUT INSERTED.ID
                         VALUES (@nom, @tipo, @mail, @user, @pass)`);
@@ -347,22 +351,24 @@ app.delete('/api/eliminar-usuario/:id', async (req, res, next) => {
 app.post('/login', async (req, res, next) => {
     const { user, password } = req.body;
     try {
-        const query = 'SELECT ID, Nombre, ID_Tipo_Usuario as tipo FROM Usuario WHERE Usuario = @usuario AND Clave = @clave';
+        const query = 'SELECT ID, Nombre, ID_Tipo_Usuario as tipo, Clave FROM Usuario WHERE Usuario = @usuario';
         const result = await ejecutarQuery(query, [
-            { name: 'usuario', type: mssql.VarChar, value: user },
-            { name: 'clave', type: mssql.VarChar, value: password }
+            { name: 'usuario', type: mssql.VarChar, value: user }
         ]);
 
         if (result.recordset.length > 0) {
-            res.json({ 
-                success: true, 
-                id: result.recordset[0].ID, 
-                tipo: result.recordset[0].tipo, 
-                nombre: result.recordset[0].Nombre 
-            });
-        } else {
-            res.status(401).json({ success: false, message: "Usuario o contraseña incorrectos" });
+            const userRec = result.recordset[0];
+            const match = await bcrypt.compare(password, userRec.Clave);
+            if (match) {
+                return res.json({ 
+                    success: true, 
+                    id: userRec.ID, 
+                    tipo: userRec.tipo, 
+                    nombre: userRec.Nombre 
+                });
+            }
         }
+        res.status(401).json({ success: false, message: "Usuario o contraseña incorrectos" });
     } catch (error) { next(error); }
 });
 

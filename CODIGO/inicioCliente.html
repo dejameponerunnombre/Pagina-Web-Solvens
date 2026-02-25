@@ -16,7 +16,7 @@
 
     <main class="contenedor-principal">
         <div class="bienvenida">
-            <h1>Bienvenido, <span>Cliente</span></h1>
+            <h1>Bienvenido, <span id="nombreCliente">Cliente</span></h1>
             <p>Seleccione una opción para comenzar</p>
         </div>
 
@@ -32,7 +32,7 @@
                 <i class="fa-solid fa-boxes-stacked"></i>
                 <h3>Listado de Productos</h3>
                 <p>Consulte nuestro catálogo actualizado y stock</p>
-                <button href="tabla_cliente.html" class="btn-entrar">Ver Catálogo</button>
+                <a class="btn-entrar" href = "tabla_cliente.html">Ver productos cargados</a>
             </div>
         </div>
     </main>
@@ -40,5 +40,22 @@
     <footer class="footer-contacto">
         <p><i class="fa-solid fa-envelope"></i> contacto@gruposolvens.com | <i class="fa-solid fa-phone"></i> +54 11 1234-5678</p>
     </footer>
+
+    <script>
+        // mostrar el nombre del cliente usando lo guardado en el login
+        document.addEventListener('DOMContentLoaded', () => {
+            const nombre = localStorage.getItem('nombreUsuario');
+            const id = localStorage.getItem('id_usuario');
+            if (!id) {
+                // no hay sesión válida
+                window.location.href = 'login.html';
+                return;
+            }
+            if (nombre) {
+                const span = document.getElementById('nombreCliente');
+                if (span) span.textContent = nombre;
+            }
+        });
+    </script>
 </body>
 </html>

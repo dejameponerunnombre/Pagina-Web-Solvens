@@ -150,7 +150,12 @@
 
         <div class="barra-resultados">
             <span>Mostrando <strong id="conteoResultados">0</strong> registros</span>
-            <div id="tagsActivos" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+            <div style="display:flex;gap:10px;align-items:center;">
+                <button id="btnExportar" style="background-color: #107c10; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold;">
+                    <i class="fas fa-file-excel"></i> Exportar a Excel
+                </button>
+                <div id="tagsActivos" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+            </div>
         </div>
 
         <div class="tabla-wrapper">
@@ -190,6 +195,7 @@
 <script>
 const API_BASE     = 'http://localhost:3000/api';
 const FILAS_PAGINA = 50;
+const id = localStorage.getItem('id_usuario'); 
 
 let datosCompletos = [];
 let paginaActual   = 1;
@@ -405,12 +411,45 @@ document.getElementById('btnLimpiar').addEventListener('click', () => {
         .forEach(id => document.getElementById(id).value = '');
     cargarDatos();
 });
+// botón de exportar
+const exportBtn = document.getElementById('btnExportar');
+if (exportBtn) exportBtn.addEventListener('click', exportTabla);
 
 // ── Helpers ──
 function formatFecha(f) {
     if (!f) return '-';
     return new Date(f).toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
 }
+
+// exportar datos a CSV/Excel
+function exportTabla() {
+    if (!datosCompletos || datosCompletos.length === 0) return;
+    const cols = [
+        'Fecha','Cadena','Comercio','Localidad','Región','Cluster','Canal',
+        'Repositor','Categoría','Producto','SKU','Precio','Oferta'
+    ];
+    const rows = datosCompletos.map(r => [
+        formatFecha(r.Fecha), r.Cadena||'', r.Comercio||'', r.Localidad||'',
+        r.Region||'', r.Cluster||'', r.Canal||'', r.Usuario||'',
+        r.Categoria||'', r.Producto||'', r.SKU||'',
+        r.Precio!=null ? Number(r.Precio).toFixed(2) : '',
+        r.Oferta||''
+    ]);
+    // construir CSV
+    const esc = v => `"${String(v).replace(/"/g,'""')}"`;
+    let csv = cols.join(',') + '\r\n';
+    rows.forEach(r => {
+        csv += r.map(esc).join(',') + '\r\n';
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'mis_reportes.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 function mostrarCargando() {
     cuerpo.innerHTML = `<tr><td colspan="13"><div class="estado-tabla"><div class="spinner"></div><p>Cargando datos...</p></div></td></tr>`;
 }
