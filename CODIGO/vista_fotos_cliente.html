@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo Solvens - Evidencia de Visita</title>
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href ="style/vista_fotos.css">
+</head>
+<body>
+
+<header class="header">
+    <a href="inicioCliente.html" class="btn-volver">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+        </svg>
+    </a>
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+<main class="contenido">
+    <h1>Evidencia <span>Fotográfica</span></h1>
+    <p class="page-subtitulo">Registro visual de visitas aprobadas</p>
+    <div id="galeria"></div>
+</main>
+
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close"><i class="fas fa-times"></i></button>
+    <button class="lightbox-prev"  id="lightbox-prev"><i class="fas fa-chevron-left"></i></button>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="">
+    <button class="lightbox-next"  id="lightbox-next"><i class="fas fa-chevron-right"></i></button>
+</div>
+
+<script>
+const URL_BASE = 'http://localhost:3000/api';
+const IMG_BASE = '../IMG/';
+const galeria  = document.getElementById('galeria');
+const lightbox = document.getElementById('lightbox');
+const lbImg    = document.getElementById('lightbox-img');
+
+let todasLasImgs = [];
+let current      = 0;
+
+async function cargarGaleria() {
+    const idCliente = localStorage.getItem('id_usuario');
+    const tipo      = Number(localStorage.getItem('tipoUsuario'));
+
+    if (tipo !== 2 || !idCliente) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    try {
+        const res = await fetch(`${URL_BASE}/imagenes-aprobadas-cliente?id_cliente=${idCliente}`);
+
+        if (res.status === 403) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const visitas = await res.json();
+
+        if (!visitas.length) {
+            galeria.innerHTML = '<p class="sin-datos">No hay fotos aprobadas todavía.</p>';
+            return;
+        }
+
+        todasLasImgs = [];
+
+        visitas.forEach(v => {
+            const bloque = document.createElement('div');
+            bloque.className = 'visita-bloque';
+
+            const items = v.imagenes.map((img, i) => {
+                const idx = todasLasImgs.length;
+                todasLasImgs.push(IMG_BASE + img.ruta);
+                return `
+                    <li>
+                        <div${i === 0 ? ' class="scroll-start"' : ''}>
+                            <div class="img">
+                                <img src="${IMG_BASE + img.ruta}" alt="Foto visita" data-idx="${idx}">
+                            </div>
+                        </div>
+                    </li>`;
+            }).join('');
+
+            bloque.innerHTML = `
+                <ul class="carousel">${items}</ul>
+                <div class="visita-meta">
+                    <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
+                    <span><i class="fas fa-user"></i> ${v.repositor}</span>
+                    <span><i class="fas fa-store"></i> ${v.cadena} — ${v.sucursal}, ${v.localidad}</span>
+                </div>`;
+
+            galeria.appendChild(bloque);
+        });
+
+        document.querySelectorAll('.carousel .img img').forEach(img => {
+            img.style.cursor = 'zoom-in';
+            img.addEventListener('click', () => openLightbox(parseInt(img.dataset.idx)));
+        });
+
+    } catch (err) {
+        galeria.innerHTML = '<p class="sin-datos">Error al conectar con el servidor.</p>';
+        console.error(err);
+    }
+}
+
+function openLightbox(index) {
+    current   = index;
+    lbImg.src = todasLasImgs[current];
+    lightbox.classList.add('activo');
+}
+
+function closeLightbox() { lightbox.classList.remove('activo'); }
+
+document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+document.getElementById('lightbox-prev').addEventListener('click', () => {
+    current   = (current - 1 + todasLasImgs.length) % todasLasImgs.length;
+    lbImg.src = todasLasImgs[current];
+});
+document.getElementById('lightbox-next').addEventListener('click', () => {
+    current   = (current + 1) % todasLasImgs.length;
+    lbImg.src = todasLasImgs[current];
+});
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('activo')) return;
+    if (e.key === 'Escape')     closeLightbox();
+    if (e.key === 'ArrowLeft')  document.getElementById('lightbox-prev').click();
+    if (e.key === 'ArrowRight') document.getElementById('lightbox-next').click();
+});
+
+cargarGaleria();
+</script>
+
+</body>
+</html>
