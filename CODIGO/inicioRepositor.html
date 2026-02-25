@@ -18,7 +18,7 @@
 
     <main class="contenedor-principal">
         <div class="bienvenida">
-            <h1>Panel de <span>Repositor</span></h1>
+            <h1>Panel de <span id="nombreRepositor">Repositor</span></h1>
             <p>Gestión de inventario y stock</p>
         </div>
 
@@ -35,5 +35,20 @@
     <footer class="footer-contacto">
         <p>Área de Depósito | Grupo Solvens</p>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nombre = localStorage.getItem('nombreUsuario');
+            const id = localStorage.getItem('id_usuario');
+            if (!id) {
+                window.location.href = 'login.html';
+                return;
+            }
+            if (nombre) {
+                const span = document.getElementById('nombreRepositor');
+                if (span) span.textContent = nombre;
+            }
+        });
+    </script>
 </body>
 </html>
