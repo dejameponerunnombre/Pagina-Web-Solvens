@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Evidencia de Visita</title>
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style/filtros.css">
+    <link rel="stylesheet" href="style/vista_fotos.css">
+    <style>
+        /* buttons for each image (approve/reject) */
+        .btn-accion { margin: 4px; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; color: #fff; font-size: 12px; }
+        .btn-accion.aprobar { background-color: #22c55e; }
+        .btn-accion.rechazar { background-color: #ef4444; }
+        .img-actions { position: absolute; bottom: 6px; right: 6px; display: flex; gap: 4px; }
+        /* navigation between visits */
+        .visita-nav { display:flex; align-items:center; justify-content:center; gap:12px; }
+        .nav-btn { background: rgba(0,0,0,0.6); border:none; color:#fff; padding:8px; border-radius:50%; cursor:pointer; font-size:18px; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
+        /* lightbox action buttons */
+        .lightbox-accion {
+            position: absolute;
+            bottom: 20px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #fff;
+            z-index: 1000;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+        .lightbox-accion.aprobar { background: #22c55e; left: 40%; }
+        .lightbox-accion.rechazar { background: #ef4444; right: 40%; }
+        .lightbox-accion:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+        <i class="fas fa-filter"></i>
+        <span>Filtros</span>
+    </button>
+    <a href="Admin_gestion_visitas.html" class="btn-volver">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+        </svg>
+    </a>
+    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+</header>
+
+<main class="contenido">
+
+    <h1>Evidencia <span>Fotográfica</span></h1>
+    <p class="page-subtitulo">Todas las imágenes subidas por repositores</p>
+
+    <div class="contenedor-layout">
+    <aside class="sidebar-filtros" id="sidebarFiltros">
+        <div class="sidebar-header">
+            <h2 class="titulo-filtros">Filtros</h2>
+            <button class="btn-cerrar-sidebar" id="btnCerrarSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="grupo-filtro">
+            <div class="filtro-header">
+                <label class="label-filtro">Periodo</label>
+                <i class="fas fa-chevron-down icono-toggle"></i>
+            </div>
+            <div class="filtro-contenido">
+                <p class="descripcion-filtro">Seleccione un rango de fechas:</p>
+                <div class="rango-fechas">
+                    <div><label class="label-pequeno">Desde:</label><input type="date" class="input-fecha" id="fechaDesde"></div>
+                    <div><label class="label-pequeno">Hasta:</label><input type="date" class="input-fecha" id="fechaHasta"></div>
+                </div>
+            </div>
+        </div>
+        <div class="grupo-filtro">
+            <div class="filtro-header">
+                <label class="label-filtro">Cliente</label>
+                <i class="fas fa-chevron-down icono-toggle"></i>
+            </div>
+            <div class="filtro-contenido">
+                <p class="descripcion-filtro">Seleccione el cliente:</p>
+                <select class="select-filtro" id="filtroCliente"><option value="">Todos</option></select>
+            </div>
+        </div>
+        <div class="grupo-filtro">
+            <div class="filtro-header">
+                <label class="label-filtro">Cadena</label>
+                <i class="fas fa-chevron-down icono-toggle"></i>
+            </div>
+            <div class="filtro-contenido">
+                <p class="descripcion-filtro">Seleccione la cadena:</p>
+                <select class="select-filtro" id="filtroCadena"><option value="">Todas</option></select>
+            </div>
+        </div>
+        <div class="grupo-filtro">
+            <div class="filtro-header">
+                <label class="label-filtro">Sucursal</label>
+                <i class="fas fa-chevron-down icono-toggle"></i>
+            </div>
+            <div class="filtro-contenido">
+                <p class="descripcion-filtro">Seleccione la sucursal:</p>
+                <select class="select-filtro" id="filtroSucursal"><option value="">Todas</option></select>
+            </div>
+        </div>
+        <div class="grupo-filtro">
+            <div class="filtro-header">
+                <label class="label-filtro">Repositor</label>
+                <i class="fas fa-chevron-down icono-toggle"></i>
+            </div>
+            <div class="filtro-contenido">
+                <p class="descripcion-filtro">Seleccione el repositor:</p>
+                <select class="select-filtro" id="filtroRepo"><option value="">Todos</option></select>
+            </div>
+        </div>
+        <div class="botones-filtro" style="display:flex;gap:10px;">
+            <button id="btnAplicarFiltros" class="btn-aplicar-filtros">Aplicar</button>
+            <button id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
+        </div>
+    </aside>
+    <!-- end sidebar -->
+
+    <div class="visita-nav">
+        <button id="prevVisita" class="nav-btn"><i class="fas fa-chevron-left"></i></button>
+        <div id="contenedorVisitas"></div>
+        <button id="nextVisita" class="nav-btn"><i class="fas fa-chevron-right"></i></button>
+    </div>
+
+</main>
+
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close"><i class="fas fa-times"></i></button>
+    <button class="lightbox-prev" id="lightbox-prev"><i class="fas fa-chevron-left"></i></button>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="">
+    <button class="lightbox-next" id="lightbox-next"><i class="fas fa-chevron-right"></i></button>
+    <!-- approval actions inside lightbox -->
+    <button class="lightbox-accion aprobar" id="lightbox-aprobar">✓ Aprobar</button>
+    <button class="lightbox-accion rechazar" id="lightbox-rechazar">✕ Rechazar</button>
+</div>
+
+<script>
+    let visitasData = [];
+    let filteredVisitas = [];
+    let visitaIndex = 0;
+
+    async function cargarVisitasAdmin() {
+        const tipo = Number(localStorage.getItem('tipoUsuario'));
+        if (tipo !== 1) {
+            window.location.href = 'login.html';
+            return;
+        }
+        const res = await fetch('http://localhost:3000/api/imagenes-visitas');
+        if (!res.ok) {
+            document.getElementById('contenedorVisitas').innerHTML = '<p>Error al obtener las imágenes.</p>';
+            return;
+        }
+        visitasData = await res.json();
+        if (visitasData.length === 0) {
+            document.getElementById('contenedorVisitas').innerHTML = '<p>No hay imágenes cargadas.</p>';
+            return;
+        }
+        // inicializa filtros y vistas
+        populateFilters();
+        clearFilters();
+    }
+
+    function renderVisita(idx) {
+        const v = filteredVisitas[idx];
+        const cont = document.getElementById('contenedorVisitas');
+        const imgsHtml = v.imagenes.map((img, i) => {
+            const est = img.estado || 'Pendiente';
+            const estClass = est.toLowerCase();
+            return `
+                    <li>
+                        <div${i===0?' class="scroll-start"':''}>
+                            <div class="img">
+                                <span class="status-pill status-${estClass}">${est}</span>
+                                <img src="../IMG/${img.ruta}" alt="Foto ${i+1}" data-id="${img.id}">
+                                <div class="img-actions">
+                                    <button class="btn-accion aprobar" onclick="actualizarEstadoImagen(${img.id}, 'Aprobado')">✓</button>
+                                    <button class="btn-accion rechazar" onclick="actualizarEstadoImagen(${img.id}, 'Rechazado')">✕</button>
+                                </div>
+                            </div>
+                        </div>
+                    </li>`;
+        }).join('');
+        cont.innerHTML = `
+            <div class="visita-bloque" data-id="${v.id}">
+                <ul class="carousel">${imgsHtml}</ul>
+                <div class="visita-meta">
+                    <span><i class="fas fa-store"></i>${v.cadena} / ${v.localidad} / ${v.sucursal}</span>
+                    <span><i class="fas fa-calendar-alt"></i>${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
+                    <span><i class="fas fa-user"></i>${v.repositor}</span>
+                    <span><i class="fas fa-user-check"></i>${v.cliente}</span>
+                </div>
+            </div>`;
+        wireImages();
+        const showNav = filteredVisitas.length > 1;
+        document.getElementById('prevVisita').style.display = showNav ? 'inline-block' : 'none';
+        document.getElementById('nextVisita').style.display = showNav ? 'inline-block' : 'none';
+    }
+
+    async function actualizarEstadoImagen(idImg, nuevoEstado) {
+        if (!confirm(`¿Cambiar estado a ${nuevoEstado}?`)) return;
+        try {
+            const res = await fetch(`http://localhost:3000/api/imagen/${idImg}/estado`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ estado: nuevoEstado })
+            });
+            if (res.ok) cargarVisitasAdmin();
+            else alert('No se pudo actualizar el estado en el servidor.');
+        } catch (err) {
+            console.error(err);
+            alert('Error de conexión.');
+        }
+    }
+
+    // lightbox helpers copied from cliente view
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightbox-img');
+    let current = 0;
+    let currentLightboxImgId = null;
+    function openLightbox(index) {
+        current = index;
+        lbImg.src = imgs[current].src;
+        currentLightboxImgId = imgs[current].dataset.id || null;
+        lightbox.classList.add('activo');
+    }
+    function closeLightbox() { lightbox.classList.remove('activo'); }
+    function wireImages() {
+        imgs = Array.from(document.querySelectorAll('.carousel .img img'));
+        imgs.forEach((img, i) => {
+            img.style.cursor = 'zoom-in';
+            img.addEventListener('click', () => openLightbox(i));
+        });
+    }
+    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+    document.getElementById('lightbox-prev').addEventListener('click', () => {
+        current = (current - 1 + imgs.length) % imgs.length;
+        lbImg.src = imgs[current].src;
+        currentLightboxImgId = imgs[current].dataset.id || null;
+    });
+    document.getElementById('lightbox-next').addEventListener('click', () => {
+        current = (current + 1) % imgs.length;
+        lbImg.src = imgs[current].src;
+        currentLightboxImgId = imgs[current].dataset.id || null;
+    });
+    document.getElementById('lightbox-aprobar').addEventListener('click', () => {
+        if (currentLightboxImgId) actualizarEstadoImagen(currentLightboxImgId, 'Aprobado');
+    });
+    document.getElementById('lightbox-rechazar').addEventListener('click', () => {
+        if (currentLightboxImgId) actualizarEstadoImagen(currentLightboxImgId, 'Rechazado');
+    });
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('activo')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') document.getElementById('lightbox-prev').click();
+        if (e.key === 'ArrowRight') document.getElementById('lightbox-next').click();
+    });
+
+    document.getElementById('prevVisita').addEventListener('click', () => {
+        visitaIndex = (visitaIndex - 1 + filteredVisitas.length) % filteredVisitas.length;
+        renderVisita(visitaIndex);
+    });
+    document.getElementById('nextVisita').addEventListener('click', () => {
+        visitaIndex = (visitaIndex + 1) % filteredVisitas.length;
+        renderVisita(visitaIndex);
+    });
+
+    // filtro helpers
+    function populateFilters() {
+        const makeOptions = (arr) => [...new Set(arr)].sort();
+        const llenar = (id, items, prefix)=>{
+            const sel = document.getElementById(id);
+            sel.innerHTML = `<option value="">${prefix}</option>` +
+                items.map(x=>`<option value="${x}">${x}</option>`).join('');
+        };
+        llenar('filtroCliente', makeOptions(visitasData.map(v=>v.cliente)), 'Cliente (todos)');
+        llenar('filtroCadena', makeOptions(visitasData.map(v=>v.cadena)), 'Cadena (todas)');
+        llenar('filtroSucursal', makeOptions(visitasData.map(v=>v.sucursal)), 'Sucursal (todas)');
+        llenar('filtroRepo', makeOptions(visitasData.map(v=>v.repositor)), 'Repositor (todos)');
+    }
+    function applyFilters() {
+        const fDesde = document.getElementById('fechaDesde').value;
+        const fHasta = document.getElementById('fechaHasta').value;
+        const fC = document.getElementById('filtroCliente').value;
+        const fCad = document.getElementById('filtroCadena').value;
+        const fSuc = document.getElementById('filtroSucursal').value;
+        const fR = document.getElementById('filtroRepo').value;
+
+        filteredVisitas = visitasData.filter(v=>{
+            // filter by date range first
+            if(fDesde) {
+                const vDate = new Date(v.fecha).setHours(0,0,0,0);
+                const dDesde = new Date(fDesde).setHours(0,0,0,0);
+                if(vDate < dDesde) return false;
+            }
+            if(fHasta) {
+                const vDate = new Date(v.fecha).setHours(0,0,0,0);
+                const dHasta = new Date(fHasta).setHours(0,0,0,0);
+                if(vDate > dHasta) return false;
+            }
+            if(fC && v.cliente!==fC) return false;
+            if(fCad && v.cadena!==fCad) return false;
+            if(fSuc && v.sucursal!==fSuc) return false;
+            if(fR && v.repositor!==fR) return false;
+            return true;
+        });
+        visitaIndex = 0;
+        if(filteredVisitas.length===0) {
+            document.getElementById('contenedorVisitas').innerHTML = '<p>No hay visitas que coincidan.</p>';
+            document.getElementById('prevVisita').style.display = 'none';
+            document.getElementById('nextVisita').style.display = 'none';
+            return;
+        }
+        renderVisita(visitaIndex);
+    }
+    function clearFilters() {
+        ['fechaDesde','fechaHasta','filtroCliente','filtroCadena','filtroSucursal','filtroRepo']
+            .forEach(id=>document.getElementById(id).value='');
+        applyFilters();
+    }
+
+    document.getElementById('btnAplicarFiltros').addEventListener('click', applyFilters);
+    document.getElementById('btnLimpiarFiltros').addEventListener('click', clearFilters);
+
+    document.addEventListener('DOMContentLoaded', cargarVisitasAdmin);
+</script>
+
+<!-- filtros utility script -->
+<script src="js/filtros.js"></script>
+
+</body>
+</html>

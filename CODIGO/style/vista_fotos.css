@@ -80,6 +80,20 @@ h1 {
 
 h1 span { color: #dc2626; }
 
+/* pill showing image status above preview */
+.status-pill {
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 14px; /* larger than default */
+    font-weight: bold;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 6px;
+}
+.status-pill.status-aprobado { background: #dcfce7; color: #166534; }
+.status-pill.status-rechazado { background: #fee2e2; color: #991b1b; }
+.status-pill.status-pendiente  { background: #fef3c7; color: #92400e; }
+
 .page-subtitulo {
     color: #aaaaaa;
     font-size: 14px;

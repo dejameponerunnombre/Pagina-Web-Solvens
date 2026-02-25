@@ -439,14 +439,16 @@ app.get('/api/imagenes-aprobadas-cliente', async (req, res, next) => {
                    ca.Nombre AS Cadena,
                    s.Localidad,
                    s.Calle + ' ' + ISNULL(CAST(s.Altura AS VARCHAR),'') AS Sucursal,
-                   im.Ruta_Imagen
+                   im.ID          AS idImagen,
+                   im.Ruta_Imagen,
+                   im.Estado      AS EstadoImagen
             FROM Visita v
             JOIN Usuario uRepo ON v.ID_Repo = uRepo.ID
             JOIN Sucursal s   ON v.ID_Sucursal = s.ID
             JOIN Cadena ca    ON s.ID_Cadena = ca.ID
             JOIN Imagen im    ON im.ID_Visita = v.ID
             WHERE v.ID_Cliente = @id
-              AND EXISTS (SELECT 1 FROM Carga c WHERE c.ID_Visita = v.ID AND c.Estado = 'Aprobado')
+              AND im.Estado = 'Aprobado'
             ORDER BY v.Fecha DESC
         `;
         const result = await ejecutarQuery(query, [{ name: 'id', type: mssql.SmallInt, value: id_cliente }]);
@@ -464,9 +466,82 @@ app.get('/api/imagenes-aprobadas-cliente', async (req, res, next) => {
                     imagenes: []
                 };
             }
-            grouped[r.idVisita].imagenes.push(r.Ruta_Imagen);
+            grouped[r.idVisita].imagenes.push({
+                id: r.idImagen,
+                ruta: r.Ruta_Imagen,
+                estado: r.EstadoImagen
+            });
         });
         res.json(Object.values(grouped));
+    } catch (e) { next(e); }
+});
+
+// IMÁGENES (TODAS) PARA ADMINISTRACIÓN
+app.get('/api/imagenes-visitas', async (req, res, next) => {
+    try {
+        const query = `
+            SELECT v.ID AS idVisita,
+                   v.Fecha,
+                   uRepo.Nombre AS Repositor,
+                   uCliente.Nombre AS Cliente,
+                   ca.Nombre AS Cadena,
+                   s.Localidad,
+                   s.Calle + ' ' + ISNULL(CAST(s.Altura AS VARCHAR),'') AS Sucursal,
+                   im.ID           AS idImagen,
+                   im.Ruta_Imagen,
+                   im.Estado       AS EstadoImagen,
+                   c.Estado AS EstadoCarga
+            FROM Visita v
+            JOIN Usuario uRepo   ON v.ID_Repo = uRepo.ID
+            JOIN Usuario uCliente ON v.ID_Cliente = uCliente.ID
+            JOIN Sucursal s      ON v.ID_Sucursal = s.ID
+            JOIN Cadena ca       ON s.ID_Cadena = ca.ID
+            JOIN Imagen im       ON im.ID_Visita = v.ID
+            LEFT JOIN Carga c    ON c.ID_Visita = v.ID
+            ORDER BY v.Fecha DESC
+        `;
+        const result = await ejecutarQuery(query);
+        // console.log('imagenes-visitas rows returned', result.recordset.length);
+        // if (result.recordset.length > 0) console.log('imagenes-visitas sample row', result.recordset[0]);
+        const grouped = {};
+        result.recordset.forEach(r => {
+            if (!grouped[r.idVisita]) {
+                grouped[r.idVisita] = {
+                    id: r.idVisita,
+                    fecha: r.Fecha,
+                    repositor: r.Repositor,
+                    cliente: r.Cliente,
+                    cadena: r.Cadena,
+                    localidad: r.Localidad,
+                    sucursal: r.Sucursal,
+                    estadoCarga: r.EstadoCarga || 'Pendiente',
+                    imagenes: []
+                };
+            }
+            grouped[r.idVisita].imagenes.push({
+                id: r.idImagen,
+                ruta: r.Ruta_Imagen,
+                estado: r.EstadoImagen || 'Pendiente'
+            });
+        });
+        res.json(Object.values(grouped));
+    } catch (e) { next(e); }
+});
+
+// APROBAR VISITA (ya existe)
+
+// RECHAZAR VISITA
+app.patch('/api/rechazar-visita/:id', async (req, res, next) => {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ success: false, message: 'ID inválido' });
+    try {
+        const result = await ejecutarQuery(
+            `UPDATE Carga SET Estado = 'Rechazado' WHERE ID_Visita = @id AND Estado = 'Pendiente'`,
+            [{ name: 'id', type: mssql.Int, value: id }]
+        );
+        if (result.rowsAffected[0] === 0)
+            return res.status(404).json({ success: false, message: 'No se encontraron cargas pendientes para esa visita.' });
+        res.json({ success: true, message: `Visita #${id} rechazada correctamente.` });
     } catch (e) { next(e); }
 });
 
@@ -565,6 +640,49 @@ app.get('/api/clientes-activos', async (req, res, next) => {
 
 
 // TABLAS Y FILTROS
+
+// revolver carga de imágenes por cliente
+app.get('/api/carga-imagenes-por-cliente', async (req, res, next) => {
+    const { id_cliente } = req.query;
+    if (!id_cliente) return res.status(400).json({ error: 'Falta id_cliente' });
+    try {
+        // Validar que exista el cliente (opcional pero útil)
+        const check = await ejecutarQuery(
+            `SELECT 1 FROM Usuario WHERE ID = @id AND ID_Tipo_Usuario = (SELECT ID FROM Tipo_Usuario WHERE Tipo = 'Cliente')`,
+            [{ name: 'id', type: mssql.SmallInt, value: id_cliente }]
+        );
+        if (check.recordset.length === 0)
+            return res.status(404).json({ error: 'Cliente no encontrado' });
+
+        // Only include branches that the client abastece (from Abastece table)
+        // presenting them as "Cadena - Calle Altura, Localidad" and indicating if images exist
+        const query = `
+            SELECT DISTINCT s.ID AS idSucursal,
+                   c.Nombre + ' - ' + s.Calle + ' ' + ISNULL(CAST(s.Altura AS VARCHAR),'') +
+                       ', ' + s.Localidad AS NombreSucursal,
+                   CASE WHEN EXISTS (
+                        SELECT 1 FROM Visita v2
+                        JOIN Imagen im ON im.ID_Visita = v2.ID
+                        WHERE v2.ID_Sucursal = s.ID
+                          AND v2.ID_Cliente = @id
+                   ) THEN 1 ELSE 0 END AS TieneImagenes
+            FROM Abastece a
+            JOIN Sucursal s ON a.ID_Sucursal = s.ID
+            LEFT JOIN Cadena c ON s.ID_Cadena = c.ID
+            WHERE a.ID_Cliente = @id
+            ORDER BY NombreSucursal
+        `;
+        const result = await ejecutarQuery(query, [{ name: 'id', type: mssql.SmallInt, value: id_cliente }]);
+        // DEBUG: log number of rows and sample output
+        console.log('DEBUG carga-imagenes-por-cliente rows=', result.recordset.length);
+        if (result.recordset.length) {
+            console.log('DEBUG sample row:', result.recordset[0]);
+        }
+        res.json(result.recordset);
+    } catch (e) {
+        next(e);
+    }
+});
 
 
 // Listado filtros
@@ -715,7 +833,7 @@ app.get('/api/visitas-pendientes', async (req, res, next) => {
 
 
 
-// APROBAR VISITA
+// APROBAR VISITA (legacy, no longer used by UI but retained for compatibility)
 app.patch('/api/aprobar-visita/:id', async (req, res, next) => {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.status(400).json({ success: false, message: 'ID inválido' });
@@ -727,6 +845,28 @@ app.patch('/api/aprobar-visita/:id', async (req, res, next) => {
         if (result.rowsAffected[0] === 0)
             return res.status(404).json({ success: false, message: 'No se encontraron cargas pendientes para esa visita.' });
         res.json({ success: true, message: `Visita #${id} aprobada correctamente.` });
+    } catch (e) { next(e); }
+});
+
+// NUEVO: Cambiar estado de una imagen individual
+app.patch('/api/imagen/:id/estado', async (req, res, next) => {
+    const id = parseInt(req.params.id, 10);
+    const { estado } = req.body;
+    const valid = ['Pendiente','Aprobado','Rechazado'];
+    if (isNaN(id) || !valid.includes(estado)) {
+        return res.status(400).json({ success: false, message: 'ID o estado inválido' });
+    }
+    try {
+        const result = await ejecutarQuery(
+            `UPDATE Imagen SET Estado = @estado WHERE ID = @id`,
+            [
+                { name: 'estado', type: mssql.VarChar, value: estado },
+                { name: 'id',     type: mssql.Int,     value: id }
+            ]
+        );
+        if (result.rowsAffected[0] === 0)
+            return res.status(404).json({ success: false, message: 'Imagen no encontrada' });
+        res.json({ success: true });
     } catch (e) { next(e); }
 });
 app.put('/api/actualizar-abastece', async (req, res) => {
