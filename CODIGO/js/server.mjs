@@ -11,6 +11,24 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// ensure password column can hold bcrypt hashes (≈60 chars)
+(async () => {
+    try {
+        const pool = await getConnection();
+        // check length, if too small alter column
+        await pool.request().query(`
+            IF COL_LENGTH('Usuario','Clave') IS NOT NULL AND
+               COL_LENGTH('Usuario','Clave') < 100
+            BEGIN
+                ALTER TABLE Usuario ALTER COLUMN Clave VARCHAR(200);
+            END
+        `);
+        console.log('password column size verified/updated');
+    } catch(err) {
+        console.error('error ensuring Clave column length', err);
+    }
+})();
+
 // --- FUNCIÓN AUXILIAR PARA CONSULTAS ---
 const ejecutarQuery = async (query, params = []) => {
     const pool = await getConnection();
@@ -358,8 +376,23 @@ app.post('/login', async (req, res, next) => {
 
         if (result.recordset.length > 0) {
             const userRec = result.recordset[0];
-            const match = await bcrypt.compare(password, userRec.Clave);
+            let match = false;
+            // si ya hay hash, comparar con bcrypt
+            if (userRec.Clave && userRec.Clave.startsWith('$2')) {
+                match = await bcrypt.compare(password, userRec.Clave);
+            } else {
+                // contraseña en texto plano (legacy)
+                match = (password === userRec.Clave);
+            }
             if (match) {
+                // si era legacy, re-hash y actualizar en BD para futuras logins
+                if (!(userRec.Clave && userRec.Clave.startsWith('$2'))) {
+                    const hashed = await bcrypt.hash(password, 10);
+                    await ejecutarQuery('UPDATE Usuario SET Clave = @pass WHERE ID = @id', [
+                        { name: 'pass', type: mssql.VarChar, value: hashed },
+                        { name: 'id', type: mssql.SmallInt, value: userRec.ID }
+                    ]);
+                }
                 return res.json({ 
                     success: true, 
                     id: userRec.ID, 
@@ -383,6 +416,57 @@ app.get('/api/mis-sucursales', async (req, res, next) => {
             WHERE a.ID_Cliente = @cli`;
         const result = await ejecutarQuery(query, [{ name: 'cli', type: mssql.SmallInt, value: id_cliente }]);
         res.json(result.recordset);
+    } catch (e) { next(e); }
+});
+
+// IMÁGENES APROBADAS POR CLIENTE
+app.get('/api/imagenes-aprobadas-cliente', async (req, res, next) => {
+    const { id_cliente } = req.query;
+    if (!id_cliente) return res.status(400).json({ error: 'Falta id_cliente' });
+    try {
+        // validar que se trate de un cliente
+        const check = await ejecutarQuery(`
+            SELECT ID FROM Usuario WHERE ID = @id
+              AND ID_Tipo_Usuario = (SELECT ID FROM Tipo_Usuario WHERE Tipo = 'Cliente')
+        `, [{ name: 'id', type: mssql.SmallInt, value: id_cliente }]);
+        if (check.recordset.length === 0)
+            return res.status(403).json({ error: 'Acceso no autorizado' });
+
+        const query = `
+            SELECT v.ID AS idVisita,
+                   v.Fecha,
+                   uRepo.Nombre AS Repositor,
+                   ca.Nombre AS Cadena,
+                   s.Localidad,
+                   s.Calle + ' ' + ISNULL(CAST(s.Altura AS VARCHAR),'') AS Sucursal,
+                   im.Ruta_Imagen
+            FROM Visita v
+            JOIN Usuario uRepo ON v.ID_Repo = uRepo.ID
+            JOIN Sucursal s   ON v.ID_Sucursal = s.ID
+            JOIN Cadena ca    ON s.ID_Cadena = ca.ID
+            JOIN Imagen im    ON im.ID_Visita = v.ID
+            WHERE v.ID_Cliente = @id
+              AND EXISTS (SELECT 1 FROM Carga c WHERE c.ID_Visita = v.ID AND c.Estado = 'Aprobado')
+            ORDER BY v.Fecha DESC
+        `;
+        const result = await ejecutarQuery(query, [{ name: 'id', type: mssql.SmallInt, value: id_cliente }]);
+        // agrupar por visita
+        const grouped = {};
+        result.recordset.forEach(r => {
+            if (!grouped[r.idVisita]) {
+                grouped[r.idVisita] = {
+                    id: r.idVisita,
+                    fecha: r.Fecha,
+                    repositor: r.Repositor,
+                    cadena: r.Cadena,
+                    localidad: r.Localidad,
+                    sucursal: r.Sucursal,
+                    imagenes: []
+                };
+            }
+            grouped[r.idVisita].imagenes.push(r.Ruta_Imagen);
+        });
+        res.json(Object.values(grouped));
     } catch (e) { next(e); }
 });
 

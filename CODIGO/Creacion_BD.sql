@@ -44,7 +44,7 @@ CREATE TABLE Usuario
 	ID_Tipo_Usuario tinyint,
 	Mail varchar(70),
 	Usuario varchar(40),
-	Clave varchar(40),
+	Clave varchar(200),
 	Constraint PK_Usuario Primary Key(ID),
 	Constraint FK_Usuario_Tipo_Usuario Foreign Key (ID_Tipo_Usuario) References Tipo_Usuario(ID)
 );
