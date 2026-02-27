@@ -61,12 +61,13 @@ body::before {
 .contenido {
     width: 100%;
     max-width: 860px;
-    margin: 50px auto 80px;
+    /* bring content closer to header so meta info is visible immediately */
+    margin: 20px auto 80px;
     padding: 0 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 60px;
+    gap: 40px;
 }
 
 h1 {
@@ -312,6 +313,30 @@ h1 span { color: #dc2626; }
     border: 1px solid #2a2a2a;
 }
 
+/* metadata overlay shown when lightbox is active */
+.lightbox-meta {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    padding: 8px 14px;
+    border-radius: 8px;
+    max-width: 90vw;
+    text-align: center;
+    z-index: 1001;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+.lightbox-meta i {
+    margin-right: 6px;
+    color: #dc2626;
+}
+
 .lightbox-close,
 .lightbox-prev,
 .lightbox-next {
@@ -351,4 +376,13 @@ h1 span { color: #dc2626; }
     .visita-meta { gap: 8px 16px; }
     .lightbox-prev { left: 10px; }
     .lightbox-next { right: 10px; }
+}
+
+/* hide arrows that appear inside a single visita carousel */
+.carousel::scroll-button(*) {
+    display: none !important;
+}
+.carousel::scroll-button(inline-start),
+.carousel::scroll-button(inline-end) {
+    display: none !important;
 }

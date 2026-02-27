@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style/filtros.css">
     <link rel="stylesheet" href="style/vista_fotos.css">
+    <!-- include footer styles from inicioCliente -->
+    <link rel="stylesheet" href="style/inicio.css">
     <style>
         /* buttons for each image (approve/reject) */
         .btn-accion { margin: 4px; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; color: #fff; font-size: 12px; }
@@ -132,6 +134,10 @@
 
 </main>
 
+    <footer class="footer-contacto">
+        <p><i class="fa-solid fa-envelope"></i> contacto@gruposolvens.com | <i class="fa-solid fa-phone"></i> +54 11 1234-5678</p>
+    </footer>
+
 <div class="lightbox" id="lightbox">
     <button class="lightbox-close" id="lightbox-close"><i class="fas fa-times"></i></button>
     <button class="lightbox-prev" id="lightbox-prev"><i class="fas fa-chevron-left"></i></button>
@@ -229,6 +235,17 @@
         current = index;
         lbImg.src = imgs[current].src;
         currentLightboxImgId = imgs[current].dataset.id || null;
+        // show visit metadata above the image
+        const v = filteredVisitas[visitaIndex];
+        const metaEl = document.getElementById('lightbox-meta');
+        if (v && metaEl) {
+            metaEl.innerHTML =
+                `<i class="fas fa-store"></i>${v.cadena}` +
+                ` &bull; <i class="fas fa-map-marker-alt"></i>${v.localidad}` +
+                ` &bull; <i class="fas fa-building"></i>${v.sucursal}` +
+                `<br><i class="fas fa-calendar-alt"></i>${new Date(v.fecha).toLocaleDateString('es-AR')}` +
+                ` &bull; <i class="fas fa-user"></i>${v.repositor}`;
+        }
         lightbox.classList.add('activo');
     }
     function closeLightbox() { lightbox.classList.remove('activo'); }

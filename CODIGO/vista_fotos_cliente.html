@@ -6,11 +6,39 @@
     <title>Grupo Solvens - Evidencia de Visita</title>
     <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style/filtros.css">
     <link rel="stylesheet" href ="style/vista_fotos.css">
-</head>
+    <!-- use same footer styling as inicioCliente -->
+    <link rel="stylesheet" href="style/inicio.css">    <style>
+        /* navigation between visits (copied from admin page) */
+        .visita-nav { display:flex; align-items:center; justify-content:center; gap:12px; }
+        .nav-btn { background: rgba(0,0,0,0.6); border:none; color:#fff; padding:8px; border-radius:50%; cursor:pointer; font-size:18px; }
+        .nav-btn:hover { background: rgba(0,0,0,0.8); }
+        /* lightbox action buttons (not used here but safe to include) */
+        .lightbox-accion {
+            position: absolute;
+            bottom: 20px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #fff;
+            z-index: 1000;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+        .lightbox-accion.aprobar { background: #22c55e; left: 40%; }
+        .lightbox-accion.rechazar { background: #ef4444; right: 40%; }
+        .lightbox-accion:hover { opacity: 1; }
+    </style></head>
 <body>
 
 <header class="header">
+    <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+        <i class="fas fa-filter"></i>
+        <span>Filtros</span>
+    </button>
     <a href="inicioCliente.html" class="btn-volver">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"/>
@@ -22,118 +50,251 @@
 <main class="contenido">
     <h1>Evidencia <span>Fotográfica</span></h1>
     <p class="page-subtitulo">Registro visual de visitas aprobadas</p>
-    <div id="galeria"></div>
+    <div class="contenedor-layout">
+        <aside class="sidebar-filtros" id="sidebarFiltros">
+            <div class="sidebar-header">
+                <h2 class="titulo-filtros">Filtros</h2>
+                <button class="btn-cerrar-sidebar" id="btnCerrarSidebar"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="grupo-filtro">
+                <div class="filtro-header">
+                    <label class="label-filtro">Periodo</label>
+                    <i class="fas fa-chevron-down icono-toggle"></i>
+                </div>
+                <div class="filtro-contenido">
+                    <p class="descripcion-filtro">Seleccione un rango de fechas:</p>
+                    <div class="rango-fechas">
+                        <div><label class="label-pequeno">Desde:</label><input type="date" class="input-fecha" id="fechaDesde"></div>
+                        <div><label class="label-pequeno">Hasta:</label><input type="date" class="input-fecha" id="fechaHasta"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="grupo-filtro">
+                <div class="filtro-header">
+                    <label class="label-filtro">Cadena</label>
+                    <i class="fas fa-chevron-down icono-toggle"></i>
+                </div>
+                <div class="filtro-contenido">
+                    <p class="descripcion-filtro">Seleccione la cadena:</p>
+                    <select class="select-filtro" id="filtroCadena"><option value="">Todas</option></select>
+                </div>
+            </div>
+            <div class="grupo-filtro">
+                <div class="filtro-header">
+                    <label class="label-filtro">Sucursal</label>
+                    <i class="fas fa-chevron-down icono-toggle"></i>
+                </div>
+                <div class="filtro-contenido">
+                    <p class="descripcion-filtro">Seleccione la sucursal:</p>
+                    <select class="select-filtro" id="filtroSucursal"><option value="">Todas</option></select>
+                </div>
+            </div>
+            <div class="grupo-filtro">
+                <div class="filtro-header">
+                    <label class="label-filtro">Repositor</label>
+                    <i class="fas fa-chevron-down icono-toggle"></i>
+                </div>
+                <div class="filtro-contenido">
+                    <p class="descripcion-filtro">Seleccione el repositor:</p>
+                    <select class="select-filtro" id="filtroRepo"><option value="">Todos</option></select>
+                </div>
+            </div>
+            <div class="botones-filtro" style="display:flex;gap:10px;">
+                <button id="btnAplicarFiltros" class="btn-aplicar-filtros">Aplicar</button>
+                <button id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
+            </div>
+        </aside>
+
+        <div class="visita-nav">
+            <button id="prevVisita" class="nav-btn"><i class="fas fa-chevron-left"></i></button>
+            <div id="contenedorVisitas"></div>
+            <button id="nextVisita" class="nav-btn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
 </main>
+
+    <footer class="footer-contacto">
+        <p><i class="fa-solid fa-envelope"></i> contacto@gruposolvens.com | <i class="fa-solid fa-phone"></i> +54 11 1234-5678</p>
+    </footer>
 
 <div class="lightbox" id="lightbox">
     <button class="lightbox-close" id="lightbox-close"><i class="fas fa-times"></i></button>
     <button class="lightbox-prev"  id="lightbox-prev"><i class="fas fa-chevron-left"></i></button>
+    <!-- visit metadata shown when lightbox is open -->
+    <div id="lightbox-meta" class="lightbox-meta"></div>
     <img class="lightbox-img" id="lightbox-img" src="" alt="">
     <button class="lightbox-next"  id="lightbox-next"><i class="fas fa-chevron-right"></i></button>
 </div>
 
 <script>
 const URL_BASE = 'http://localhost:3000/api';
-const IMG_BASE = '../IMG/';
-const galeria  = document.getElementById('galeria');
-const lightbox = document.getElementById('lightbox');
-const lbImg    = document.getElementById('lightbox-img');
 
-let todasLasImgs = [];
-let current      = 0;
+let visitasData = [];
+let filteredVisitas = [];
+let visitaIndex = 0;
+let imgs = [];
 
-async function cargarGaleria() {
+async function cargarVisitasCliente() {
     const idCliente = localStorage.getItem('id_usuario');
-    const tipo      = Number(localStorage.getItem('tipoUsuario'));
-
+    const tipo = Number(localStorage.getItem('tipoUsuario'));
     if (tipo !== 2 || !idCliente) {
         window.location.href = 'login.html';
         return;
     }
-
-    try {
-        const res = await fetch(`${URL_BASE}/imagenes-aprobadas-cliente?id_cliente=${idCliente}`);
-
-        if (res.status === 403) {
-            window.location.href = 'login.html';
-            return;
-        }
-
-        const visitas = await res.json();
-
-        if (!visitas.length) {
-            galeria.innerHTML = '<p class="sin-datos">No hay fotos aprobadas todavía.</p>';
-            return;
-        }
-
-        todasLasImgs = [];
-
-        visitas.forEach(v => {
-            const bloque = document.createElement('div');
-            bloque.className = 'visita-bloque';
-
-            const items = v.imagenes.map((img, i) => {
-                const idx = todasLasImgs.length;
-                todasLasImgs.push(IMG_BASE + img.ruta);
-                return `
-                    <li>
-                        <div${i === 0 ? ' class="scroll-start"' : ''}>
-                            <div class="img">
-                                <img src="${IMG_BASE + img.ruta}" alt="Foto visita" data-idx="${idx}">
-                            </div>
-                        </div>
-                    </li>`;
-            }).join('');
-
-            bloque.innerHTML = `
-                <ul class="carousel">${items}</ul>
-                <div class="visita-meta">
-                    <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
-                    <span><i class="fas fa-user"></i> ${v.repositor}</span>
-                    <span><i class="fas fa-store"></i> ${v.cadena} — ${v.sucursal}, ${v.localidad}</span>
-                </div>`;
-
-            galeria.appendChild(bloque);
-        });
-
-        document.querySelectorAll('.carousel .img img').forEach(img => {
-            img.style.cursor = 'zoom-in';
-            img.addEventListener('click', () => openLightbox(parseInt(img.dataset.idx)));
-        });
-
-    } catch (err) {
-        galeria.innerHTML = '<p class="sin-datos">Error al conectar con el servidor.</p>';
-        console.error(err);
+    const res = await fetch(`${URL_BASE}/imagenes-aprobadas-cliente?id_cliente=${idCliente}`);
+    if (!res.ok) {
+        document.getElementById('contenedorVisitas').innerHTML = '<p>Error al obtener las imágenes.</p>';
+        return;
     }
+    visitasData = await res.json();
+    if (visitasData.length === 0) {
+        document.getElementById('contenedorVisitas').innerHTML = '<p>No hay imágenes aprobadas.</p>';
+        return;
+    }
+    populateFilters();
+    clearFilters();
 }
 
+function renderVisita(idx) {
+    const v = filteredVisitas[idx];
+    const cont = document.getElementById('contenedorVisitas');
+    const imgsHtml = v.imagenes.map((img, i) => {
+        return `
+                <li>
+                    <div${i===0?' class="scroll-start"':''}>
+                        <div class="img">
+                            <img src="../IMG/${img.ruta}" alt="Foto ${i+1}">
+                        </div>
+                    </div>
+                </li>`;
+    }).join('');
+    cont.innerHTML = `
+        <div class="visita-bloque" data-id="${v.id}">
+            <ul class="carousel">${imgsHtml}</ul>
+            <div class="visita-meta">
+                <span><i class="fas fa-store"></i>${v.cadena} / ${v.localidad} / ${v.sucursal}</span>
+                <span><i class="fas fa-calendar-alt"></i>${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
+                <span><i class="fas fa-user"></i>${v.repositor}</span>
+            </div>
+        </div>`;
+    wireImages();
+    const showNav = filteredVisitas.length > 1;
+    document.getElementById('prevVisita').style.display = showNav ? 'inline-block' : 'none';
+    document.getElementById('nextVisita').style.display = showNav ? 'inline-block' : 'none';
+}
+
+function populateFilters() {
+    const makeOptions = (items) => {
+        const uniq = [...new Set(items)];
+        return uniq.map(x=>`<option value="${x}">${x}</option>`).join('');
+    };
+    const llenar = (id, opciones, titulo) => {
+        const sel = document.getElementById(id);
+        sel.innerHTML = `<option value="">${titulo}</option>` + opciones;
+    };
+    llenar('filtroCadena', makeOptions(visitasData.map(v=>v.cadena)), 'Cadena (todas)');
+    llenar('filtroSucursal', makeOptions(visitasData.map(v=>v.sucursal)), 'Sucursal (todas)');
+    llenar('filtroRepo', makeOptions(visitasData.map(v=>v.repositor)), 'Repositor (todos)');
+}
+function applyFilters() {
+    const fDesde = document.getElementById('fechaDesde').value;
+    const fHasta = document.getElementById('fechaHasta').value;
+    const fCad = document.getElementById('filtroCadena').value;
+    const fSuc = document.getElementById('filtroSucursal').value;
+    const fR = document.getElementById('filtroRepo').value;
+    filteredVisitas = visitasData.filter(v=>{
+        if(fDesde) {
+            const vDate = new Date(v.fecha).setHours(0,0,0,0);
+            const dDesde = new Date(fDesde).setHours(0,0,0,0);
+            if(vDate < dDesde) return false;
+        }
+        if(fHasta) {
+            const vDate = new Date(v.fecha).setHours(0,0,0,0);
+            const dHasta = new Date(fHasta).setHours(0,0,0,0);
+            if(vDate > dHasta) return false;
+        }
+        if(fCad && v.cadena!==fCad) return false;
+        if(fSuc && v.sucursal!==fSuc) return false;
+        if(fR && v.repositor!==fR) return false;
+        return true;
+    });
+    visitaIndex = 0;
+    if(filteredVisitas.length===0) {
+        document.getElementById('contenedorVisitas').innerHTML = '<p>No hay visitas que coincidan.</p>';
+        document.getElementById('prevVisita').style.display = 'none';
+        document.getElementById('nextVisita').style.display = 'none';
+        return;
+    }
+    renderVisita(visitaIndex);
+}
+function clearFilters() {
+    ['fechaDesde','fechaHasta','filtroCadena','filtroSucursal','filtroRepo']
+        .forEach(id=>document.getElementById(id).value='');
+    applyFilters();
+}
+
+function wireImages() {
+    imgs = Array.from(document.querySelectorAll('.carousel .img img'));
+    imgs.forEach((img, i) => {
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', () => openLightbox(i));
+    });
+}
+
+// lightbox helpers
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lightbox-img');
+let currentImg = 0;
 function openLightbox(index) {
-    current   = index;
-    lbImg.src = todasLasImgs[current];
+    currentImg = index;
+    lbImg.src = imgs[currentImg].src;
+    // show visit metadata above the image
+    const v = filteredVisitas[visitaIndex];
+    const metaEl = document.getElementById('lightbox-meta');
+    if (v && metaEl) {
+        // build HTML with icons for better design
+        metaEl.innerHTML =
+            `<i class="fas fa-store"></i>${v.cadena}` +
+            ` &bull; <i class="fas fa-map-marker-alt"></i>${v.localidad}` +
+            ` &bull; <i class="fas fa-building"></i>${v.sucursal}` +
+            `<br><i class="fas fa-calendar-alt"></i>${new Date(v.fecha).toLocaleDateString('es-AR')}` +
+            ` &bull; <i class="fas fa-user"></i>${v.repositor}`;
+    }
     lightbox.classList.add('activo');
 }
-
 function closeLightbox() { lightbox.classList.remove('activo'); }
-
 document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
 document.getElementById('lightbox-prev').addEventListener('click', () => {
-    current   = (current - 1 + todasLasImgs.length) % todasLasImgs.length;
-    lbImg.src = todasLasImgs[current];
+    currentImg = (currentImg - 1 + imgs.length) % imgs.length;
+    lbImg.src = imgs[currentImg].src;
 });
 document.getElementById('lightbox-next').addEventListener('click', () => {
-    current   = (current + 1) % todasLasImgs.length;
-    lbImg.src = todasLasImgs[current];
+    currentImg = (currentImg + 1) % imgs.length;
+    lbImg.src = imgs[currentImg].src;
 });
-lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
-document.addEventListener('keydown', e => {
+lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+document.addEventListener('keydown', (e) => {
     if (!lightbox.classList.contains('activo')) return;
-    if (e.key === 'Escape')     closeLightbox();
-    if (e.key === 'ArrowLeft')  document.getElementById('lightbox-prev').click();
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') document.getElementById('lightbox-prev').click();
     if (e.key === 'ArrowRight') document.getElementById('lightbox-next').click();
 });
 
-cargarGaleria();
+document.getElementById('btnAplicarFiltros').addEventListener('click', applyFilters);
+document.getElementById('btnLimpiarFiltros').addEventListener('click', clearFilters);
+document.getElementById('prevVisita').addEventListener('click', () => {
+    visitaIndex = (visitaIndex - 1 + filteredVisitas.length) % filteredVisitas.length;
+    renderVisita(visitaIndex);
+});
+document.getElementById('nextVisita').addEventListener('click', () => {
+    visitaIndex = (visitaIndex + 1) % filteredVisitas.length;
+    renderVisita(visitaIndex);
+});
+
+document.addEventListener('DOMContentLoaded', cargarVisitasCliente);
 </script>
+<!-- filtros utility -->
+<script src="js/filtros.js"></script>
 
 </body>
 </html>
