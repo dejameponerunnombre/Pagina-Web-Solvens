@@ -78,12 +78,14 @@
 
         .lightbox-accion.aprobar {
             background: #22c55e;
-            left: 40%;
+            left: calc(50% - 110px);
+            bottom: 30px;
         }
 
         .lightbox-accion.rechazar {
             background: #ef4444;
-            right: 40%;
+            left: calc(50% + 10px);
+            bottom: 30px;
         }
 
         .lightbox-accion:hover {
@@ -95,42 +97,71 @@
             /* Asegurar que esté por encima de todo */
         }
 
-        /* Lightbox Meta (Horizontal Pill) */
+        /* Info Card in Lightbox (The "Cartel") */
         .lightbox-meta {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.75);
-            padding: 8px 20px;
-            border-radius: 40px;
+            position: relative;
+            order: -1;
+            left: auto;
+            transform: none;
+            margin: 0 0 15px 0;
+            background: rgba(18, 18, 18, 0.9);
+            padding: 10px 24px;
+            border-radius: 30px;
             color: #fff;
             text-align: center;
             z-index: 1000;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(220, 38, 38, 0.3);
             display: flex;
+            flex-direction: row;
             align-items: center;
-            gap: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            white-space: nowrap;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            width: fit-content;
+            max-width: 90vw;
+            transition: all 0.3s ease;
         }
 
         .lightbox-meta span {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            color: #eee;
+            gap: 8px;
+            font-size: 14px;
+            color: #ddd;
+            white-space: nowrap;
         }
 
-        .lightbox-meta .status-pill {
-            margin: 0;
-            padding: 2px 10px;
+        .lightbox-meta i {
+            color: #dc2626;
+            width: 16px;
+        }
+
+        .lightbox-meta .status-badge {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 800;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.status-aprobado {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .status-badge.status-rechazado {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .status-badge.status-pendiente {
+            background: #eab308;
+            color: #fff;
         }
 
         /* Toast notifications */
@@ -355,10 +386,11 @@
             <div class="visita-bloque" data-id="${v.id}">
                 <ul class="carousel">${imgsHtml}</ul>
                 <div class="visita-meta">
-                    <span><i class="fas fa-store"></i>${v.cadena} / ${v.localidad} / ${v.sucursal}</span>
-                    <span><i class="fas fa-calendar-alt"></i>${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
-                    <span><i class="fas fa-user"></i>${v.repositor}</span>
-                    <span><i class="fas fa-user-check"></i>${v.cliente}</span>
+                    <span><i class="fas fa-building"></i> <strong>${v.cadena}</strong></span>
+                    <span><i class="fas fa-user-check"></i> ${v.cliente}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${v.sucursal} - ${v.localidad}</span>
+                    <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
+                    <span><i class="fas fa-user"></i> ${v.repositor}</span>
                 </div>
             </div>`;
             wireImages();
@@ -420,10 +452,12 @@
 
             if (v && metaEl) {
                 metaEl.innerHTML = `
-                    <span><i class="fas fa-store"></i> <strong>${v.cadena}</strong> - ${v.sucursal} (${v.localidad})</span>
-                    <span><i class="fas fa-user"></i> ${v.repositor}</span>
+                    <span><i class="fas fa-building"></i> <strong>${v.cadena}</strong></span>
+                    <span><i class="fas fa-user-check"></i> ${v.cliente}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${v.sucursal} - ${v.localidad}</span>
                     <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
-                    <span class="status-pill status-${estClass}">${estado}</span>
+                    <span><i class="fas fa-user"></i> ${v.repositor}</span>
+                    <span class="status-badge status-${estClass}">${estado}</span>
                 `;
             }
         }

@@ -72,6 +72,7 @@
                         <span id="labelFotos">Seleccionar fotos (máx. 3)</span>
                     </label>
                     <input type="file" id="fotos" accept="image/*" multiple>
+                    <div id="previewFotos" class="preview-fotos"></div>
                 </div>
                 <p class="file-hint">Puede registrar la visita sin imágenes o precios, siempre que complete cliente,
                     sucursal y una de las anteriores</p>
@@ -178,15 +179,28 @@
 
         // 6. FOTOS — label dinámico y límite
         inputFotos.addEventListener('change', function () {
+            const previewContenedor = document.getElementById('previewFotos');
             if (this.files.length > 3) {
                 alert('Podés seleccionar máximo 3 fotos.');
                 this.value = '';
                 labelFotos.textContent = 'Seleccionar fotos (máx. 3)';
+                previewContenedor.innerHTML = '';
                 return;
             }
             labelFotos.textContent = this.files.length > 0
                 ? `${this.files.length} foto${this.files.length > 1 ? 's' : ''} seleccionada${this.files.length > 1 ? 's' : ''}`
                 : 'Seleccionar fotos (máx. 3)';
+
+            // Generar vista previa
+            previewContenedor.innerHTML = '';
+            Array.from(this.files).forEach(file => {
+                const url = URL.createObjectURL(file);
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = 'preview-img';
+                img.onload = () => URL.revokeObjectURL(url); // Liberar memoria
+                previewContenedor.appendChild(img);
+            });
         });
 
         // 7. SUBMIT

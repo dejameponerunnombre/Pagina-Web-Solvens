@@ -317,14 +317,15 @@ h1 span {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 6px 24px;
+    align-items: center;
+    gap: 12px 24px;
     margin-top: 32px;
     padding: 16px 24px;
     background: rgba(0, 0, 0, 0.35);
     border: 1px solid #2a2a2a;
     border-radius: 8px;
     width: 100%;
-    max-width: 600px;
+    max-width: 900px;
 }
 
 .visita-meta span {
@@ -333,6 +334,7 @@ h1 span {
     gap: 7px;
     font-size: 13px;
     color: #aaaaaa;
+    white-space: nowrap;
 }
 
 .visita-meta span i {
@@ -346,8 +348,10 @@ h1 span {
     background: rgba(0, 0, 0, 0.93);
     z-index: 999;
     display: none;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 16px;
     backdrop-filter: blur(6px);
 }
 
@@ -357,7 +361,7 @@ h1 span {
 
 .lightbox-img {
     max-width: 90vw;
-    max-height: 88vh;
+    max-height: 75vh;
     object-fit: contain;
     border-radius: 10px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);

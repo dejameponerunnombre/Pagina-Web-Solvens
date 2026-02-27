@@ -15,23 +15,6 @@ app.use(cors());
 app.use(express.static('CODIGO'));
 app.use('/IMG', express.static('IMG'));
 
-// ensure password column can hold bcrypt hashes (≈60 chars)
-(async () => {
-    try {
-        const pool = await getConnection();
-        // check length, if too small alter column
-        await pool.request().query(`
-            IF COL_LENGTH('Usuario','Clave') IS NOT NULL AND
-               COL_LENGTH('Usuario','Clave') < 100
-            BEGIN
-                ALTER TABLE Usuario ALTER COLUMN Clave VARCHAR(200);
-            END
-        `);
-        console.log('password column size verified/updated');
-    } catch (err) {
-        console.error('error ensuring Clave column length', err);
-    }
-})();
 
 // --- FUNCIÓN AUXILIAR PARA CONSULTAS ---
 const ejecutarQuery = async (query, params = []) => {

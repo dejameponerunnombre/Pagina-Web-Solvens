@@ -1,7 +1,7 @@
 import mssql from "mssql";
 
 const connectionSettings = {
-    server: "127.0.0.1", 
+    server: "127.0.0.1",
     port: 1433,
     database: "Sistema_Solvens",
     user: "sa",
@@ -10,15 +10,15 @@ const connectionSettings = {
         encrypt: true,
         trustServerCertificate: true,
         instancename: "SQLEXPRESS",
-        servername: "localhost" 
+        servername: "localhost"
     }
 };
 
-export async function getConnection(){
+export async function getConnection() {
     try {
         return await mssql.connect(connectionSettings);
     }
-    catch(error) {
+    catch (error) {
         console.error("Error de conexión a SQL Server:", error);
     }
 }
