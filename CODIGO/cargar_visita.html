@@ -98,7 +98,7 @@ const inputFotos    = document.getElementById('fotos');
 const labelFotos    = document.getElementById('labelFotos');
 
 // 1. CLIENTES
-fetch('http://localhost:3000/api/clientes-activos')
+fetch('/api/clientes-activos')
     .then(r => r.json())
     .then(data => {
         data.forEach(c => {
@@ -117,8 +117,8 @@ clienteSel.addEventListener('change', async () => {
     buscarInput.value = '';
 
     const [resS, resP] = await Promise.all([
-        fetch(`http://localhost:3000/api/mis-sucursales?id_cliente=${idCli}`),
-        fetch(`http://localhost:3000/api/productos-cliente?id_cliente=${idCli}`)
+        fetch(`/api/mis-sucursales?id_cliente=${idCli}`),
+        fetch(`/api/productos-cliente?id_cliente=${idCli}`)
     ]);
 
     const sucursales = await resS.json();
@@ -234,7 +234,7 @@ document.getElementById('visitaForm').addEventListener('submit', async e => {
     }
 
     try {
-        const res  = await fetch('http://localhost:3000/api/cargar-visita', { method: 'POST', body: formData });
+        const res  = await fetch('/api/cargar-visita', { method: 'POST', body: formData });
         const data = await res.json();
         if (data.success) {
             alert('Registro exitoso.');

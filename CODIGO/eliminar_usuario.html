@@ -1,68 +1,74 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Grupo Solvens - Eliminar Usuario</title>
     <link rel="stylesheet" href="style/formulario.css">
+    <link rel="stylesheet" href="style/modal.css">
     <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
 </head>
+
 <body>
-<header class="header">
+    <header class="header">
         <style>
-        .btn-volver {
-            display: flex;
-            align-items: center;
-            opacity: 0.8;
-            transition: opacity 0.2s, transform 0.2s;
-        }
-        .btn-volver:hover {
-            opacity: 1;
-            transform: translateX(-3px);
-        }
-    </style>
-    <a href="Admin_gestion_usuario.html" class="btn-volver">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"/>
-            <polyline points="12 19 5 12 12 5"/>
-        </svg>
-    </a>
-    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
-</header>
+            .btn-volver {
+                display: flex;
+                align-items: center;
+                opacity: 0.8;
+                transition: opacity 0.2s, transform 0.2s;
+            }
 
-<main class="contenido">
-    <h1>Eliminar <span>Usuario</span></h1>
-    <p class="subtitulo">Busque al usuario que desea dar de baja del sistema</p>
+            .btn-volver:hover {
+                opacity: 1;
+                transform: translateX(-3px);
+            }
+        </style>
+        <a href="Admin_gestion_usuario.html" class="btn-volver">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+        </a>
+        <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+    </header>
 
-    <div class="formulario">
-        <input type="text" id="buscador-user" placeholder="Escriba nombre o nombre de usuario...">
-        
-        <div id="lista-usuarios" >
+    <main class="contenido">
+        <h1>Eliminar <span>Usuario</span></h1>
+        <p class="subtitulo">Busque al usuario que desea dar de baja del sistema</p>
+
+        <div class="formulario">
+            <input type="text" id="buscador-user" placeholder="Escriba nombre o nombre de usuario...">
+
+            <div id="lista-usuarios">
             </div>
-    </div>
-</main>
+        </div>
+    </main>
 
-<script>
-    function mostrarToast(mensaje, tipo = 'exito') {
-        const t = document.getElementById('toast');
-        t.textContent = mensaje;
-        t.className = 'toast ' + tipo;
-        t.classList.add('visible');
-        setTimeout(() => t.classList.remove('visible'), 3500);
-    }
+    <script src="js/modal_confirmacion.js"></script>
+    <script>
+        function mostrarToast(mensaje, tipo = 'exito') {
+            const t = document.getElementById('toast');
+            t.textContent = mensaje;
+            t.className = 'toast ' + tipo;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 3500);
+        }
 
-    const buscador = document.getElementById('buscador-user');
-    const contenedor = document.getElementById('lista-usuarios');
+        const buscador = document.getElementById('buscador-user');
+        const contenedor = document.getElementById('lista-usuarios');
 
-    buscador.addEventListener('input', async () => {
-        const q = buscador.value.trim();
-        if (q.length < 2) { contenedor.innerHTML = ''; return; }
+        buscador.addEventListener('input', async () => {
+            const q = buscador.value.trim();
+            if (q.length < 2) { contenedor.innerHTML = ''; return; }
 
-        try {
-            // Reutilizamos la lógica de búsqueda que aplicamos en productos/categorías
-            const res = await fetch(`http://localhost:3000/api/buscar-usuarios-eliminar?q=${q}`);
-            const usuarios = await res.json();
+            try {
+                // Reutilizamos la lógica de búsqueda que aplicamos en productos/categorías
+                const res = await fetch(`/api/buscar-usuarios-eliminar?q=${q}`);
+                const usuarios = await res.json();
 
-            contenedor.innerHTML = usuarios.map(u => `
+                contenedor.innerHTML = usuarios.map(u => `
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #222;">
                     <div>
                         <strong style="display: block; color: #fff;">${u.Nombre}</strong>
@@ -74,51 +80,77 @@
                     </button>
                 </div>
             `).join('');
-            
-            if(usuarios.length === 0) contenedor.innerHTML = '<p style="padding: 15px; color: #555; font-size: 13px;">No hay coincidencias.</p>';
-        } catch (err) { console.error(err); }
-    });
 
-    async function eliminarUsuario(id, nombre) {
-        if (!confirm(`¿Seguro que deseas eliminar a "${nombre}"?\nSe borrarán sus productos y asignaciones permanentemente.`)) return;
+                if (usuarios.length === 0) contenedor.innerHTML = '<p style="padding: 15px; color: #555; font-size: 13px;">No hay coincidencias.</p>';
+            } catch (err) { console.error(err); }
+        });
 
-        try {
-            const res = await fetch(`http://localhost:3000/api/eliminar-usuario/${id}`, { method: 'DELETE' });
-            const result = await res.json();
-            
-            if (res.ok) {
-                mostrarToast(result.message, "exito");
-                buscador.value = '';
-                contenedor.innerHTML = '';
-            }
-        } catch (err) { mostrarToast("Error al eliminar.", "error"); }
-    }
-</script>
+        async function eliminarUsuario(id, nombre) {
+            const confirmar = await mostrarConfirmacion({
+                titulo: '¿Eliminar Usuario?',
+                mensaje: `¿Seguro que deseas eliminar a <strong>"${nombre}"</strong>?<br>Se borrarán sus productos y asignaciones permanentemente.`,
+                botonConfirmar: 'Eliminar Usuario'
+            });
 
-<style>
-.toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    padding: 14px 22px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #fff;
-    z-index: 9999;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.3s, transform 0.3s;
-    pointer-events: none;
-    max-width: 360px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-.toast.exito  { background: #1a2e1a; border: 1px solid #4ade80; color: #4ade80; }
-.toast.error  { background: #2e1a1a; border: 1px solid #dc2626; color: #f87171; }
-.toast.aviso  { background: #2e2a1a; border: 1px solid #f59e0b; color: #fbbf24; }
-.toast.visible { opacity: 1; transform: translateY(0); }
-</style>
-<div class="toast" id="toast"></div>
+            if (!confirmar) return;
+
+            try {
+                const res = await fetch(`/api/eliminar-usuario/${id}`, { method: 'DELETE' });
+                const result = await res.json();
+
+                if (res.ok) {
+                    mostrarToast(result.message, "exito");
+                    buscador.value = '';
+                    contenedor.innerHTML = '';
+                }
+            } catch (err) { mostrarToast("Error al eliminar.", "error"); }
+        }
+    </script>
+
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            max-width: 360px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast.exito {
+            background: #1a2e1a;
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
+
+        .toast.error {
+            background: #2e1a1a;
+            border: 1px solid #dc2626;
+            color: #f87171;
+        }
+
+        .toast.aviso {
+            background: #2e2a1a;
+            border: 1px solid #f59e0b;
+            color: #fbbf24;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <div class="toast" id="toast"></div>
 
 </body>
+
 </html>

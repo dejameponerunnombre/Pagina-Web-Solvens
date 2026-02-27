@@ -53,7 +53,7 @@
         e.preventDefault();
         const categoria = document.getElementById('nombre-cat').value;
         try {
-            const res = await fetch('http://localhost:3000/api/agregar-categoria', {
+            const res = await fetch('/api/agregar-categoria', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ categoria })

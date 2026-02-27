@@ -75,7 +75,7 @@
     async function cargarClientes() {
         const sel = document.getElementById('selCliente');
         try {
-            const res = await fetch('http://localhost:3000/api/clientes-activos');
+            const res = await fetch('/api/clientes-activos');
             const clients = await res.json();
             sel.innerHTML = '<option value="" disabled selected>-- elija --</option>' +
                 clients.map(c=>`<option value="${c.ID}">${c.Nombre}</option>`).join('');
@@ -92,7 +92,7 @@
         const tbody = document.querySelector('#tblResultados tbody');
         tbody.innerHTML = '<tr><td colspan="2">Consultando…</td></tr>';
         try {
-            const res = await fetch(`http://localhost:3000/api/carga-imagenes-por-cliente?id_cliente=${id}`);
+            const res = await fetch(`/api/carga-imagenes-por-cliente?id_cliente=${id}`);
             let rows = await res.json();
             if (!Array.isArray(rows) || rows.length===0) {
                 tbody.innerHTML = '<tr><td colspan="2">No se encontraron sucursales.</td></tr>';

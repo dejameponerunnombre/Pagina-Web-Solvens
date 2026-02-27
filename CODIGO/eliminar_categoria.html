@@ -1,129 +1,161 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Grupo Solvens - Eliminar Categoría</title>
     <link rel="stylesheet" href="style/formulario.css">
+    <link rel="stylesheet" href="style/modal.css">
     <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
 </head>
+
 <body>
-<header class="header">
+    <header class="header">
         <style>
-        .btn-volver {
-            display: flex;
-            align-items: center;
-            opacity: 0.8;
-            transition: opacity 0.2s, transform 0.2s;
-        }
-        .btn-volver:hover {
-            opacity: 1;
-            transform: translateX(-3px);
-        }
-    </style>
-    <a href="Admin_gestion_categoria.html" class="btn-volver">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"/>
-            <polyline points="12 19 5 12 12 5"/>
-        </svg>
-    </a>
-    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
-</header>
+            .btn-volver {
+                display: flex;
+                align-items: center;
+                opacity: 0.8;
+                transition: opacity 0.2s, transform 0.2s;
+            }
 
-<main class="contenido">
-    <h1>Eliminar <span>Categoría</span></h1>
-    <p class="subtitulo">Busque la categoría que desea quitar del sistema</p>
+            .btn-volver:hover {
+                opacity: 1;
+                transform: translateX(-3px);
+            }
+        </style>
+        <a href="Admin_gestion_categoria.html" class="btn-volver">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+        </a>
+        <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+    </header>
 
-    <div class="formulario">
-        <div class="fila">
-            <input type="text" id="buscador-cat" placeholder="Escriba para buscar (ej: Lácteos)...">
-        </div>
-        
-        <div id="resultados-busqueda" >
+    <main class="contenido">
+        <h1>Eliminar <span>Categoría</span></h1>
+        <p class="subtitulo">Busque la categoría que desea quitar del sistema</p>
+
+        <div class="formulario">
+            <div class="fila">
+                <input type="text" id="buscador-cat" placeholder="Escriba para buscar (ej: Lácteos)...">
             </div>
-    </div>
-</main>
 
-<script>
-    function mostrarToast(mensaje, tipo = 'exito') {
-        const t = document.getElementById('toast');
-        t.textContent = mensaje;
-        t.className = 'toast ' + tipo;
-        t.classList.add('visible');
-        setTimeout(() => t.classList.remove('visible'), 3500);
-    }
+            <div id="resultados-busqueda">
+            </div>
+        </div>
+    </main>
 
-    const buscador = document.getElementById('buscador-cat');
-    const contenedor = document.getElementById('resultados-busqueda');
-
-    buscador.addEventListener('input', async () => {
-        const texto = buscador.value.trim();
-        
-        if (texto.length < 1) {
-            contenedor.innerHTML = '';
-            return;
+    <script src="js/modal_confirmacion.js"></script>
+    <script>
+        function mostrarToast(mensaje, tipo = 'exito') {
+            const t = document.getElementById('toast');
+            t.textContent = mensaje;
+            t.className = 'toast ' + tipo;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 3500);
         }
 
-        try {
-            const res = await fetch(`http://localhost:3000/api/buscar-categorias?q=${texto}`);
-            const categorias = await res.json();
+        const buscador = document.getElementById('buscador-cat');
+        const contenedor = document.getElementById('resultados-busqueda');
 
-            contenedor.innerHTML = '';
-            if (categorias.length === 0) {
-                contenedor.innerHTML = '<p style="padding: 15px; color: #555; font-size: 13px;">No se encontraron coincidencias.</p>';
+        buscador.addEventListener('input', async () => {
+            const texto = buscador.value.trim();
+
+            if (texto.length < 1) {
+                contenedor.innerHTML = '';
                 return;
             }
 
-            categorias.forEach(c => {
-                const item = document.createElement('div');
-                item.style = "display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #222;";
-                item.innerHTML = `
+            try {
+                const res = await fetch(`/api/buscar-categorias?q=${texto}`);
+                const categorias = await res.json();
+
+                contenedor.innerHTML = '';
+                if (categorias.length === 0) {
+                    contenedor.innerHTML = '<p style="padding: 15px; color: #555; font-size: 13px;">No se encontraron coincidencias.</p>';
+                    return;
+                }
+
+                categorias.forEach(c => {
+                    const item = document.createElement('div');
+                    item.style = "display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #222;";
+                    item.innerHTML = `
                     <span>${c.Categoria}</span>
                     <button onclick="confirmarEliminar(${c.ID}, '${c.Categoria}')" style="background: transparent; color: #f87171; border: 1px solid #dc2626; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
                         Eliminar
                     </button>
                 `;
-                contenedor.appendChild(item);
+                    contenedor.appendChild(item);
+                });
+            } catch (err) { console.error("Error buscando:", err); }
+        });
+
+        async function confirmarEliminar(id, nombre) {
+            const confirmar = await mostrarConfirmacion({
+                titulo: '¿Eliminar Categoría?',
+                mensaje: `¿Estás seguro de que quieres eliminar la categoría <strong>"${nombre}"</strong>? Se eliminarán también los productos dentro de ella.`,
+                botonConfirmar: 'Eliminar Categoria'
             });
-        } catch (err) { console.error("Error buscando:", err); }
-    });
 
-    async function confirmarEliminar(id, nombre) {
-        if (!confirm(`¿Estás seguro de que quieres eliminar la categoría "${nombre}"? Se eliminarán también los productos dentro de ella`)) return;
+            if (!confirmar) return;
 
-        try {
-            const res = await fetch(`http://localhost:3000/api/eliminar-categoria/${id}`, { method: 'DELETE' });
-            const result = await res.json();
-            mostrarToast(result.message, res.ok ? "exito" : "error");
-            buscador.value = ''; // Limpiar buscador
-            contenedor.innerHTML = ''; // Limpiar resultados
-        } catch (err) { mostrarToast("Error al eliminar.", "error"); }
-    }
-</script>
+            try {
+                const res = await fetch(`/api/eliminar-categoria/${id}`, { method: 'DELETE' });
+                const result = await res.json();
+                mostrarToast(result.message, res.ok ? "exito" : "error");
+                buscador.value = ''; // Limpiar buscador
+                contenedor.innerHTML = ''; // Limpiar resultados
+            } catch (err) { mostrarToast("Error al eliminar.", "error"); }
+        }
+    </script>
 
-<style>
-.toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    padding: 14px 22px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #fff;
-    z-index: 9999;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.3s, transform 0.3s;
-    pointer-events: none;
-    max-width: 360px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-.toast.exito  { background: #1a2e1a; border: 1px solid #4ade80; color: #4ade80; }
-.toast.error  { background: #2e1a1a; border: 1px solid #dc2626; color: #f87171; }
-.toast.aviso  { background: #2e2a1a; border: 1px solid #f59e0b; color: #fbbf24; }
-.toast.visible { opacity: 1; transform: translateY(0); }
-</style>
-<div class="toast" id="toast"></div>
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            max-width: 360px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast.exito {
+            background: #1a2e1a;
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
+
+        .toast.error {
+            background: #2e1a1a;
+            border: 1px solid #dc2626;
+            color: #f87171;
+        }
+
+        .toast.aviso {
+            background: #2e2a1a;
+            border: 1px solid #f59e0b;
+            color: #fbbf24;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <div class="toast" id="toast"></div>
 
 </body>
+
 </html>

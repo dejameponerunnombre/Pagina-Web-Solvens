@@ -1,138 +1,167 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Grupo Solvens - Carga de Puntos de Venta</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
     <link rel="stylesheet" href="style/formulario.css">
+    <link rel="stylesheet" href="style/modal.css">
 </head>
+
 <body>
 
-<header class="header">
+    <header class="header">
         <style>
-        .btn-volver {
-            display: flex;
-            align-items: center;
-            opacity: 0.8;
-            transition: opacity 0.2s, transform 0.2s;
+            .btn-volver {
+                display: flex;
+                align-items: center;
+                opacity: 0.8;
+                transition: opacity 0.2s, transform 0.2s;
+            }
+
+            .btn-volver:hover {
+                opacity: 1;
+                transform: translateX(-3px);
+            }
+        </style>
+        <a href="Admin_gestion_cadena.html" class="btn-volver">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+        </a>
+        <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+    </header>
+
+    <main class="contenido">
+        <h1>Eliminar <span>Cadena</span></h1>
+        <p class="subtitulo" style="color: #ff4d4d;">⚠️ Atención: Esta acción borrará todas las sucursales asociadas.
+        </p>
+
+        <div class="formulario">
+            <div class="fila">
+                <select id="select-cadena">
+                    <option value="" disabled selected>Seleccione la Cadena a eliminar</option>
+                </select>
+            </div>
+
+            <button id="btn-eliminar-cadena" disabled>
+                Eliminar Cadena y Sucursales
+            </button>
+        </div>
+    </main>
+
+    <script src="js/modal_confirmacion.js"></script>
+    <script>
+        function mostrarToast(mensaje, tipo = 'exito') {
+            const t = document.getElementById('toast');
+            t.textContent = mensaje;
+            t.className = 'toast ' + tipo;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 3500);
         }
-        .btn-volver:hover {
+
+        const URL_BASE = '/api';
+        const selCadena = document.getElementById('select-cadena');
+        const btnEliminar = document.getElementById('btn-eliminar-cadena');
+
+        // 1. Cargar las cadenas existentes
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const res = await fetch(`${URL_BASE}/cadenas`);
+                const data = await res.json();
+                data.forEach(c => {
+                    selCadena.innerHTML += `<option value="${c.ID}">${c.Nombre}</option>`;
+                });
+            } catch (err) {
+                mostrarToast("Error al cargar cadenas.", "error");
+            }
+        });
+
+        // 2. Habilitar botón al seleccionar
+        selCadena.addEventListener('change', () => {
+            btnEliminar.disabled = false;
+        });
+
+        // 3. Ejecutar eliminación
+        btnEliminar.addEventListener('click', async () => {
+            const nombreCadena = selCadena.options[selCadena.selectedIndex].text;
+
+            const confirmar = await mostrarConfirmacion({
+                titulo: '¿Eliminar Cadena?',
+                mensaje: `Esta acción eliminará la cadena <strong>"${nombreCadena}"</strong> y TODAS sus sucursales de forma permanente.`,
+                botonConfirmar: 'Eliminar Permanente'
+            });
+
+            if (!confirmar) return;
+
+            try {
+                const id = selCadena.value;
+                const res = await fetch(`${URL_BASE}/eliminar-cadena/${id}`, {
+                    method: 'DELETE'
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    mostrarToast(result.message, "exito");
+                    location.reload(); // Refrescar para actualizar la lista
+                } else {
+                    mostrarToast(result.message, "error");
+                }
+            } catch (err) {
+                mostrarToast("Error de conexión con el servidor.", "error");
+            }
+        });
+    </script>
+
+
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            max-width: 360px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast.exito {
+            background: #1a2e1a;
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
+
+        .toast.error {
+            background: #2e1a1a;
+            border: 1px solid #dc2626;
+            color: #f87171;
+        }
+
+        .toast.aviso {
+            background: #2e2a1a;
+            border: 1px solid #f59e0b;
+            color: #fbbf24;
+        }
+
+        .toast.visible {
             opacity: 1;
-            transform: translateX(-3px);
+            transform: translateY(0);
         }
     </style>
-    <a href="Admin_gestion_cadena.html" class="btn-volver">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"/>
-            <polyline points="12 19 5 12 12 5"/>
-        </svg>
-    </a>
-    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
-</header>
-
-<main class="contenido">
-    <h1>Eliminar <span>Cadena</span></h1>
-    <p class="subtitulo" style="color: #ff4d4d;">⚠️ Atención: Esta acción borrará todas las sucursales asociadas.</p>
-
-    <div class="formulario">
-        <div class="fila">
-            <select id="select-cadena">
-                <option value="" disabled selected>Seleccione la Cadena a eliminar</option>
-            </select>
-        </div>
-
-        <button id="btn-eliminar-cadena" disabled >
-            Eliminar Cadena y Sucursales
-        </button>
-    </div>
-</main>
-
-<script>
-    function mostrarToast(mensaje, tipo = 'exito') {
-        const t = document.getElementById('toast');
-        t.textContent = mensaje;
-        t.className = 'toast ' + tipo;
-        t.classList.add('visible');
-        setTimeout(() => t.classList.remove('visible'), 3500);
-    }
-
-    const URL_BASE = 'http://localhost:3000/api';
-    const selCadena = document.getElementById('select-cadena');
-    const btnEliminar = document.getElementById('btn-eliminar-cadena');
-
-    // 1. Cargar las cadenas existentes
-    document.addEventListener("DOMContentLoaded", async () => {
-        try {
-            const res = await fetch(`${URL_BASE}/cadenas`);
-            const data = await res.json();
-            data.forEach(c => {
-                selCadena.innerHTML += `<option value="${c.ID}">${c.Nombre}</option>`;
-            });
-        } catch (err) {
-            mostrarToast("Error al cargar cadenas.", "error");
-        }
-    });
-
-    // 2. Habilitar botón al seleccionar
-    selCadena.addEventListener('change', () => {
-        btnEliminar.disabled = false;
-    });
-
-    // 3. Ejecutar eliminación
-    btnEliminar.addEventListener('click', async () => {
-        const nombreCadena = selCadena.options[selCadena.selectedIndex].text;
-        
-        const confirmar = confirm(
-            `¿ESTÁ SEGURO?\nEsta acción eliminará la cadena "${nombreCadena}" y TODAS sus sucursales de forma permanente.`
-        );
-
-        if (!confirmar) return;
-
-        try {
-            const id = selCadena.value;
-            const res = await fetch(`${URL_BASE}/eliminar-cadena/${id}`, { 
-                method: 'DELETE' 
-            });
-            const result = await res.json();
-
-            if (result.success) {
-                mostrarToast(result.message, "exito");
-                location.reload(); // Refrescar para actualizar la lista
-            } else {
-                mostrarToast(result.message, "error");
-            }
-        } catch (err) {
-            mostrarToast("Error de conexión con el servidor.", "error");
-        }
-    });
-</script>
-
-
-<style>
-.toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    padding: 14px 22px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #fff;
-    z-index: 9999;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.3s, transform 0.3s;
-    pointer-events: none;
-    max-width: 360px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-.toast.exito  { background: #1a2e1a; border: 1px solid #4ade80; color: #4ade80; }
-.toast.error  { background: #2e1a1a; border: 1px solid #dc2626; color: #f87171; }
-.toast.aviso  { background: #2e2a1a; border: 1px solid #f59e0b; color: #fbbf24; }
-.toast.visible { opacity: 1; transform: translateY(0); }
-</style>
-<div class="toast" id="toast"></div>
+    <div class="toast" id="toast"></div>
 
 </body>
+
 </html>

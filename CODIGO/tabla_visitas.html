@@ -188,7 +188,7 @@
 <div id="toast"></div>
 
 <script>
-const API_BASE     = 'http://localhost:3000/api';
+const API_BASE     = '/api';
 const FILAS_PAGINA = 50;
 
 let datosCompletos = [];
@@ -301,7 +301,7 @@ function buildParams() {
 async function cargarDatos() {
     mostrarCargando();
     try {
-        const URL_BASE = 'http://localhost:3000/api';
+        const URL_BASE = '/api';
         const params = buildParams(); // Esto toma los valores de los filtros
         const res = await fetch(`${URL_BASE}/visitas?${params}`);
         

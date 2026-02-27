@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,325 +10,456 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        .btn-volver { display: flex; align-items: center; opacity: 0.8; transition: opacity 0.2s, transform 0.2s; }
-        .btn-volver:hover { opacity: 1; transform: translateX(-3px); }
-        
+        .btn-volver {
+            display: flex;
+            align-items: center;
+            opacity: 0.8;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .btn-volver:hover {
+            opacity: 1;
+            transform: translateX(-3px);
+        }
+
         /* Control visibilidad botón filtros */
-        .btn-toggle-sidebar.oculto { display: none !important; }
+        .btn-toggle-sidebar.oculto {
+            display: none !important;
+        }
 
         /* Estilos de botones de estado y tabla */
-        .btn-accion { padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 11px; font-weight: bold; margin: 2px; text-transform: uppercase; transition: 0.2s; }
-        .btn-accion.aprobar { background-color: #22c55e; color: white; }
-        .btn-accion.rechazar { background-color: #ef4444; color: white; }
-        .btn-accion:hover { transform: scale(1.1); }
-        
-        .btn-excel { background-color: #15803d; color: white; padding: 10px 16px; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
-        
-        .badge-oferta { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
-        .badge-oferta.si { background: #dcfce7; color: #166534; }
-        .badge-oferta.no { background: #fee2e2; color: #991b1b; }
+        .btn-accion {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            margin: 2px;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .btn-accion.aprobar {
+            background-color: #22c55e;
+            color: white;
+        }
+
+        .btn-accion.rechazar {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-accion:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-excel {
+            background-color: #15803d;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .badge-oferta {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .badge-oferta.si {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-oferta.no {
+            background: #fee2e2;
+            color: #991b1b;
+        }
 
         /* Estilos para la nueva columna de Estado */
-        .status-pill { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .status-aprobado { background: #dcfce7; color: #166534; }
-        .status-rechazado { background: #fee2e2; color: #991b1b; }
-        .status-pendiente { background: #fef3c7; color: #92400e; }
+        .status-pill {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-aprobado {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-rechazado {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-pendiente {
+            background: #fef3c7;
+            color: #92400e;
+        }
 
         /* Corrección línea de más en filtros */
-        .grupo-filtro { border-bottom: 1px solid #eee; margin-bottom: 0; }
-        .filtro-header { border-bottom: none !important; }
+        .grupo-filtro {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 0;
+        }
 
-        .area-contenido { width: 100%; transition: margin 0.3s; }
+        .filtro-header {
+            border-bottom: none !important;
+        }
+
+        .area-contenido {
+            width: 100%;
+            transition: margin 0.3s;
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            max-width: 360px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.exito {
+            background: #1a2e1a;
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
+
+        .toast.error {
+            background: #2e1a1a;
+            border: 1px solid #dc2626;
+            color: #f87171;
+        }
     </style>
 </head>
+
 <body>
 
-<header class="header">
-    <a href="Admin_gestion_visitas.html" class="btn-volver">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
-        </svg>
-    </a>
-    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
-</header>
+    <header class="header">
+        <a href="Admin_gestion_visitas.html" class="btn-volver">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+        </a>
+        <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+    </header>
 
-<button class="btn-toggle-sidebar" id="btnToggleSidebar">
-    <i class="fas fa-filter"></i>
-    <span>Filtros</span>
-</button>
+    <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+        <i class="fas fa-filter"></i>
+        <span>Filtros</span>
+    </button>
 
-<div class="contenedor-layout">
+    <div class="contenedor-layout">
 
-    <aside class="sidebar-filtros" id="sidebarFiltros">
-        <div class="sidebar-header">
-            <h2 class="titulo-filtros">Filtros</h2>
-            <button class="btn-cerrar-sidebar" id="btnCerrarSidebar">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <div class="grupo-filtro">
-            <div class="filtro-header">
-                <label class="label-filtro">Periodo</label>
-                <i class="fas fa-chevron-down icono-toggle"></i>
+        <aside class="sidebar-filtros" id="sidebarFiltros">
+            <div class="sidebar-header">
+                <h2 class="titulo-filtros">Filtros</h2>
+                <button class="btn-cerrar-sidebar" id="btnCerrarSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="filtro-contenido">
-                <p class="descripcion-filtro">Seleccione un rango de fechas:</p>
-                <div class="rango-fechas">
-                    <div>
-                        <label class="label-pequeno">Desde:</label>
-                        <input type="date" class="input-fecha" id="fechaDesde">
-                    </div>
-                    <div>
-                        <label class="label-pequeno">Hasta:</label>
-                        <input type="date" class="input-fecha" id="fechaHasta">
+
+            <div class="grupo-filtro">
+                <div class="filtro-header">
+                    <label class="label-filtro">Periodo</label>
+                    <i class="fas fa-chevron-down icono-toggle"></i>
+                </div>
+                <div class="filtro-contenido">
+                    <p class="descripcion-filtro">Seleccione un rango de fechas:</p>
+                    <div class="rango-fechas">
+                        <div>
+                            <label class="label-pequeno">Desde:</label>
+                            <input type="date" class="input-fecha" id="fechaDesde">
+                        </div>
+                        <div>
+                            <label class="label-pequeno">Hasta:</label>
+                            <input type="date" class="input-fecha" id="fechaHasta">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="grupo-filtro">
-            <div class="filtro-header">
-                <label class="label-filtro">Cadenas</label>
-                <i class="fas fa-chevron-down icono-toggle"></i>
+            <div class="grupo-filtro">
+                <div class="filtro-header">
+                    <label class="label-filtro">Cadenas</label>
+                    <i class="fas fa-chevron-down icono-toggle"></i>
+                </div>
+                <div class="filtro-contenido">
+                    <p class="descripcion-filtro">Seleccione la cadena:</p>
+                    <select class="select-filtro" id="filtroCadena">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
             </div>
-            <div class="filtro-contenido">
-                <p class="descripcion-filtro">Seleccione la cadena:</p>
-                <select class="select-filtro" id="filtroCadena">
-                    <option value="">Todas</option>
-                </select>
+
+            <div class="grupo-filtro">
+                <div class="filtro-header">
+                    <label class="label-filtro">Bocas</label>
+                    <i class="fas fa-chevron-down icono-toggle"></i>
+                </div>
+                <div class="filtro-contenido">
+                    <p class="descripcion-filtro">Seleccione la sucursal:</p>
+                    <select class="select-filtro" id="filtroSucursal">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="grupo-filtro">
-            <div class="filtro-header">
-                <label class="label-filtro">Bocas</label>
-                <i class="fas fa-chevron-down icono-toggle"></i>
+            <div class="grupo-filtro">
+                <div class="filtro-header">
+                    <label class="label-filtro">Canales</label>
+                    <i class="fas fa-chevron-down icono-toggle"></i>
+                </div>
+                <div class="filtro-contenido">
+                    <p class="descripcion-filtro">Seleccione el canal:</p>
+                    <select class="select-filtro" id="filtroCanal">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
             </div>
-            <div class="filtro-contenido">
-                <p class="descripcion-filtro">Seleccione la sucursal:</p>
-                <select class="select-filtro" id="filtroSucursal">
-                    <option value="">Todas</option>
-                </select>
+
+            <div class="grupo-filtro">
+                <div class="filtro-header">
+                    <label class="label-filtro">Región</label>
+                    <i class="fas fa-chevron-down icono-toggle"></i>
+                </div>
+                <div class="filtro-contenido">
+                    <p class="descripcion-filtro">Seleccione la región:</p>
+                    <select class="select-filtro" id="filtroRegion">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="grupo-filtro">
-            <div class="filtro-header">
-                <label class="label-filtro">Canales</label>
-                <i class="fas fa-chevron-down icono-toggle"></i>
+            <div class="grupo-filtro">
+                <div class="filtro-header">
+                    <label class="label-filtro">Clientes</label>
+                    <i class="fas fa-chevron-down icono-toggle"></i>
+                </div>
+                <div class="filtro-contenido">
+                    <p class="descripcion-filtro">Seleccione el cliente:</p>
+                    <select class="select-filtro" id="filtroCliente">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
             </div>
-            <div class="filtro-contenido">
-                <p class="descripcion-filtro">Seleccione el canal:</p>
-                <select class="select-filtro" id="filtroCanal">
-                    <option value="">Todos</option>
-                </select>
+
+            <div class="botones-filtro">
+                <button class="btn-aplicar-filtros" id="btnAplicar">Aplicar Filtros</button>
+                <button class="btn-limpiar-filtros" id="btnLimpiar">Limpiar Filtros</button>
             </div>
-        </div>
+        </aside>
 
-        <div class="grupo-filtro">
-            <div class="filtro-header">
-                <label class="label-filtro">Región</label>
-                <i class="fas fa-chevron-down icono-toggle"></i>
+        <main class="area-contenido">
+            <h1 class="page-titulo">Listado de <span>Productos</span></h1>
+            <p class="page-subtitulo">Visualización y exportación de registros de productos del sistema.</p>
+
+            <div class="barra-resultados"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <span>Mostrando <strong id="conteoResultados">0</strong> registros</span>
+                    <div id="tagsActivos" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+                </div>
+                <button class="btn-excel" onclick="exportarExcel()">
+                    <i class="fas fa-file-excel"></i> Exportar a Excel
+                </button>
             </div>
-            <div class="filtro-contenido">
-                <p class="descripcion-filtro">Seleccione la región:</p>
-                <select class="select-filtro" id="filtroRegion">
-                    <option value="">Todas</option>
-                </select>
+
+            <div class="tabla-wrapper">
+                <table class="tabla-reporte">
+                    <thead>
+                        <tr>
+                            <th>ESTADO</th>
+                            <th>FECHA</th>
+                            <th>CADENA</th>
+                            <th>COMERCIO</th>
+                            <th>LOCALIDAD</th>
+                            <th>REGIÓN</th>
+                            <th>CLUSTER</th>
+                            <th>CANAL</th>
+                            <th>USUARIO</th>
+                            <th>CATEGORÍA</th>
+                            <th>PRODUCTO</th>
+                            <th>SKU</th>
+                            <th>PRECIO</th>
+                            <th>OFERTA</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla"></tbody>
+                </table>
             </div>
-        </div>
+        </main>
+    </div>
 
-        <div class="grupo-filtro">
-            <div class="filtro-header">
-                <label class="label-filtro">Clientes</label>
-                <i class="fas fa-chevron-down icono-toggle"></i>
-            </div>
-            <div class="filtro-contenido">
-                <p class="descripcion-filtro">Seleccione el cliente:</p>
-                <select class="select-filtro" id="filtroCliente">
-                    <option value="">Todos</option>
-                </select>
-            </div>
-        </div>
+    <div id="toast" class="toast"></div>
 
-        <div class="botones-filtro">
-            <button class="btn-aplicar-filtros" id="btnAplicar">Aplicar Filtros</button>
-            <button class="btn-limpiar-filtros" id="btnLimpiar">Limpiar Filtros</button>
-        </div>
-    </aside>
 
-    <main class="area-contenido">
-        <h1 class="page-titulo">Listado de <span>Productos</span></h1>
-        <p class="page-subtitulo">Visualización y exportación de registros de productos del sistema.</p>
+    <script>
+        const API_BASE = '/api';
+        const sidebar = document.getElementById('sidebarFiltros');
+        const btnToggle = document.getElementById('btnToggleSidebar');
+        const cuerpo = document.getElementById('cuerpoTabla');
+        const tagsEl = document.getElementById('tagsActivos');
 
-        <div class="barra-resultados" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <span>Mostrando <strong id="conteoResultados">0</strong> registros</span>
-                <div id="tagsActivos" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
-            </div>
-            <button class="btn-excel" onclick="exportarExcel()">
-                <i class="fas fa-file-excel"></i> Exportar a Excel
-            </button>
-        </div>
+        // ══════════════════════════════════════════════════════════════════════════════
+        // TOGGLE SIDEBAR (BOTÓN DESAPARECE AL PRESIONAR)
+        // ══════════════════════════════════════════════════════════════════════════════
 
-        <div class="tabla-wrapper">
-            <table class="tabla-reporte">
-                <thead>
-                    <tr>
-                        <th>ESTADO</th> <th>FECHA</th>
-                        <th>CADENA</th>
-                        <th>COMERCIO</th>
-                        <th>LOCALIDAD</th>
-                        <th>REGIÓN</th>
-                        <th>CLUSTER</th>
-                        <th>CANAL</th>
-                        <th>USUARIO</th>
-                        <th>CATEGORÍA</th>
-                        <th>PRODUCTO</th>
-                        <th>SKU</th>
-                        <th>PRECIO</th>
-                        <th>OFERTA</th>
-                        <th>ACCIONES</th> </tr>
-                </thead>
-                <tbody id="cuerpoTabla"></tbody>
-            </table>
-        </div>
-    </main>
-</div>
+        btnToggle.addEventListener('click', () => {
+            sidebar.classList.add('activo');
+            btnToggle.classList.add('oculto'); // Desaparece al abrir
+        });
 
-<script>
-const API_BASE = 'http://localhost:3000/api';
-const sidebar = document.getElementById('sidebarFiltros');
-const btnToggle = document.getElementById('btnToggleSidebar');
-const cuerpo = document.getElementById('cuerpoTabla');
-const tagsEl = document.getElementById('tagsActivos');
+        document.getElementById('btnCerrarSidebar').addEventListener('click', () => {
+            sidebar.classList.remove('activo');
+            btnToggle.classList.remove('oculto'); // Reaparece al cerrar
+        });
 
-// ══════════════════════════════════════════════════════════════════════════════
-// TOGGLE SIDEBAR (BOTÓN DESAPARECE AL PRESIONAR)
-// ══════════════════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════════════════
+        // GRUPOS COLAPSABLES
+        // ══════════════════════════════════════════════════════════════════════════════
 
-btnToggle.addEventListener('click', () => {
-    sidebar.classList.add('activo');
-    btnToggle.classList.add('oculto'); // Desaparece al abrir
-});
+        document.querySelectorAll('.filtro-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const grupo = header.parentElement;
+                const contenido = header.nextElementSibling;
+                const icono = header.querySelector('.icono-toggle');
 
-document.getElementById('btnCerrarSidebar').addEventListener('click', () => {
-    sidebar.classList.remove('activo');
-    btnToggle.classList.remove('oculto'); // Reaparece al cerrar
-});
+                grupo.classList.toggle('colapsado');
 
-// ══════════════════════════════════════════════════════════════════════════════
-// GRUPOS COLAPSABLES
-// ══════════════════════════════════════════════════════════════════════════════
+                if (grupo.classList.contains('colapsado')) {
+                    contenido.style.maxHeight = '0';
+                    icono.style.transform = 'rotate(-90deg)';
+                } else {
+                    contenido.style.maxHeight = contenido.scrollHeight + 'px';
+                    icono.style.transform = 'rotate(0deg)';
+                }
+            });
+        });
 
-document.querySelectorAll('.filtro-header').forEach(header => {
-    header.addEventListener('click', () => {
-        const grupo = header.parentElement;
-        const contenido = header.nextElementSibling;
-        const icono = header.querySelector('.icono-toggle');
-        
-        grupo.classList.toggle('colapsado');
-        
-        if (grupo.classList.contains('colapsado')) {
-            contenido.style.maxHeight = '0';
-            icono.style.transform = 'rotate(-90deg)';
-        } else {
-            contenido.style.maxHeight = contenido.scrollHeight + 'px';
-            icono.style.transform = 'rotate(0deg)';
+        // Inicializar grupos colapsados por defecto
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.grupo-filtro').forEach(g => {
+                g.classList.add('colapsado');
+                g.querySelector('.filtro-contenido').style.maxHeight = '0';
+                g.querySelector('.icono-toggle').style.transform = 'rotate(-90deg)';
+            });
+            cargarOpciones();
+            cargarDatos();
+        });
+
+        // ══════════════════════════════════════════════════════════════════════════════
+        // CARGAR OPCIONES DE FILTROS
+        // ══════════════════════════════════════════════════════════════════════════════
+
+        async function cargarOpciones() {
+            try {
+                const res = await fetch(`${API_BASE}/filtros-opciones`);
+                const data = await res.json();
+
+                poblarSelect('filtroCadena', data.cadenas || []);
+                poblarSelect('filtroSucursal', data.sucursales || []);
+                poblarSelect('filtroCanal', data.canales || []);
+                poblarSelect('filtroRegion', data.regiones || []);
+
+                // Cargar clientes
+                const resClientes = await fetch(`${API_BASE}/clientes-activos`);
+                const clientes = await resClientes.json();
+                poblarSelect('filtroCliente', clientes || []);
+
+            } catch (e) {
+                console.error('Error cargando opciones de filtros:', e);
+            }
         }
-    });
-});
 
-// Inicializar grupos colapsados por defecto
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.grupo-filtro').forEach(g => {
-        g.classList.add('colapsado');
-        g.querySelector('.filtro-contenido').style.maxHeight = '0';
-        g.querySelector('.icono-toggle').style.transform = 'rotate(-90deg)';
-    });
-    cargarOpciones();
-    cargarDatos();
-});
-
-// ══════════════════════════════════════════════════════════════════════════════
-// CARGAR OPCIONES DE FILTROS
-// ══════════════════════════════════════════════════════════════════════════════
-
-async function cargarOpciones() {
-    try {
-        const res = await fetch(`${API_BASE}/filtros-opciones`);
-        const data = await res.json();
-        
-        poblarSelect('filtroCadena', data.cadenas || []);
-        poblarSelect('filtroSucursal', data.sucursales || []);
-        poblarSelect('filtroCanal', data.canales || []);
-        poblarSelect('filtroRegion', data.regiones || []);
-        
-        // Cargar clientes
-        const resClientes = await fetch(`${API_BASE}/clientes-activos`);
-        const clientes = await resClientes.json();
-        poblarSelect('filtroCliente', clientes || []);
-        
-    } catch (e) {
-        console.error('Error cargando opciones de filtros:', e);
-    }
-}
-
-function poblarSelect(id, lista) {
-    const sel = document.getElementById(id);
-    lista.forEach(item => {
-        const opt = document.createElement('option');
-        opt.value = item.ID;
-        opt.textContent = item.Nombre;
-        sel.appendChild(opt);
-    });
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// CARGAR DATOS CON FILTROS
-// ══════════════════════════════════════════════════════════════════════════════
-
-function buildParams() {
-    const p = new URLSearchParams();
-    const v = (id) => document.getElementById(id).value;
-    
-    if (v('fechaDesde'))     p.set('fecha_desde',  v('fechaDesde'));
-    if (v('fechaHasta'))     p.set('fecha_hasta',  v('fechaHasta'));
-    if (v('filtroCadena'))   p.set('id_cadena',    v('filtroCadena'));
-    if (v('filtroSucursal')) p.set('id_sucursal',  v('filtroSucursal'));
-    if (v('filtroCanal'))    p.set('id_canal',     v('filtroCanal'));
-    if (v('filtroRegion'))   p.set('id_region',    v('filtroRegion'));
-    if (v('filtroCliente'))  p.set('id_cliente',   v('filtroCliente'));
-    
-    return p;
-}
-
-async function cargarDatos() {
-    cuerpo.innerHTML = '<tr><td colspan="15">Cargando datos...</td></tr>';
-    
-    try {
-        const params = buildParams();
-        const res = await fetch(`${API_BASE}/reporte-visitas?${params}`);
-        const datos = await res.json();
-        
-        document.getElementById('conteoResultados').textContent = datos.length;
-        actualizarTags(params);
-        
-        if (datos.length === 0) {
-            cuerpo.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:40px;">No se encontraron registros.</td></tr>';
-            return;
+        function poblarSelect(id, lista) {
+            const sel = document.getElementById(id);
+            lista.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.ID;
+                opt.textContent = item.Nombre;
+                sel.appendChild(opt);
+            });
         }
-        
-        cuerpo.innerHTML = datos.map(r => {
-            const f = new Date(r.Fecha);
-            const fechaF = `${String(f.getUTCDate()).padStart(2,'0')}/${String(f.getUTCMonth()+1).padStart(2,'0')}/${f.getUTCFullYear()}`;
-            
-            // Si el estado viene vacío de la DB, mostramos Pendiente
-            const estActual = r.Estado || 'Pendiente';
-            const estClass = estActual.toLowerCase();
-            
-            return `<tr>
+
+        // ══════════════════════════════════════════════════════════════════════════════
+        // CARGAR DATOS CON FILTROS
+        // ══════════════════════════════════════════════════════════════════════════════
+
+        function buildParams() {
+            const p = new URLSearchParams();
+            const v = (id) => document.getElementById(id).value;
+
+            if (v('fechaDesde')) p.set('fecha_desde', v('fechaDesde'));
+            if (v('fechaHasta')) p.set('fecha_hasta', v('fechaHasta'));
+            if (v('filtroCadena')) p.set('id_cadena', v('filtroCadena'));
+            if (v('filtroSucursal')) p.set('id_sucursal', v('filtroSucursal'));
+            if (v('filtroCanal')) p.set('id_canal', v('filtroCanal'));
+            if (v('filtroRegion')) p.set('id_region', v('filtroRegion'));
+            if (v('filtroCliente')) p.set('id_cliente', v('filtroCliente'));
+
+            return p;
+        }
+
+        async function cargarDatos() {
+            cuerpo.innerHTML = '<tr><td colspan="15">Cargando datos...</td></tr>';
+
+            try {
+                const params = buildParams();
+                const res = await fetch(`${API_BASE}/reporte-visitas?${params}`);
+                const datos = await res.json();
+
+                document.getElementById('conteoResultados').textContent = datos.length;
+                actualizarTags(params);
+
+                if (datos.length === 0) {
+                    cuerpo.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:40px;">No se encontraron registros.</td></tr>';
+                    return;
+                }
+
+                cuerpo.innerHTML = datos.map(r => {
+                    const f = new Date(r.Fecha);
+                    const fechaF = `${String(f.getUTCDate()).padStart(2, '0')}/${String(f.getUTCMonth() + 1).padStart(2, '0')}/${f.getUTCFullYear()}`;
+
+                    // Si el estado viene vacío de la DB, mostramos Pendiente
+                    const estActual = r.Estado || 'Pendiente';
+                    const estClass = estActual.toLowerCase();
+
+                    return `<tr>
                 <td><span class="status-pill status-${estClass}">${estActual}</span></td>
                 <td>${fechaF}</td>
                 <td>${r.Cadena || '-'}</td>
@@ -347,80 +479,86 @@ async function cargarDatos() {
                     <button class="btn-accion rechazar" title="Rechazar" onclick="actualizarEstado(${r.ID_Carga}, 'Rechazado')">Rechazar</button>
                 </td>
             </tr>`;
-        }).join('');
-        
-    } catch (e) {
-        console.error('Error:', e);
-        cuerpo.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:40px;color:#dc2626;">Error al cargar la tabla.</td></tr>';
-    }
-}
+                }).join('');
 
-async function actualizarEstado(idCarga, nuevoEstado) {
-    if(!confirm(`¿Cambiar estado a ${nuevoEstado}?`)) return;
-    
-    try {
-        const res = await fetch(`${API_BASE}/visitas/estado`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ 
-                id: idCarga, 
-                estado: nuevoEstado 
-            })
+            } catch (e) {
+                console.error('Error:', e);
+                cuerpo.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:40px;color:#dc2626;">Error al cargar la tabla.</td></tr>';
+            }
+        }
+
+        function mostrarToast(mensaje, tipo = 'exito') {
+            const t = document.getElementById('toast');
+            t.textContent = mensaje;
+            t.className = 'toast ' + tipo + ' visible';
+            setTimeout(() => t.classList.remove('visible'), 3000);
+        }
+
+        async function actualizarEstado(idCarga, nuevoEstado) {
+            try {
+                const res = await fetch(`${API_BASE}/visitas/estado`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: idCarga,
+                        estado: nuevoEstado
+                    })
+                });
+
+                if (res.ok) {
+                    mostrarToast(`Registro ${nuevoEstado.toLowerCase()} correctamente.`);
+                    cargarDatos();
+                } else {
+                    mostrarToast('Error al actualizar el registro.', 'error');
+                }
+            } catch (e) {
+                console.error('Error en fetch:', e);
+                mostrarToast('Error de conexión.', 'error');
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════════════════
+        // TAGS DE FILTROS ACTIVOS
+        // ══════════════════════════════════════════════════════════════════════════════
+
+        const LABEL_FILTRO = {
+            fecha_desde: 'Desde',
+            fecha_hasta: 'Hasta',
+            id_cadena: 'Cadena',
+            id_sucursal: 'Boca',
+            id_canal: 'Canal',
+            id_region: 'Región',
+            id_cliente: 'Cliente'
+        };
+
+        function actualizarTags(params) {
+            tagsEl.innerHTML = '';
+            params.forEach((val, key) => {
+                const tag = document.createElement('span');
+                tag.className = 'tag-filtro-activo';
+                tag.innerHTML = `<i class="fas fa-tag"></i> ${LABEL_FILTRO[key] || key}`;
+                tagsEl.appendChild(tag);
+            });
+        }
+
+        // ══════════════════════════════════════════════════════════════════════════════
+        // BOTONES DE ACCIÓN Y EXPORTACIÓN
+        // ══════════════════════════════════════════════════════════════════════════════
+
+        document.getElementById('btnAplicar').addEventListener('click', cargarDatos);
+
+        document.getElementById('btnLimpiar').addEventListener('click', () => {
+            ['fechaDesde', 'fechaHasta', 'filtroCadena', 'filtroSucursal', 'filtroCanal', 'filtroRegion', 'filtroCliente']
+                .forEach(id => document.getElementById(id).value = '');
+            cargarDatos();
         });
 
-        if (res.ok) {
-            // Recargamos la tabla para que el usuario vea el cambio de color y texto inmediatamente
-            cargarDatos();
-        } else {
-            alert('No se pudo actualizar el registro en el servidor.');
+        function exportarExcel() {
+            const table = document.querySelector(".tabla-reporte");
+            const wb = XLSX.utils.table_to_book(table);
+            XLSX.writeFile(wb, "Reporte_Productos.xlsx");
         }
-    } catch (e) {
-        console.error('Error en fetch:', e);
-        alert('Error de conexión al intentar actualizar.');
-    }
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// TAGS DE FILTROS ACTIVOS
-// ══════════════════════════════════════════════════════════════════════════════
-
-const LABEL_FILTRO = {
-    fecha_desde: 'Desde',
-    fecha_hasta: 'Hasta',
-    id_cadena: 'Cadena',
-    id_sucursal: 'Boca',
-    id_canal: 'Canal',
-    id_region: 'Región',
-    id_cliente: 'Cliente'
-};
-
-function actualizarTags(params) {
-    tagsEl.innerHTML = '';
-    params.forEach((val, key) => {
-        const tag = document.createElement('span');
-        tag.className = 'tag-filtro-activo';
-        tag.innerHTML = `<i class="fas fa-tag"></i> ${LABEL_FILTRO[key] || key}`;
-        tagsEl.appendChild(tag);
-    });
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// BOTONES DE ACCIÓN Y EXPORTACIÓN
-// ══════════════════════════════════════════════════════════════════════════════
-
-document.getElementById('btnAplicar').addEventListener('click', cargarDatos);
-
-document.getElementById('btnLimpiar').addEventListener('click', () => {
-    ['fechaDesde','fechaHasta','filtroCadena','filtroSucursal','filtroCanal','filtroRegion','filtroCliente']
-        .forEach(id => document.getElementById(id).value = '');
-    cargarDatos();
-});
-
-function exportarExcel() {
-    const table = document.querySelector(".tabla-reporte");
-    const wb = XLSX.utils.table_to_book(table);
-    XLSX.writeFile(wb, "Reporte_Productos.xlsx");
-}
-</script>
+    </script>
 </body>
+
 </html>

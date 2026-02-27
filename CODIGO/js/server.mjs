@@ -11,6 +11,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Servir archivos estáticos del frontend
+app.use(express.static('CODIGO'));
+app.use('/IMG', express.static('IMG'));
+
 // ensure password column can hold bcrypt hashes (≈60 chars)
 (async () => {
     try {
@@ -24,7 +28,7 @@ app.use(cors());
             END
         `);
         console.log('password column size verified/updated');
-    } catch(err) {
+    } catch (err) {
         console.error('error ensuring Clave column length', err);
     }
 })();
@@ -69,7 +73,7 @@ app.post('/api/agregar-cadena', async (req, res, next) => {
                     INSERT INTO Cadena (Nombre, ID_Tipo) VALUES (@nombre, @idTipo);
                     SELECT 'OK' as Resultado
                 END`;
-        
+
         const result = await ejecutarQuery(query, [
             { name: 'nombre', type: mssql.VarChar, value: nombre },
             { name: 'tipoNombre', type: mssql.VarChar, value: tipo }
@@ -104,7 +108,7 @@ app.get('/api/buscar-sucursales', async (req, res) => {
     const { id_cadena, id_subzona } = req.query;
     try {
         const pool = await getConnection();
-let query = 'SELECT ID, Calle AS "Calle", Altura AS "Altura", Localidad AS "Localidad" FROM Sucursal WHERE ID_Cadena = @id_cadena';        const request = pool.request().input('id_cadena', mssql.Int, id_cadena); // Cambiado a Int por seguridad
+        let query = 'SELECT ID, Calle AS "Calle", Altura AS "Altura", Localidad AS "Localidad" FROM Sucursal WHERE ID_Cadena = @id_cadena'; const request = pool.request().input('id_cadena', mssql.Int, id_cadena); // Cambiado a Int por seguridad
 
         // Validación más robusta para evitar que 'undefined' o 'null' rompan la consulta
         if (id_subzona && id_subzona !== 'undefined' && id_subzona !== 'null' && id_subzona !== '') {
@@ -167,8 +171,8 @@ app.get('/api/tipos-usuario', async (req, res, next) => {
 });
 
 app.post('/api/crear-usuario', async (req, res, next) => {
-    const { nombre, id_tipo, mail, usuario, clave, sucursalesIds } = req.body; 
-    
+    const { nombre, id_tipo, mail, usuario, clave, sucursalesIds } = req.body;
+
     try {
         const pool = await getConnection();
 
@@ -181,13 +185,13 @@ app.post('/api/crear-usuario', async (req, res, next) => {
         if (existe.recordset.length > 0) {
             const duplicado = existe.recordset[0];
             let msg = "El registro ya existe.";
-            
+
             if (duplicado.Usuario === usuario) msg = "El nombre de usuario ya está en uso.";
             else if (duplicado.Mail === mail) msg = "El correo electrónico ya está registrado.";
 
-            return res.status(400).json({ 
-                success: false, 
-                message: msg 
+            return res.status(400).json({
+                success: false,
+                message: msg
             });
         }
 
@@ -229,9 +233,9 @@ app.post('/api/crear-usuario', async (req, res, next) => {
             await transaction.rollback();
             throw error; // Re-lanzar para que lo atrape el catch externo
         }
-    } catch (error) { 
+    } catch (error) {
         console.error("Error en crear-usuario:", error);
-        next(error); 
+        next(error);
     }
 });
 
@@ -269,7 +273,7 @@ app.post('/api/agregar-categoria', async (req, res, next) => {
         await ejecutarQuery("INSERT INTO Categoria (Categoria) VALUES (@cat)", [
             { name: 'cat', type: mssql.VarChar, value: categoria }
         ]);
-        
+
         res.json({ success: true, message: "Categoría creada con éxito." });
     } catch (error) { next(error); }
 });
@@ -393,11 +397,11 @@ app.post('/login', async (req, res, next) => {
                         { name: 'id', type: mssql.SmallInt, value: userRec.ID }
                     ]);
                 }
-                return res.json({ 
-                    success: true, 
-                    id: userRec.ID, 
-                    tipo: userRec.tipo, 
-                    nombre: userRec.Nombre 
+                return res.json({
+                    success: true,
+                    id: userRec.ID,
+                    tipo: userRec.tipo,
+                    nombre: userRec.Nombre
                 });
             }
         }
@@ -557,8 +561,8 @@ app.get('/api/productos-cliente', async (req, res, next) => {
 
 // D. GUARDAR VISITA: Maneja la transacción completa
 // Ruta de carga en server.mjs
-const storage = multer.memoryStorage(); 
-const upload = multer({ 
+const storage = multer.memoryStorage();
+const upload = multer({
     storage: storage,
     limits: { fileSize: 2 * 1024 * 1024 } // Límite de 2MB por archivo
 });
@@ -566,7 +570,7 @@ const upload = multer({
 app.post('/api/cargar-visita', upload.array('imagenes', 3), async (req, res, next) => {
     // 1. Extraer datos (Importante: productos viene como STRING en FormData)
     const { id_repo, id_cliente, id_sucursal, productos } = req.body;
-    
+
     if (!productos) return res.status(400).json({ success: false, error: "No hay productos" });
 
     const listaProd = JSON.parse(productos);
@@ -584,13 +588,13 @@ app.post('/api/cargar-visita', upload.array('imagenes', 3), async (req, res, nex
             .input('s', mssql.SmallInt, id_sucursal)
             .query(`INSERT INTO Visita (Fecha, ID_Repo, ID_Cliente, ID_Sucursal) 
                     OUTPUT INSERTED.ID VALUES (@f,@r,@c,@s)`);
-        
+
         const vId = vRes.recordset[0].ID;
 
         // B. INSERTAR EN TABLA CARGA (Aquí estaba el fallo)
         for (const p of listaProd) {
             await transaction.request()
-                .input('pre', mssql.Decimal(10,2), p.precio)
+                .input('pre', mssql.Decimal(10, 2), p.precio)
                 .input('pId', mssql.SmallInt, p.id_prod)
                 .input('vId', mssql.Int, vId)
                 .input('ofe', mssql.Bit, p.oferta ? 1 : 0)
@@ -601,7 +605,7 @@ app.post('/api/cargar-visita', upload.array('imagenes', 3), async (req, res, nex
         // C. PROCESAR IMÁGENES CON SHARP (Solo si existen)
         if (req.files && req.files.length > 0) {
             const fechaHoy = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-            
+
             for (const f of req.files) {
                 const nroRandom = Math.floor(10000 + Math.random() * 90000);
                 const nuevoNombre = `${fechaHoy}_${vId}_${nroRandom}.jpg`;
@@ -714,10 +718,10 @@ app.get('/api/filtros-opciones', async (req, res, next) => {
             ejecutarQuery("SELECT ID, Categoria AS Nombre FROM Categoria ORDER BY Categoria")
         ]);
         res.json({
-            cadenas:    cadenas.recordset,
+            cadenas: cadenas.recordset,
             sucursales: sucursales.recordset,
-            canales:    canales.recordset,
-            regiones:   regiones.recordset,
+            canales: canales.recordset,
+            regiones: regiones.recordset,
             categorias: categorias.recordset
         });
     } catch (e) { next(e); }
@@ -759,14 +763,14 @@ function buildFiltrosReporte(query, request, extraWhere = '') {
     const { fecha_desde, fecha_hasta, id_cadena, id_sucursal, id_canal, id_region, id_categoria } = query;
     const conds = [];
 
-    if (extraWhere)   conds.push(extraWhere);
-    if (fecha_desde)  { conds.push('v.Fecha >= @fecha_desde');  request.input('fecha_desde',  mssql.Date,     fecha_desde);  }
-    if (fecha_hasta)  { conds.push('v.Fecha <= @fecha_hasta');  request.input('fecha_hasta',  mssql.Date,     fecha_hasta);  }
-    if (id_cadena)    { conds.push('ca.ID = @id_cadena');       request.input('id_cadena',    mssql.TinyInt,  id_cadena);    }
-    if (id_sucursal)  { conds.push('s.ID = @id_sucursal');      request.input('id_sucursal',  mssql.SmallInt, id_sucursal);  }
-    if (id_canal)     { conds.push('ca.ID_Tipo = @id_canal');   request.input('id_canal',     mssql.TinyInt,  id_canal);     }
-    if (id_region)    { conds.push('z.ID = @id_region');        request.input('id_region',    mssql.TinyInt,  id_region);    }
-    if (id_categoria) { conds.push('cat.ID = @id_categoria');   request.input('id_categoria', mssql.TinyInt,  id_categoria); }
+    if (extraWhere) conds.push(extraWhere);
+    if (fecha_desde) { conds.push('v.Fecha >= @fecha_desde'); request.input('fecha_desde', mssql.Date, fecha_desde); }
+    if (fecha_hasta) { conds.push('v.Fecha <= @fecha_hasta'); request.input('fecha_hasta', mssql.Date, fecha_hasta); }
+    if (id_cadena) { conds.push('ca.ID = @id_cadena'); request.input('id_cadena', mssql.TinyInt, id_cadena); }
+    if (id_sucursal) { conds.push('s.ID = @id_sucursal'); request.input('id_sucursal', mssql.SmallInt, id_sucursal); }
+    if (id_canal) { conds.push('ca.ID_Tipo = @id_canal'); request.input('id_canal', mssql.TinyInt, id_canal); }
+    if (id_region) { conds.push('z.ID = @id_region'); request.input('id_region', mssql.TinyInt, id_region); }
+    if (id_categoria) { conds.push('cat.ID = @id_categoria'); request.input('id_categoria', mssql.TinyInt, id_categoria); }
 
     return conds.length > 0 ? 'WHERE ' + conds.join(' AND ') : '';
 }
@@ -774,10 +778,10 @@ function buildFiltrosReporte(query, request, extraWhere = '') {
 // TODO , filtros opcionales
 app.get('/api/reporte-visitas', async (req, res, next) => {
     try {
-        const pool    = await getConnection();
+        const pool = await getConnection();
         const request = pool.request();
-        const where   = buildFiltrosReporte(req.query, request);
-        const result  = await request.query(`${BASE_SELECT_REPORTE} ${where} ORDER BY v.Fecha DESC`);
+        const where = buildFiltrosReporte(req.query, request);
+        const result = await request.query(`${BASE_SELECT_REPORTE} ${where} ORDER BY v.Fecha DESC`);
         res.json(result.recordset);
     } catch (e) { next(e); }
 });
@@ -797,10 +801,10 @@ app.get('/api/reporte-visitas-cliente', async (req, res, next) => {
         if (check.recordset.length === 0)
             return res.status(403).json({ error: 'Acceso no autorizado' });
 
-        const pool    = await getConnection();
+        const pool = await getConnection();
         const request = pool.request();
         request.input('id_cliente', mssql.SmallInt, id_cliente);
-        const where  = buildFiltrosReporte(req.query, request, 'v.ID_Cliente = @id_cliente');
+        const where = buildFiltrosReporte(req.query, request, 'v.ID_Cliente = @id_cliente');
         const result = await request.query(`${BASE_SELECT_REPORTE} ${where} ORDER BY v.Fecha DESC`);
         res.json(result.recordset);
     } catch (e) { next(e); }
@@ -852,7 +856,7 @@ app.patch('/api/aprobar-visita/:id', async (req, res, next) => {
 app.patch('/api/imagen/:id/estado', async (req, res, next) => {
     const id = parseInt(req.params.id, 10);
     const { estado } = req.body;
-    const valid = ['Pendiente','Aprobado','Rechazado'];
+    const valid = ['Pendiente', 'Aprobado', 'Rechazado'];
     if (isNaN(id) || !valid.includes(estado)) {
         return res.status(400).json({ success: false, message: 'ID o estado inválido' });
     }
@@ -861,7 +865,7 @@ app.patch('/api/imagen/:id/estado', async (req, res, next) => {
             `UPDATE Imagen SET Estado = @estado WHERE ID = @id`,
             [
                 { name: 'estado', type: mssql.VarChar, value: estado },
-                { name: 'id',     type: mssql.Int,     value: id }
+                { name: 'id', type: mssql.Int, value: id }
             ]
         );
         if (result.rowsAffected[0] === 0)
@@ -972,7 +976,7 @@ app.get('/api/visitas', async (req, res) => {
         query += " ORDER BY V.Fecha DESC";
 
         const result = await request.query(query);
-        
+
         console.log(`Enviando ${result.recordset.length} visitas. Registros encontrados para hoy.`);
         res.json(result.recordset);
 
@@ -989,7 +993,7 @@ app.get('/api/filtros-opciones', async (req, res) => {
         // Ejecutamos las consultas para llenar los filtros
         const cadenas = await pool.request().query("SELECT ID, Nombre FROM Cadena ORDER BY Nombre");
         const sucursales = await pool.request().query("SELECT ID, Calle + ISNULL(' ' + CAST(Altura AS VARCHAR), ' S/N') AS Nombre FROM Sucursal ORDER BY Nombre");
-        
+
         // Enviamos los datos al frontend
         res.json({
             cadenas: cadenas.recordset,
@@ -1009,7 +1013,7 @@ app.post('/api/visitas/estado', async (req, res) => {
             .input('id', mssql.Int, req.body.id)
             .input('estado', mssql.VarChar, req.body.estado)
             .query("UPDATE Carga SET Estado = @estado WHERE ID = @id");
-        
+
         res.json({ success: true });
     } catch (err) {
         console.error("Error actualizando estado:", err);
