@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte de Productos - Solvens</title>
     <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
-    <link rel="stylesheet" href="../CODIGO/style/filtros.css">
+    <link rel="stylesheet" href="style/filtros.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -167,20 +167,26 @@
 <body>
 
     <header class="header">
-        <a href="Admin_gestion_visitas.html" class="btn-volver">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12 19 5 12 12 5" />
-            </svg>
-        </a>
-        <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+        <div class="header-left">
+            <a href="Admin_gestion_visitas.html" class="btn-volver">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                </svg>
+            </a>
+            <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+                <i class="fas fa-filter"></i>
+                <span>Filtros</span>
+            </button>
+        </div>
+        <div class="header-center">
+            <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
+        </div>
+        <div class="header-right">
+            <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+        </div>
     </header>
-
-    <button class="btn-toggle-sidebar" id="btnToggleSidebar">
-        <i class="fas fa-filter"></i>
-        <span>Filtros</span>
-    </button>
 
     <div class="contenedor-layout">
 
@@ -304,6 +310,7 @@
                         <tr>
                             <th>ESTADO</th>
                             <th>FECHA</th>
+                            <th>CLIENTE</th>
                             <th>CADENA</th>
                             <th>COMERCIO</th>
                             <th>LOCALIDAD</th>
@@ -436,7 +443,7 @@
         }
 
         async function cargarDatos() {
-            cuerpo.innerHTML = '<tr><td colspan="15">Cargando datos...</td></tr>';
+            cuerpo.innerHTML = '<tr><td colspan="16">Cargando datos...</td></tr>';
 
             try {
                 const params = buildParams();
@@ -447,7 +454,7 @@
                 actualizarTags(params);
 
                 if (datos.length === 0) {
-                    cuerpo.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:40px;">No se encontraron registros.</td></tr>';
+                    cuerpo.innerHTML = '<tr><td colspan="16" style="text-align:center;padding:40px;">No se encontraron registros.</td></tr>';
                     return;
                 }
 
@@ -462,6 +469,7 @@
                     return `<tr>
                 <td><span class="status-pill status-${estClass}">${estActual}</span></td>
                 <td>${fechaF}</td>
+                <td>${r.Cliente || '-'}</td>
                 <td>${r.Cadena || '-'}</td>
                 <td>${r.Comercio || '-'}</td>
                 <td>${r.Localidad || '-'}</td>
@@ -483,7 +491,7 @@
 
             } catch (e) {
                 console.error('Error:', e);
-                cuerpo.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:40px;color:#dc2626;">Error al cargar la tabla.</td></tr>';
+                cuerpo.innerHTML = '<tr><td colspan="16" style="text-align:center;padding:40px;color:#dc2626;">Error al cargar la tabla.</td></tr>';
             }
         }
 

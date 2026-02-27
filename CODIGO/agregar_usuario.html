@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,246 +9,279 @@
     <link rel="stylesheet" href="style/formulario.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
 
-<header class="header">
-    <a href="Admin_gestion_usuario.html" class="btn-volver">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"/>
-            <polyline points="12 19 5 12 12 5"/>
-        </svg>
-    </a>
-    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
-</header>
-
-<main class="contenido">
-    <h1>Registro de <span>Usuarios</span></h1>
-    <p class="subtitulo">Complete los datos del nuevo integrante del sistema</p>
-
-    <form class="formulario" id="form-usuario">
-        <div class="fila">
-            <input type="text" id="nombre" placeholder="Nombre Completo" required minlength="3">
-            <select id="tipo-usuario" required>
-                <option value="" disabled selected>Cargando roles...</option>
-            </select>
+    <header class="header">
+        <div class="header-left">
+            <a href="Admin_gestion_usuario.html" class="btn-volver">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                </svg>
+            </a>
         </div>
-
-        <div class="fila">
-            <input type="email" id="mail" placeholder="Correo Electrónico" required>
+        <div class="header-center">
+            <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
         </div>
-
-        <div class="fila">
-            <input type="text" id="usuario" placeholder="Nombre de Usuario" required minlength="4">
-            <input type="password" id="clave" placeholder="Contraseña" required minlength="4">
+        <div class="header-right">
+            <a href="login.html" class="btn-salir">Cerrar Sesión</a>
         </div>
+    </header>
 
-        <div id="seccion-abastece">
-            <h3>Asignar Sucursales que Abastece</h3>
-            <p>Filtre por cadena y seleccione los puntos de venta.</p>
+    <main class="contenido">
+        <h1>Registro de <span>Usuarios</span></h1>
+        <p class="subtitulo">Complete los datos del nuevo integrante del sistema</p>
 
+        <form class="formulario" id="form-usuario">
             <div class="fila">
-                <select id="filtro-cadena-abastece">
-                    <option value="" disabled selected>Filtrar por Cadena...</option>
+                <input type="text" id="nombre" placeholder="Nombre Completo" required minlength="3">
+                <select id="tipo-usuario" required>
+                    <option value="" disabled selected>Cargando roles...</option>
                 </select>
             </div>
 
-            <div id="lista-sucursales-check">
-                <p>Seleccione una cadena para ver sucursales</p>
+            <div class="fila">
+                <input type="email" id="mail" placeholder="Correo Electrónico" required>
             </div>
 
-            <p id="contador-seleccion">Sucursales seleccionadas: 0</p>
-        </div>
+            <div class="fila">
+                <input type="text" id="usuario" placeholder="Nombre de Usuario" required minlength="4">
+                <input type="password" id="clave" placeholder="Contraseña" required minlength="4">
+            </div>
 
-        <button type="submit">Registrar Usuario</button>
-    </form>
-</main>
+            <div id="seccion-abastece">
+                <h3>Asignar Sucursales que Abastece</h3>
+                <p>Filtre por cadena y seleccione los puntos de venta.</p>
 
-<style>
-    #seccion-abastece {
-        display: none;
-        border-top: 1px solid #2a2a2a;
-        padding-top: 20px;
-        margin-top: 4px;
-    }
-    #seccion-abastece h3 {
-        font-size: 14px;
-        font-weight: 600;
-        color: #aaaaaa;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        margin-bottom: 4px;
-    }
-    #seccion-abastece > p {
-        font-size: 13px;
-        color: #555;
-        margin-bottom: 14px;
-    }
-    #lista-sucursales-check > div label {
-        color: #cccccc;
-        font-size: 13px;
-        cursor: pointer;
-    }
-    #lista-sucursales-check > p {
-        color: #555;
-        font-size: 13px;
-        text-align: center;
-        padding: 8px 0;
-    }
-</style>
+                <div class="fila">
+                    <select id="filtro-cadena-abastece">
+                        <option value="" disabled selected>Filtrar por Cadena...</option>
+                    </select>
+                </div>
 
-<script>
-    function mostrarToast(mensaje, tipo = 'exito') {
-        const t = document.getElementById('toast');
-        t.textContent = mensaje;
-        t.className = 'toast ' + tipo;
-        t.classList.add('visible');
-        setTimeout(() => t.classList.remove('visible'), 3500);
-    }
+                <div id="lista-sucursales-check">
+                    <p>Seleccione una cadena para ver sucursales</p>
+                </div>
 
-    const URL_BASE = '/api';
-    const form = document.getElementById('form-usuario');
-    const selectTipo = document.getElementById('tipo-usuario');
-    const seccionAbastece = document.getElementById('seccion-abastece');
-    const filtroCadena = document.getElementById('filtro-cadena-abastece');
-    const listaCheck = document.getElementById('lista-sucursales-check');
-    const contadorText = document.getElementById('contador-seleccion');
+                <p id="contador-seleccion">Sucursales seleccionadas: 0</p>
+            </div>
 
-    let sucursalesSeleccionadas = new Set();
+            <button type="submit">Registrar Usuario</button>
+        </form>
+    </main>
 
-    document.addEventListener("DOMContentLoaded", async () => {
-        try {
-            const res = await fetch(`${URL_BASE}/tipos-usuario`);
-            const data = await res.json();
-            selectTipo.innerHTML = '<option value="" disabled selected>Seleccione un Rol</option>';
-            data.forEach(t => {
-                selectTipo.innerHTML += `<option value="${t.ID}">${t.Tipo}</option>`;
-            });
-        } catch (err) {
-            console.error("Error al cargar roles");
+    <style>
+        #seccion-abastece {
+            display: none;
+            border-top: 1px solid #2a2a2a;
+            padding-top: 20px;
+            margin-top: 4px;
         }
-    });
 
-    selectTipo.addEventListener('change', async () => {
-        const rolSeleccionado = selectTipo.options[selectTipo.selectedIndex].text.toLowerCase();
-        
-        if (rolSeleccionado === "cliente") {
-            seccionAbastece.style.display = 'block';
-            if (filtroCadena.options.length <= 1) {
-                const res = await fetch(`${URL_BASE}/cadenas`);
-                const cadenas = await res.json();
-                filtroCadena.innerHTML = '<option value="" disabled selected>Filtrar por Cadena...</option>';
-                cadenas.forEach(c => {
-                    filtroCadena.innerHTML += `<option value="${c.ID}">${c.Nombre}</option>`;
+        #seccion-abastece h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #aaaaaa;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+        }
+
+        #seccion-abastece>p {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 14px;
+        }
+
+        #lista-sucursales-check>div label {
+            color: #cccccc;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        #lista-sucursales-check>p {
+            color: #555;
+            font-size: 13px;
+            text-align: center;
+            padding: 8px 0;
+        }
+    </style>
+
+    <script>
+        function mostrarToast(mensaje, tipo = 'exito') {
+            const t = document.getElementById('toast');
+            t.textContent = mensaje;
+            t.className = 'toast ' + tipo;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 3500);
+        }
+
+        const URL_BASE = '/api';
+        const form = document.getElementById('form-usuario');
+        const selectTipo = document.getElementById('tipo-usuario');
+        const seccionAbastece = document.getElementById('seccion-abastece');
+        const filtroCadena = document.getElementById('filtro-cadena-abastece');
+        const listaCheck = document.getElementById('lista-sucursales-check');
+        const contadorText = document.getElementById('contador-seleccion');
+
+        let sucursalesSeleccionadas = new Set();
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const res = await fetch(`${URL_BASE}/tipos-usuario`);
+                const data = await res.json();
+                selectTipo.innerHTML = '<option value="" disabled selected>Seleccione un Rol</option>';
+                data.forEach(t => {
+                    selectTipo.innerHTML += `<option value="${t.ID}">${t.Tipo}</option>`;
                 });
+            } catch (err) {
+                console.error("Error al cargar roles");
             }
-        } else {
-            seccionAbastece.style.display = 'none';
-            sucursalesSeleccionadas.clear();
-            actualizarContador();
-        }
-    });
+        });
 
-    filtroCadena.addEventListener('change', async () => {
-        const idCadena = filtroCadena.value;
-        listaCheck.innerHTML = '<p>Buscando sucursales...</p>';
-        
-        try {
-            const res = await fetch(`${URL_BASE}/buscar-sucursales?id_cadena=${idCadena}`);
-            const sucursales = await res.json();
-            listaCheck.innerHTML = '';
-            
-            if (sucursales.length === 0) {
-                listaCheck.innerHTML = '<p>Esta cadena no tiene sucursales registradas.</p>';
-                return;
+        selectTipo.addEventListener('change', async () => {
+            const rolSeleccionado = selectTipo.options[selectTipo.selectedIndex].text.toLowerCase();
+
+            if (rolSeleccionado === "cliente") {
+                seccionAbastece.style.display = 'block';
+                if (filtroCadena.options.length <= 1) {
+                    const res = await fetch(`${URL_BASE}/cadenas`);
+                    const cadenas = await res.json();
+                    filtroCadena.innerHTML = '<option value="" disabled selected>Filtrar por Cadena...</option>';
+                    cadenas.forEach(c => {
+                        filtroCadena.innerHTML += `<option value="${c.ID}">${c.Nombre}</option>`;
+                    });
+                }
+            } else {
+                seccionAbastece.style.display = 'none';
+                sucursalesSeleccionadas.clear();
+                actualizarContador();
             }
+        });
 
-            sucursales.forEach(s => {
-                const estaSeleccionada = sucursalesSeleccionadas.has(s.ID.toString()) ? 'checked' : '';
-                listaCheck.innerHTML += `
+        filtroCadena.addEventListener('change', async () => {
+            const idCadena = filtroCadena.value;
+            listaCheck.innerHTML = '<p>Buscando sucursales...</p>';
+
+            try {
+                const res = await fetch(`${URL_BASE}/buscar-sucursales?id_cadena=${idCadena}`);
+                const sucursales = await res.json();
+                listaCheck.innerHTML = '';
+
+                if (sucursales.length === 0) {
+                    listaCheck.innerHTML = '<p>Esta cadena no tiene sucursales registradas.</p>';
+                    return;
+                }
+
+                sucursales.forEach(s => {
+                    const estaSeleccionada = sucursalesSeleccionadas.has(s.ID.toString()) ? 'checked' : '';
+                    listaCheck.innerHTML += `
                     <div style="display: flex; align-items: center; margin-bottom: 8px;">
                         <input type="checkbox" value="${s.ID}" ${estaSeleccionada} onchange="gestionarSeleccion(this)" style="margin-right: 10px;">
                         <label>${s.Calle} ${s.Altura || ''}, ${s.Localidad}</label>
                     </div>`;
-            });
-        } catch (err) {
-            listaCheck.innerHTML = '<p style="color: #dc2626;">Error al conectar con el servidor.</p>';
-        }
-    });
-
-    function gestionarSeleccion(checkbox) {
-        if (checkbox.checked) {
-            sucursalesSeleccionadas.add(checkbox.value);
-        } else {
-            sucursalesSeleccionadas.delete(checkbox.value);
-        }
-        actualizarContador();
-    }
-
-    function actualizarContador() {
-        contadorText.textContent = `Sucursales seleccionadas: ${sucursalesSeleccionadas.size}`;
-    }
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const payload = {
-            nombre: document.getElementById('nombre').value,
-            id_tipo: selectTipo.value,
-            mail: document.getElementById('mail').value,
-            usuario: document.getElementById('usuario').value,
-            clave: document.getElementById('clave').value,
-            sucursalesIds: Array.from(sucursalesSeleccionadas)
-        };
-
-        try {
-            const response = await fetch(`${URL_BASE}/crear-usuario`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                mostrarToast(result.message, "exito");
-                form.reset();
-                sucursalesSeleccionadas.clear();
-                actualizarContador();
-                seccionAbastece.style.display = 'none';
-            } else {
-                mostrarToast(result.message, "aviso");
+                });
+            } catch (err) {
+                listaCheck.innerHTML = '<p style="color: #dc2626;">Error al conectar con el servidor.</p>';
             }
-        } catch (err) {
-            mostrarToast("Error de comunicación con el servidor.", "error");
+        });
+
+        function gestionarSeleccion(checkbox) {
+            if (checkbox.checked) {
+                sucursalesSeleccionadas.add(checkbox.value);
+            } else {
+                sucursalesSeleccionadas.delete(checkbox.value);
+            }
+            actualizarContador();
         }
-    });
-</script>
+
+        function actualizarContador() {
+            contadorText.textContent = `Sucursales seleccionadas: ${sucursalesSeleccionadas.size}`;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const payload = {
+                nombre: document.getElementById('nombre').value,
+                id_tipo: selectTipo.value,
+                mail: document.getElementById('mail').value,
+                usuario: document.getElementById('usuario').value,
+                clave: document.getElementById('clave').value,
+                sucursalesIds: Array.from(sucursalesSeleccionadas)
+            };
+
+            try {
+                const response = await fetch(`${URL_BASE}/crear-usuario`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    mostrarToast(result.message, "exito");
+                    form.reset();
+                    sucursalesSeleccionadas.clear();
+                    actualizarContador();
+                    seccionAbastece.style.display = 'none';
+                } else {
+                    mostrarToast(result.message, "aviso");
+                }
+            } catch (err) {
+                mostrarToast("Error de comunicación con el servidor.", "error");
+            }
+        });
+    </script>
 
 
-<style>
-.toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    padding: 14px 22px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #fff;
-    z-index: 9999;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.3s, transform 0.3s;
-    pointer-events: none;
-    max-width: 360px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-.toast.exito  { background: #1a2e1a; border: 1px solid #4ade80; color: #4ade80; }
-.toast.error  { background: #2e1a1a; border: 1px solid #dc2626; color: #f87171; }
-.toast.aviso  { background: #2e2a1a; border: 1px solid #f59e0b; color: #fbbf24; }
-.toast.visible { opacity: 1; transform: translateY(0); }
-</style>
-<div class="toast" id="toast"></div>
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            max-width: 360px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast.exito {
+            background: #1a2e1a;
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
+
+        .toast.error {
+            background: #2e1a1a;
+            border: 1px solid #dc2626;
+            color: #f87171;
+        }
+
+        .toast.aviso {
+            background: #2e2a1a;
+            border: 1px solid #f59e0b;
+            color: #fbbf24;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <div class="toast" id="toast"></div>
 
 </body>
+
 </html>

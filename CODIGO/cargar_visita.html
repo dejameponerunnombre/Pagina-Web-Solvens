@@ -1,152 +1,153 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carga de Visita - Solvens</title>
     <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
-    <link rel="stylesheet" href="../CODIGO/style/carga_visitas.css">
+    <link rel="stylesheet" href="style/carga_visitas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
 
-<header class="header">
-        <style>
-            .btn-volver {
-                display: flex;
-                align-items: center;
-                opacity: 0.8;
-                transition: opacity 0.2s, transform 0.2s;
-            }
-            .btn-volver:hover {
-                opacity: 1;
-                transform: translateX(-3px);
-            }
-        </style>
-        <a href="inicioRepositor.html" class="btn-volver">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"/>
-                <polyline points="12 19 5 12 12 5"/>
-            </svg>
-        </a>
-    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
-</header>
-
-<div class="contenedor">
-    <h1 class="page-titulo">Carga de <span>Visita</span></h1>
-    <p class="page-subtitulo">Complete los datos de la sucursal y, opcionalmente, los precios de productos.</p>
-
-    <form id="visitaForm">
-
-        <!-- ── SECCIÓN CLIENTE / SUCURSAL ── -->
-        <div class="seccion">
-            <p class="seccion-titulo">Datos de la Visita</p>
-            <div class="select-wrapper">
-                <select id="cliente" required>
-                    <option value="" disabled selected>Seleccione Cliente</option>
-                </select>
-            </div>
-            <div class="select-wrapper">
-                <select id="sucursal" required disabled>
-                    <option value="" disabled selected>Seleccione Sucursal</option>
-                </select>
-            </div>
+    <header class="header">
+        <div class="header-left">
+            <a href="inicioRepositor.html" class="btn-volver">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                </svg>
+            </a>
         </div>
-
-        <!-- ── SECCIÓN PRODUCTOS ── -->
-        <div class="seccion" id="seccionProductos" style="display:none;">
-            <p class="seccion-titulo">Productos <span style="color:#555;font-weight:400;font-size:12px;text-transform:none;letter-spacing:0;">(opcional)</span></p>
-            <div class="buscador-wrapper">
-                <i class="fas fa-search"></i>
-                <input type="text" id="buscarProducto" placeholder="Buscar producto por nombre...">
-            </div>
-            <div id="listaProductos"></div>
+        <div class="header-center">
+            <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
         </div>
-
-        <!-- ── SECCIÓN FOTOS ── -->
-        <div class="seccion">
-            <p class="seccion-titulo">Evidencia Fotográfica</p>
-            <div class="file-wrapper">
-                <label class="file-label" for="fotos">
-                    <i class="fas fa-camera"></i>
-                    <span id="labelFotos">Seleccionar fotos (máx. 3)</span>
-                </label>
-                <input type="file" id="fotos" accept="image/*" multiple>
-            </div>
-            <p class="file-hint">Puede registrar la visita sin imágenes o precios, siempre que complete cliente, sucursal y una de las anteriores</p>
+        <div class="header-right">
+            <a href="login.html" class="btn-salir">Cerrar Sesión</a>
         </div>
+    </header>
 
-        <button type="submit" class="btn-registrar">
-            <i class="fas fa-paper-plane" style="margin-right:8px;"></i>Registrar Visita
-        </button>
+    <div class="contenedor">
+        <h1 class="page-titulo">Carga de <span>Visita</span></h1>
+        <p class="page-subtitulo">Complete los datos de la sucursal y, opcionalmente, los precios de productos.</p>
 
-    </form>
-</div>
+        <form id="visitaForm">
 
-<script>
-// --- ESTADO ---
-let productosOriginales = [];
-let datosIngresados     = {};
+            <!-- ── SECCIÓN CLIENTE / SUCURSAL ── -->
+            <div class="seccion">
+                <p class="seccion-titulo">Datos de la Visita</p>
+                <div class="select-wrapper">
+                    <select id="cliente" required>
+                        <option value="" disabled selected>Seleccione Cliente</option>
+                    </select>
+                </div>
+                <div class="select-wrapper">
+                    <select id="sucursal" required disabled>
+                        <option value="" disabled selected>Seleccione Sucursal</option>
+                    </select>
+                </div>
+            </div>
 
-// --- DOM ---
-const clienteSel    = document.getElementById('cliente');
-const sucursalSel   = document.getElementById('sucursal');
-const buscarInput   = document.getElementById('buscarProducto');
-const prodContenedor = document.getElementById('listaProductos');
-const seccionProd   = document.getElementById('seccionProductos');
-const inputFotos    = document.getElementById('fotos');
-const labelFotos    = document.getElementById('labelFotos');
+            <!-- ── SECCIÓN PRODUCTOS ── -->
+            <div class="seccion" id="seccionProductos" style="display:none;">
+                <p class="seccion-titulo">Productos <span
+                        style="color:#555;font-weight:400;font-size:12px;text-transform:none;letter-spacing:0;">(opcional)</span>
+                </p>
+                <div class="buscador-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="buscarProducto" placeholder="Buscar producto por nombre...">
+                </div>
+                <div id="listaProductos"></div>
+            </div>
 
-// 1. CLIENTES
-fetch('/api/clientes-activos')
-    .then(r => r.json())
-    .then(data => {
-        data.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value       = c.ID;
-            opt.textContent = c.Nombre;
-            clienteSel.appendChild(opt);
+            <!-- ── SECCIÓN FOTOS ── -->
+            <div class="seccion">
+                <p class="seccion-titulo">Evidencia Fotográfica</p>
+                <div class="file-wrapper">
+                    <label class="file-label" for="fotos">
+                        <i class="fas fa-camera"></i>
+                        <span id="labelFotos">Seleccionar fotos (máx. 3)</span>
+                    </label>
+                    <input type="file" id="fotos" accept="image/*" multiple>
+                </div>
+                <p class="file-hint">Puede registrar la visita sin imágenes o precios, siempre que complete cliente,
+                    sucursal y una de las anteriores</p>
+            </div>
+
+            <button type="submit" class="btn-registrar">
+                <i class="fas fa-paper-plane" style="margin-right:8px;"></i>Registrar Visita
+            </button>
+
+        </form>
+    </div>
+
+    <script>
+        // --- ESTADO ---
+        let productosOriginales = [];
+        let datosIngresados = {};
+
+        // --- DOM ---
+        const clienteSel = document.getElementById('cliente');
+        const sucursalSel = document.getElementById('sucursal');
+        const buscarInput = document.getElementById('buscarProducto');
+        const prodContenedor = document.getElementById('listaProductos');
+        const seccionProd = document.getElementById('seccionProductos');
+        const inputFotos = document.getElementById('fotos');
+        const labelFotos = document.getElementById('labelFotos');
+
+        // 1. CLIENTES
+        fetch('/api/clientes-activos')
+            .then(r => r.json())
+            .then(data => {
+                data.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.ID;
+                    opt.textContent = c.Nombre;
+                    clienteSel.appendChild(opt);
+                });
+            })
+            .catch(err => console.error('Error al cargar clientes:', err));
+
+        // 2. CAMBIO DE CLIENTE
+        clienteSel.addEventListener('change', async () => {
+            const idCli = clienteSel.value;
+            datosIngresados = {};
+            buscarInput.value = '';
+
+            const [resS, resP] = await Promise.all([
+                fetch(`/api/mis-sucursales?id_cliente=${idCli}`),
+                fetch(`/api/productos-cliente?id_cliente=${idCli}`)
+            ]);
+
+            const sucursales = await resS.json();
+            sucursalSel.innerHTML = '<option value="" disabled selected>Seleccione Sucursal</option>';
+            sucursales.forEach(s => {
+                sucursalSel.innerHTML += `<option value="${s.ID}">${s.Calle} ${s.Altura ?? ''}</option>`;
+            });
+            sucursalSel.disabled = false;
+
+            productosOriginales = await resP.json();
+            seccionProd.style.display = 'block';
+            renderizar(productosOriginales);
         });
-    })
-    .catch(err => console.error('Error al cargar clientes:', err));
 
-// 2. CAMBIO DE CLIENTE
-clienteSel.addEventListener('change', async () => {
-    const idCli    = clienteSel.value;
-    datosIngresados = {};
-    buscarInput.value = '';
+        // 3. RENDERIZADO
+        function renderizar(lista) {
+            prodContenedor.innerHTML = '';
 
-    const [resS, resP] = await Promise.all([
-        fetch(`/api/mis-sucursales?id_cliente=${idCli}`),
-        fetch(`/api/productos-cliente?id_cliente=${idCli}`)
-    ]);
+            if (lista.length === 0) {
+                prodContenedor.innerHTML = '<p class="prod-vacio">No se encontraron productos.</p>';
+                return;
+            }
 
-    const sucursales = await resS.json();
-    sucursalSel.innerHTML = '<option value="" disabled selected>Seleccione Sucursal</option>';
-    sucursales.forEach(s => {
-        sucursalSel.innerHTML += `<option value="${s.ID}">${s.Calle} ${s.Altura ?? ''}</option>`;
-    });
-    sucursalSel.disabled = false;
-
-    productosOriginales = await resP.json();
-    seccionProd.style.display = 'block';
-    renderizar(productosOriginales);
-});
-
-// 3. RENDERIZADO
-function renderizar(lista) {
-    prodContenedor.innerHTML = '';
-
-    if (lista.length === 0) {
-        prodContenedor.innerHTML = '<p class="prod-vacio">No se encontraron productos.</p>';
-        return;
-    }
-
-    lista.forEach(p => {
-        const guardado = datosIngresados[p.ID] || { precio: '', oferta: false };
-        const div = document.createElement('div');
-        div.className = 'prod-item';
-        div.innerHTML = `
+            lista.forEach(p => {
+                const guardado = datosIngresados[p.ID] || { precio: '', oferta: false };
+                const div = document.createElement('div');
+                div.className = 'prod-item';
+                div.innerHTML = `
             <span class="prod-nombre">${p.Descripcion}</span>
             <div class="prod-controles">
                 <input type="number" step="0.01" min="0" class="precio-input"
@@ -158,94 +159,95 @@ function renderizar(lista) {
                     Oferta
                 </label>
             </div>`;
-        prodContenedor.appendChild(div);
-    });
-}
-
-// 4. MEMORIA TEMPORAL
-window.guardarProgreso = (id, precio, oferta) => {
-    if (!datosIngresados[id]) datosIngresados[id] = { precio: '', oferta: false };
-    if (precio !== null) datosIngresados[id].precio = precio;
-    if (oferta !== null) datosIngresados[id].oferta = oferta;
-};
-
-// 5. BUSCADOR
-buscarInput.addEventListener('input', e => {
-    const q = e.target.value.toLowerCase();
-    renderizar(productosOriginales.filter(p => p.Descripcion.toLowerCase().includes(q)));
-});
-
-// 6. FOTOS — label dinámico y límite
-inputFotos.addEventListener('change', function () {
-    if (this.files.length > 3) {
-        alert('Podés seleccionar máximo 3 fotos.');
-        this.value = '';
-        labelFotos.textContent = 'Seleccionar fotos (máx. 3)';
-        return;
-    }
-    labelFotos.textContent = this.files.length > 0
-        ? `${this.files.length} foto${this.files.length > 1 ? 's' : ''} seleccionada${this.files.length > 1 ? 's' : ''}`
-        : 'Seleccionar fotos (máx. 3)';
-});
-
-// 7. SUBMIT
-document.getElementById('visitaForm').addEventListener('submit', async e => {
-    e.preventDefault();
-
-    // Validar selects
-    if (!clienteSel.value) { alert('Seleccioná un cliente.'); return; }
-    if (!sucursalSel.value) { alert('Seleccioná una sucursal.'); return; }
-
-    // Fotos
-    const archivos = inputFotos.files;
-    for (let i = 0; i < archivos.length; i++) {
-        if (archivos[i].size > 2 * 1024 * 1024) {
-            alert(`La foto "${archivos[i].name}" supera el límite de 2MB.`);
-            return;
+                prodContenedor.appendChild(div);
+            });
         }
-    }
 
-    // Productos con precio cargado (puede ser vacío — es opcional)
-    const productosParaEnviar = Object.keys(datosIngresados)
-        .filter(id => datosIngresados[id].precio !== '' && parseFloat(datosIngresados[id].precio) > 0)
-        .map(id => ({
-            id_prod: parseInt(id),
-            precio:  parseFloat(datosIngresados[id].precio),
-            oferta:  datosIngresados[id].oferta
-        }));
+        // 4. MEMORIA TEMPORAL
+        window.guardarProgreso = (id, precio, oferta) => {
+            if (!datosIngresados[id]) datosIngresados[id] = { precio: '', oferta: false };
+            if (precio !== null) datosIngresados[id].precio = precio;
+            if (oferta !== null) datosIngresados[id].oferta = oferta;
+        };
 
-    // Necesita al menos fotos o productos
-    if (productosParaEnviar.length === 0 && archivos.length === 0) {
-        alert('Cargá al menos una foto o el precio de algún producto.');
-        return;
-    }
+        // 5. BUSCADOR
+        buscarInput.addEventListener('input', e => {
+            const q = e.target.value.toLowerCase();
+            renderizar(productosOriginales.filter(p => p.Descripcion.toLowerCase().includes(q)));
+        });
 
-    const idRepo = localStorage.getItem('id_usuario');
-    if (!idRepo) { alert('Sesión expirada.'); return; }
+        // 6. FOTOS — label dinámico y límite
+        inputFotos.addEventListener('change', function () {
+            if (this.files.length > 3) {
+                alert('Podés seleccionar máximo 3 fotos.');
+                this.value = '';
+                labelFotos.textContent = 'Seleccionar fotos (máx. 3)';
+                return;
+            }
+            labelFotos.textContent = this.files.length > 0
+                ? `${this.files.length} foto${this.files.length > 1 ? 's' : ''} seleccionada${this.files.length > 1 ? 's' : ''}`
+                : 'Seleccionar fotos (máx. 3)';
+        });
 
-    const formData = new FormData();
-    formData.append('id_repo',      idRepo);
-    formData.append('id_cliente',   clienteSel.value);
-    formData.append('id_sucursal',  sucursalSel.value);
-    formData.append('productos',    JSON.stringify(productosParaEnviar));
+        // 7. SUBMIT
+        document.getElementById('visitaForm').addEventListener('submit', async e => {
+            e.preventDefault();
 
-    for (let i = 0; i < archivos.length; i++) {
-        formData.append('imagenes', archivos[i]);
-    }
+            // Validar selects
+            if (!clienteSel.value) { alert('Seleccioná un cliente.'); return; }
+            if (!sucursalSel.value) { alert('Seleccioná una sucursal.'); return; }
 
-    try {
-        const res  = await fetch('/api/cargar-visita', { method: 'POST', body: formData });
-        const data = await res.json();
-        if (data.success) {
-            alert('Registro exitoso.');
-            window.location.href = 'inicioRepositor.html';
-        } else {
-            alert('Error: ' + data.error);
-        }
-    } catch {
-        alert('Error de conexión con el servidor.');
-    }
-});
-</script>
+            // Fotos
+            const archivos = inputFotos.files;
+            for (let i = 0; i < archivos.length; i++) {
+                if (archivos[i].size > 2 * 1024 * 1024) {
+                    alert(`La foto "${archivos[i].name}" supera el límite de 2MB.`);
+                    return;
+                }
+            }
+
+            // Productos con precio cargado (puede ser vacío — es opcional)
+            const productosParaEnviar = Object.keys(datosIngresados)
+                .filter(id => datosIngresados[id].precio !== '' && parseFloat(datosIngresados[id].precio) > 0)
+                .map(id => ({
+                    id_prod: parseInt(id),
+                    precio: parseFloat(datosIngresados[id].precio),
+                    oferta: datosIngresados[id].oferta
+                }));
+
+            // Necesita al menos fotos o productos
+            if (productosParaEnviar.length === 0 && archivos.length === 0) {
+                alert('Cargá al menos una foto o el precio de algún producto.');
+                return;
+            }
+
+            const idRepo = localStorage.getItem('id_usuario');
+            if (!idRepo) { alert('Sesión expirada.'); return; }
+
+            const formData = new FormData();
+            formData.append('id_repo', idRepo);
+            formData.append('id_cliente', clienteSel.value);
+            formData.append('id_sucursal', sucursalSel.value);
+            formData.append('productos', JSON.stringify(productosParaEnviar));
+
+            for (let i = 0; i < archivos.length; i++) {
+                formData.append('imagenes', archivos[i]);
+            }
+
+            try {
+                const res = await fetch('/api/cargar-visita', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Registro exitoso.');
+                    window.location.href = 'inicioRepositor.html';
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch {
+                alert('Error de conexión con el servidor.');
+            }
+        });
+    </script>
 </body>
+
 </html>

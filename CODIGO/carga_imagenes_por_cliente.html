@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +10,13 @@
     <link rel="stylesheet" href="style/vista_fotos.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        .filtro-container { margin: 20px 0; display:flex; gap:12px; align-items:center; }
+        .filtro-container {
+            margin: 20px 0;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
         .filtro-container select {
             padding: 6px 10px;
             border-radius: 4px;
@@ -17,6 +24,7 @@
             background: #1a1a1a;
             color: #fff;
         }
+
         .filtro-container button {
             padding: 6px 14px;
             border: none;
@@ -27,121 +35,164 @@
             font-weight: 600;
             transition: background 0.2s;
         }
-        .filtro-container button:hover { background: #b91c1c; }
-        #tblResultados { width:100%; border-collapse: collapse; margin-top: 20px; }
-        #tblResultados th, #tblResultados td { padding: 8px 12px; border: 1px solid #444; }
-        #tblResultados th { background: #222; color:#fff; }
-        .check-yes { color:#22c55e; font-weight:bold; }
-        .check-no  { color:#ef4444; font-weight:bold; }
+
+        .filtro-container button:hover {
+            background: #b91c1c;
+        }
+
+        #tblResultados {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #tblResultados th,
+        #tblResultados td {
+            padding: 8px 12px;
+            border: 1px solid #444;
+        }
+
+        #tblResultados th {
+            background: #222;
+            color: #fff;
+        }
+
+        .check-yes {
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .check-no {
+            color: #ef4444;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
 
-<header class="header">
-    <a href="Admin_gestion_visitas.html" class="btn-volver">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"/>
-            <polyline points="12 19 5 12 12 5"/>
-        </svg>
-    </a>
-    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
-</header>
+    <header class="header">
+        <div class="header-left">
+            <a href="Admin_gestion_visitas.html" class="btn-volver">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                </svg>
+            </a>
+        </div>
+        <div class="header-center">
+            <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
+        </div>
+        <div class="header-right">
+            <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+        </div>
+    </header>
 
-<main class="contenido">
-    <h1>Carga de <span>Imágenes por Cliente</span></h1>
-    <p class="page-subtitulo">Seleccione un cliente para ver en qué sucursales hay imágenes cargadas</p>
+    <main class="contenido">
+        <h1>Carga de <span>Imágenes por Cliente</span></h1>
+        <p class="page-subtitulo">Seleccione un cliente para ver en qué sucursales hay imágenes cargadas</p>
 
-    <div class="filtro-container">
-        <label for="selCliente">Cliente:</label>
-        <select id="selCliente"><option>Cargando...</option></select>
-        <label for="filtroImagenes" style="margin-left:20px;">Imágenes:</label>
-        <select id="filtroImagenes">
-            <option value="">Todos</option>
-            <option value="1">Con imágenes</option>
-            <option value="0">Sin imágenes</option>
-        </select>
-        <button id="btnBuscar">Consultar</button>
-        <button id="btnExportar" style="background-color:#107c10;color:white;border:none;padding:6px 14px;border-radius:4px;display:flex;align-items:center;gap:8px;font-weight:bold;margin-left:10px;">
-            <i class="fas fa-file-excel"></i> Exportar
-        </button>
-    </div>
-    <table id="tblResultados">
-        <thead><tr><th>Sucursal</th><th>Imágenes cargadas</th></tr></thead>
-        <tbody></tbody>
-    </table>
-</main>
+        <div class="filtro-container">
+            <label for="selCliente">Cliente:</label>
+            <select id="selCliente">
+                <option>Cargando...</option>
+            </select>
+            <label for="filtroImagenes" style="margin-left:20px;">Imágenes:</label>
+            <select id="filtroImagenes">
+                <option value="">Todos</option>
+                <option value="1">Con imágenes</option>
+                <option value="0">Sin imágenes</option>
+            </select>
+            <button id="btnBuscar">Consultar</button>
+            <button id="btnExportar"
+                style="background-color:#107c10;color:white;border:none;padding:6px 14px;border-radius:4px;display:flex;align-items:center;gap:8px;font-weight:bold;margin-left:10px;">
+                <i class="fas fa-file-excel"></i> Exportar
+            </button>
+        </div>
+        <table id="tblResultados">
+            <thead>
+                <tr>
+                    <th>Sucursal</th>
+                    <th>Imágenes cargadas</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </main>
 
-<script>
-    async function cargarClientes() {
-        const sel = document.getElementById('selCliente');
-        try {
-            const res = await fetch('/api/clientes-activos');
-            const clients = await res.json();
-            sel.innerHTML = '<option value="" disabled selected>-- elija --</option>' +
-                clients.map(c=>`<option value="${c.ID}">${c.Nombre}</option>`).join('');
-        } catch (e) {
-            sel.innerHTML = '<option error>Carga fallida</option>';
-            console.error(e);
+    <script>
+        async function cargarClientes() {
+            const sel = document.getElementById('selCliente');
+            try {
+                const res = await fetch('/api/clientes-activos');
+                const clients = await res.json();
+                sel.innerHTML = '<option value="" disabled selected>-- elija --</option>' +
+                    clients.map(c => `<option value="${c.ID}">${c.Nombre}</option>`).join('');
+            } catch (e) {
+                sel.innerHTML = '<option error>Carga fallida</option>';
+                console.error(e);
+            }
         }
-    }
 
-    async function consultar() {
-        const sel = document.getElementById('selCliente');
-        const id = sel.value;
-        if (!id) return;
-        const tbody = document.querySelector('#tblResultados tbody');
-        tbody.innerHTML = '<tr><td colspan="2">Consultando…</td></tr>';
-        try {
-            const res = await fetch(`/api/carga-imagenes-por-cliente?id_cliente=${id}`);
-            let rows = await res.json();
-            if (!Array.isArray(rows) || rows.length===0) {
-                tbody.innerHTML = '<tr><td colspan="2">No se encontraron sucursales.</td></tr>';
+        async function consultar() {
+            const sel = document.getElementById('selCliente');
+            const id = sel.value;
+            if (!id) return;
+            const tbody = document.querySelector('#tblResultados tbody');
+            tbody.innerHTML = '<tr><td colspan="2">Consultando…</td></tr>';
+            try {
+                const res = await fetch(`/api/carga-imagenes-por-cliente?id_cliente=${id}`);
+                let rows = await res.json();
+                if (!Array.isArray(rows) || rows.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="2">No se encontraron sucursales.</td></tr>';
+                    return;
+                }
+                // aplicar filtro de imágenes si se eligió
+                const filtroImg = document.getElementById('filtroImagenes').value;
+                if (filtroImg !== '') {
+                    rows = rows.filter(r => String(r.TieneImagenes) === filtroImg);
+                }
+                tbody.innerHTML = rows.map(r => `<tr>
+                <td>${r.NombreSucursal}</td>
+                <td class="${r.TieneImagenes ? 'check-yes' : 'check-no'}">${r.TieneImagenes ? 'Sí' : 'No'}</td>
+            </tr>`).join('');
+                // store for export
+                ultimaConsulta = rows;
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = '<tr><td colspan="2">Error en consulta</td></tr>';
+            }
+        }
+
+        let ultimaConsulta = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tipo = Number(localStorage.getItem('tipoUsuario'));
+            if (tipo !== 1) { window.location.href = 'login.html'; return; }
+            cargarClientes();
+            document.getElementById('btnBuscar').addEventListener('click', consultar);
+            document.getElementById('btnExportar').addEventListener('click', exportarExcel);
+        });
+
+        function exportarExcel() {
+            if (!ultimaConsulta || ultimaConsulta.length === 0) {
+                alert('No hay datos para exportar');
                 return;
             }
-            // aplicar filtro de imágenes si se eligió
-            const filtroImg = document.getElementById('filtroImagenes').value;
-            if (filtroImg !== '') {
-                rows = rows.filter(r => String(r.TieneImagenes) === filtroImg);
-            }
-            tbody.innerHTML = rows.map(r=>`<tr>
-                <td>${r.NombreSucursal}</td>
-                <td class="${r.TieneImagenes? 'check-yes':'check-no'}">${r.TieneImagenes? 'Sí' : 'No'}</td>
-            </tr>`).join('');
-            // store for export
-            ultimaConsulta = rows;
-        } catch (e) {
-            console.error(e);
-            tbody.innerHTML = '<tr><td colspan="2">Error en consulta</td></tr>';
+            // preparar datos formato JSON para SheetJS
+            const datosParaExportar = ultimaConsulta.map(r => ({
+                Sucursal: r.NombreSucursal || '',
+                "Imágenes cargadas": r.TieneImagenes ? 'Sí' : 'No'
+            }));
+            const hoja = XLSX.utils.json_to_sheet(datosParaExportar);
+            const libro = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(libro, hoja, "Sucursales");
+            const nombreArchivo = `Sucursales_Cliente_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(libro, nombreArchivo);
         }
-    }
-
-    let ultimaConsulta = [];
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const tipo = Number(localStorage.getItem('tipoUsuario'));
-        if (tipo !== 1) { window.location.href='login.html'; return; }
-        cargarClientes();
-        document.getElementById('btnBuscar').addEventListener('click', consultar);
-        document.getElementById('btnExportar').addEventListener('click', exportarExcel);
-    });
-
-    function exportarExcel() {
-        if (!ultimaConsulta || ultimaConsulta.length === 0) {
-            alert('No hay datos para exportar');
-            return;
-        }
-        // preparar datos formato JSON para SheetJS
-        const datosParaExportar = ultimaConsulta.map(r => ({
-            Sucursal: r.NombreSucursal || '',
-            "Imágenes cargadas": r.TieneImagenes ? 'Sí' : 'No'
-        }));
-        const hoja = XLSX.utils.json_to_sheet(datosParaExportar);
-        const libro = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(libro, hoja, "Sucursales");
-        const nombreArchivo = `Sucursales_Cliente_${new Date().toISOString().slice(0,10)}.xlsx`;
-        XLSX.writeFile(libro, nombreArchivo);
-    }
-</script>
+    </script>
 
 </body>
+
 </html>

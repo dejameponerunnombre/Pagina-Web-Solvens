@@ -31,21 +31,42 @@ body::before {
 .header {
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(10px);
-    padding: 15px 50px;
-    display: flex;
-    justify-content: space-between;
+    padding: 10px 50px;
+    display: grid;
+    grid-template-columns: 120px 1fr 120px;
     align-items: center;
     border-bottom: 1px solid #333;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
+}
+
+.header-left {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.header-center {
+    display: flex;
+    justify-content: center;
+}
+
+.header-right {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .logo-nav {
-    height: 40px;
+    height: 55px;
+    /* Agrandado según petición */
     background: white;
-    padding: 5px;
-    border-radius: 4px;
+    padding: 6px;
+    border-radius: 6px;
+    transition: transform 0.3s ease;
+}
+
+.logo-nav:hover {
+    transform: scale(1.05);
 }
 
 .btn-volver {

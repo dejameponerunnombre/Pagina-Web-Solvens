@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Grupo Solvens - Carga de Puntos de Venta</title>
@@ -7,140 +8,157 @@
     <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
     <link rel="stylesheet" href="style/formulario.css">
 </head>
+
 <body>
 
-<header class="header">
-                    <style>
-        .btn-volver {
-            display: flex;
-            align-items: center;
-            opacity: 0.8;
-            transition: opacity 0.2s, transform 0.2s;
-        }
-        .btn-volver:hover {
-            opacity: 1;
-            transform: translateX(-3px);
-        }
-    </style>
-    <a href="Admin_gestion_sucursal.html" class="btn-volver">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"/>
-            <polyline points="12 19 5 12 12 5"/>
-        </svg>
-    </a>
-    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
-</header>
-
-<main class="contenido">
-    <h1>Carga de <span>Sucursales</span></h1>
-    <form class="formulario" id="form-sucursal">
-        <div class="fila">
-            <select id="select-cadena" required>
-                <option value="" disabled selected>Cargando cadenas...</option>
-            </select>
-            <select id="select-subzona" required>
-                <option value="" disabled selected>Cargando zonas...</option>
-            </select>
+    <header class="header">
+        <div class="header-left">
+            <a href="Admin_gestion_sucursal.html" class="btn-volver">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                </svg>
+            </a>
         </div>
-
-        <div class="fila">
-            <input type="text" id="calle" placeholder="Calle/Dirección" required>
-            <input type="number" id="altura" placeholder="Altura" required min="1">
+        <div class="header-center">
+            <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
         </div>
-
-        <div class="fila">
-            <input type="text" id="localidad" placeholder="Localidad/Ciudad" required>
+        <div class="header-right">
+            <a href="login.html" class="btn-salir">Cerrar Sesión</a>
         </div>
+    </header>
 
-        <button type="submit">Guardar Sucursal</button>
-    </form>
-</main>
+    <main class="contenido">
+        <h1>Carga de <span>Sucursales</span></h1>
+        <form class="formulario" id="form-sucursal">
+            <div class="fila">
+                <select id="select-cadena" required>
+                    <option value="" disabled selected>Cargando cadenas...</option>
+                </select>
+                <select id="select-subzona" required>
+                    <option value="" disabled selected>Cargando zonas...</option>
+                </select>
+            </div>
 
-<script>
-    function mostrarToast(mensaje, tipo = 'exito') {
-        const t = document.getElementById('toast');
-        t.textContent = mensaje;
-        t.className = 'toast ' + tipo;
-        t.classList.add('visible');
-        setTimeout(() => t.classList.remove('visible'), 3500);
-    }
+            <div class="fila">
+                <input type="text" id="calle" placeholder="Calle/Dirección" required>
+                <input type="number" id="altura" placeholder="Altura" required min="1">
+            </div>
 
-    const URL_BASE = '/api';
-    const form = document.getElementById('form-sucursal');
+            <div class="fila">
+                <input type="text" id="localidad" placeholder="Localidad/Ciudad" required>
+            </div>
 
-    // Cargar Selects al iniciar
-    document.addEventListener("DOMContentLoaded", async () => {
-        try {
-            // Cargar Cadenas
-            const resCadenas = await fetch(`${URL_BASE}/cadenas`);
-            const cadenas = await resCadenas.json();
-            const selectCadena = document.getElementById('select-cadena');
-            selectCadena.innerHTML = '<option value="" disabled selected>Seleccione Cadena</option>';
-            cadenas.forEach(c => selectCadena.innerHTML += `<option value="${c.ID}">${c.Nombre}</option>`);
+            <button type="submit">Guardar Sucursal</button>
+        </form>
+    </main>
 
-            // Cargar Subzonas
-            const resSub = await fetch(`${URL_BASE}/subzonas`);
-            const subzonas = await resSub.json();
-            const selectSub = document.getElementById('select-subzona');
-            selectSub.innerHTML = '<option value="" disabled selected>Seleccione Subzona/Provincia</option>';
-            subzonas.forEach(s => selectSub.innerHTML += `<option value="${s.ID}">${s.Nombre}</option>`);
-        } catch (err) {
-            mostrarToast("Error al cargar datos iniciales.", "error");
+    <script>
+        function mostrarToast(mensaje, tipo = 'exito') {
+            const t = document.getElementById('toast');
+            t.textContent = mensaje;
+            t.className = 'toast ' + tipo;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 3500);
         }
-    });
 
-    // Enviar Formulario
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const payload = {
-            calle: document.getElementById('calle').value,
-            altura: document.getElementById('altura').value,
-            localidad: document.getElementById('localidad').value,
-            id_subzona: document.getElementById('select-subzona').value,
-            id_cadena: document.getElementById('select-cadena').value
-        };
+        const URL_BASE = '/api';
+        const form = document.getElementById('form-sucursal');
 
-        const response = await fetch(`${URL_BASE}/agregar-sucursal`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+        // Cargar Selects al iniciar
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                // Cargar Cadenas
+                const resCadenas = await fetch(`${URL_BASE}/cadenas`);
+                const cadenas = await resCadenas.json();
+                const selectCadena = document.getElementById('select-cadena');
+                selectCadena.innerHTML = '<option value="" disabled selected>Seleccione Cadena</option>';
+                cadenas.forEach(c => selectCadena.innerHTML += `<option value="${c.ID}">${c.Nombre}</option>`);
+
+                // Cargar Subzonas
+                const resSub = await fetch(`${URL_BASE}/subzonas`);
+                const subzonas = await resSub.json();
+                const selectSub = document.getElementById('select-subzona');
+                selectSub.innerHTML = '<option value="" disabled selected>Seleccione Subzona/Provincia</option>';
+                subzonas.forEach(s => selectSub.innerHTML += `<option value="${s.ID}">${s.Nombre}</option>`);
+            } catch (err) {
+                mostrarToast("Error al cargar datos iniciales.", "error");
+            }
         });
 
-        const result = await response.json();
-        if (response.ok) {
-            mostrarToast(result.message, "exito");
-            form.reset();
-        } else {
-            mostrarToast(result.message, "aviso");
+        // Enviar Formulario
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                calle: document.getElementById('calle').value,
+                altura: document.getElementById('altura').value,
+                localidad: document.getElementById('localidad').value,
+                id_subzona: document.getElementById('select-subzona').value,
+                id_cadena: document.getElementById('select-cadena').value
+            };
+
+            const response = await fetch(`${URL_BASE}/agregar-sucursal`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                mostrarToast(result.message, "exito");
+                form.reset();
+            } else {
+                mostrarToast(result.message, "aviso");
+            }
+        });
+    </script>
+
+
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            max-width: 360px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
-    });
-</script>
 
+        .toast.exito {
+            background: #1a2e1a;
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
 
-<style>
-.toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    padding: 14px 22px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #fff;
-    z-index: 9999;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.3s, transform 0.3s;
-    pointer-events: none;
-    max-width: 360px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-.toast.exito  { background: #1a2e1a; border: 1px solid #4ade80; color: #4ade80; }
-.toast.error  { background: #2e1a1a; border: 1px solid #dc2626; color: #f87171; }
-.toast.aviso  { background: #2e2a1a; border: 1px solid #f59e0b; color: #fbbf24; }
-.toast.visible { opacity: 1; transform: translateY(0); }
-</style>
-<div class="toast" id="toast"></div>
+        .toast.error {
+            background: #2e1a1a;
+            border: 1px solid #dc2626;
+            color: #f87171;
+        }
+
+        .toast.aviso {
+            background: #2e2a1a;
+            border: 1px solid #f59e0b;
+            color: #fbbf24;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <div class="toast" id="toast"></div>
 
 </body>
+
 </html>

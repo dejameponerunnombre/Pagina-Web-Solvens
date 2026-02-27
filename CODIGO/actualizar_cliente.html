@@ -1,185 +1,186 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Actualizar Abastecimiento - Solvens</title>
     <link rel="stylesheet" href="style/formulario.css">
     <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
 </head>
+
 <body>
     <header class="header">
-        <style>
-        .btn-volver {
-            display: flex;
-            align-items: center;
-            opacity: 0.8;
-            transition: opacity 0.2s, transform 0.2s;
-        }
-        .btn-volver:hover {
-            opacity: 1;
-            transform: translateX(-3px);
-        }
-    </style>
-    <a href="Admin_gestion_usuario.html" class="btn-volver">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"/>
-            <polyline points="12 19 5 12 12 5"/>
-        </svg>
-    </a>
-    <a href="login.html" class="btn-salir">Cerrar Sesión</a>
-</header>
-<main class="contenido">
-    <h1>Gestión de <span>Abastecimiento</span></h1>
-    <p class="subtitulo">Modifique las sucursales asignadas a cada cliente</p>
-
-    <div class="formulario">
-        <div class="fila">
-            <label>Seleccione Cliente:</label>
-            <select id="cliente-select">
-                <option value="" disabled selected>Cargando clientes...</option>
-            </select>
+        <div class="header-left">
+            <a href="Admin_gestion_usuario.html" class="btn-volver">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                </svg>
+            </a>
         </div>
+        <div class="header-center">
+            <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
+        </div>
+        <div class="header-right">
+            <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+        </div>
+    </header>
+    <main class="contenido">
+        <h1>Gestión de <span>Abastecimiento</span></h1>
+        <p class="subtitulo">Modifique las sucursales asignadas a cada cliente</p>
 
-        <div id="panel-edicion" style="display:none; margin-top:20px; border-top: 2px solid #eee; padding-top:20px;">
-            <h3>Sucursales Asignadas</h3>
-            
+        <div class="formulario">
             <div class="fila">
-                <select id="filtro-cadena">
-                    <option value="">Todas las Cadenas</option>
+                <label>Seleccione Cliente:</label>
+                <select id="cliente-select">
+                    <option value="" disabled selected>Cargando clientes...</option>
                 </select>
             </div>
 
-            <div id="contenedor-sucursales" style="max-height: 300px; overflow-y: auto; background: #fff; padding: 15px; border: 1px solid #ddd;">
-                <p style="color: #666;">Seleccione una cadena para ver opciones...</p>
+            <div id="panel-edicion"
+                style="display:none; margin-top:20px; border-top: 2px solid #eee; padding-top:20px;">
+                <h3>Sucursales Asignadas</h3>
+
+                <div class="fila">
+                    <select id="filtro-cadena">
+                        <option value="">Todas las Cadenas</option>
+                    </select>
+                </div>
+
+                <div id="contenedor-sucursales"
+                    style="max-height: 300px; overflow-y: auto; background: #fff; padding: 15px; border: 1px solid #ddd;">
+                    <p style="color: #666;">Seleccione una cadena para ver opciones...</p>
+                </div>
+
+                <p id="contador-actual" style="margin: 10px 0; font-weight: bold; color: #0056b3;">
+                    Total seleccionadas: 0
+                </p>
+
+                <button id="btn-guardar" style="background-color: #28a745;">Guardar Cambios</button>
             </div>
-
-            <p id="contador-actual" style="margin: 10px 0; font-weight: bold; color: #0056b3;">
-                Total seleccionadas: 0
-            </p>
-
-            <button id="btn-guardar" style="background-color: #28a745;">Guardar Cambios</button>
         </div>
-    </div>
-</main>
+    </main>
 
-<script>
-    const URL_BASE = '/api'; // Puerto de Node.js
-    const clienteSel = document.getElementById('cliente-select');
-    const panel = document.getElementById('panel-edicion');
-    const filtroCadena = document.getElementById('filtro-cadena');
-    const contenedor = document.getElementById('contenedor-sucursales');
-    const contador = document.getElementById('contador-actual');
+    <script>
+        const URL_BASE = '/api'; // Puerto de Node.js
+        const clienteSel = document.getElementById('cliente-select');
+        const panel = document.getElementById('panel-edicion');
+        const filtroCadena = document.getElementById('filtro-cadena');
+        const contenedor = document.getElementById('contenedor-sucursales');
+        const contador = document.getElementById('contador-actual');
 
-    let sucursalesSeleccionadas = new Set();
+        let sucursalesSeleccionadas = new Set();
 
-    // 1. Cargar Clientes Activos
-    async function iniciar() {
-        const res = await fetch(`${URL_BASE}/clientes-activos`);
-        const clientes = await res.json();
-        clienteSel.innerHTML = '<option value="" disabled selected>Seleccione un Cliente...</option>';
-        clientes.forEach(c => {
-            clienteSel.innerHTML += `<option value="${c.ID}">${c.Nombre}</option>`;
-        });
+        // 1. Cargar Clientes Activos
+        async function iniciar() {
+            const res = await fetch(`${URL_BASE}/clientes-activos`);
+            const clientes = await res.json();
+            clienteSel.innerHTML = '<option value="" disabled selected>Seleccione un Cliente...</option>';
+            clientes.forEach(c => {
+                clienteSel.innerHTML += `<option value="${c.ID}">${c.Nombre}</option>`;
+            });
 
-        // Cargar Cadenas para el filtro
-        const resC = await fetch(`${URL_BASE}/cadenas`);
-        const cadenas = await resC.json();
-        cadenas.forEach(cad => {
-            filtroCadena.innerHTML += `<option value="${cad.ID}">${cad.Nombre}</option>`;
-        });
-    }
-
-    // 2. Al cambiar cliente, cargar sus sucursales actuales
-    clienteSel.addEventListener('change', async () => {
-        const idCliente = clienteSel.value;
-        const res = await fetch(`${URL_BASE}/mis-sucursales?id_cliente=${idCliente}`);
-        const actuales = await res.json();
-        
-        sucursalesSeleccionadas = new Set(actuales.map(s => s.ID.toString()));
-        panel.style.display = 'block';
-        actualizarVistaSucursales();
-    });
-
-    filtroCadena.addEventListener('change', actualizarVistaSucursales);
-
-    // 3. Renderizar sucursales con corrección de NULL
-    async function actualizarVistaSucursales() {
-    const idCadena = filtroCadena.value;
-    if (!idCadena) return;
-
-    contenedor.innerHTML = '<p>Cargando sucursales...</p>';
-    
-    try {
-        const res = await fetch(`${URL_BASE}/buscar-sucursales?id_cadena=${idCadena}`);
-        const sucursales = await res.json();
-        
-        contenedor.innerHTML = ''; // Limpiamos el mensaje de carga
-
-        if (sucursales.length === 0) {
-            contenedor.innerHTML = '<p>No hay sucursales para esta cadena.</p>';
-            return;
+            // Cargar Cadenas para el filtro
+            const resC = await fetch(`${URL_BASE}/cadenas`);
+            const cadenas = await resC.json();
+            cadenas.forEach(cad => {
+                filtroCadena.innerHTML += `<option value="${cad.ID}">${cad.Nombre}</option>`;
+            });
         }
 
-        sucursales.forEach(s => {
-            const isChecked = sucursalesSeleccionadas.has(s.ID.toString()) ? 'checked' : '';
-            
-            // Usamos variables intermedias para asegurar que el texto sea limpio
-            const calle = s.Calle || '';
-            const altura = (s.Altura === null || s.Altura === undefined) ? '' : s.Altura;
-            const localidad = s.Localidad || '';
-            
-            const textoDireccion = `${calle} ${altura}, ${localidad}`;
+        // 2. Al cambiar cliente, cargar sus sucursales actuales
+        clienteSel.addEventListener('change', async () => {
+            const idCliente = clienteSel.value;
+            const res = await fetch(`${URL_BASE}/mis-sucursales?id_cliente=${idCliente}`);
+            const actuales = await res.json();
 
-            // Creamos el elemento con ID único para resolver el error de la consola
-            const div = document.createElement('div');
-            div.style.marginBottom = "10px";
-            div.style.display = "flex";
-            div.style.alignItems = "center";
-            
-            div.innerHTML = `
+            sucursalesSeleccionadas = new Set(actuales.map(s => s.ID.toString()));
+            panel.style.display = 'block';
+            actualizarVistaSucursales();
+        });
+
+        filtroCadena.addEventListener('change', actualizarVistaSucursales);
+
+        // 3. Renderizar sucursales con corrección de NULL
+        async function actualizarVistaSucursales() {
+            const idCadena = filtroCadena.value;
+            if (!idCadena) return;
+
+            contenedor.innerHTML = '<p>Cargando sucursales...</p>';
+
+            try {
+                const res = await fetch(`${URL_BASE}/buscar-sucursales?id_cadena=${idCadena}`);
+                const sucursales = await res.json();
+
+                contenedor.innerHTML = ''; // Limpiamos el mensaje de carga
+
+                if (sucursales.length === 0) {
+                    contenedor.innerHTML = '<p>No hay sucursales para esta cadena.</p>';
+                    return;
+                }
+
+                sucursales.forEach(s => {
+                    const isChecked = sucursalesSeleccionadas.has(s.ID.toString()) ? 'checked' : '';
+
+                    // Usamos variables intermedias para asegurar que el texto sea limpio
+                    const calle = s.Calle || '';
+                    const altura = (s.Altura === null || s.Altura === undefined) ? '' : s.Altura;
+                    const localidad = s.Localidad || '';
+
+                    const textoDireccion = `${calle} ${altura}, ${localidad}`;
+
+                    // Creamos el elemento con ID único para resolver el error de la consola
+                    const div = document.createElement('div');
+                    div.style.marginBottom = "10px";
+                    div.style.display = "flex";
+                    div.style.alignItems = "center";
+
+                    div.innerHTML = `
                 <input type="checkbox" id="suc-${s.ID}" value="${s.ID}" ${isChecked} onchange="toggleSucursal(this)" style="margin-right: 10px;">
                 <label for="suc-${s.ID}" style="cursor: pointer; color: #333; font-weight: 500;">
                     ${textoDireccion}
                 </label>
             `;
-            contenedor.appendChild(div);
-        });
+                    contenedor.appendChild(div);
+                });
 
-    } catch (err) {
-        console.error("Error detallado:", err);
-        contenedor.innerHTML = '<p style="color: red;">Error al conectar con el servidor.</p>';
-    }
-    actualizarContador();
-}
+            } catch (err) {
+                console.error("Error detallado:", err);
+                contenedor.innerHTML = '<p style="color: red;">Error al conectar con el servidor.</p>';
+            }
+            actualizarContador();
+        }
 
-    window.toggleSucursal = (cb) => {
-        if(cb.checked) sucursalesSeleccionadas.add(cb.value);
-        else sucursalesSeleccionadas.delete(cb.value);
-        actualizarContador();
-    };
-
-    function actualizarContador() {
-        contador.textContent = `Total seleccionadas: ${sucursalesSeleccionadas.size}`;
-    }
-
-    // 4. Enviar actualización
-    document.getElementById('btn-guardar').onclick = async () => {
-        const payload = {
-            id_cliente: clienteSel.value,
-            sucursalesIds: Array.from(sucursalesSeleccionadas)
+        window.toggleSucursal = (cb) => {
+            if (cb.checked) sucursalesSeleccionadas.add(cb.value);
+            else sucursalesSeleccionadas.delete(cb.value);
+            actualizarContador();
         };
 
-        const res = await fetch(`${URL_BASE}/actualizar-abastece`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-        });
+        function actualizarContador() {
+            contador.textContent = `Total seleccionadas: ${sucursalesSeleccionadas.size}`;
+        }
 
-        if(res.ok) alert("✅ Abastecimiento actualizado correctamente.");
-        else alert("❌ Error al actualizar.");
-    };
+        // 4. Enviar actualización
+        document.getElementById('btn-guardar').onclick = async () => {
+            const payload = {
+                id_cliente: clienteSel.value,
+                sucursalesIds: Array.from(sucursalesSeleccionadas)
+            };
 
-    iniciar();
-</script>
+            const res = await fetch(`${URL_BASE}/actualizar-abastece`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) alert("✅ Abastecimiento actualizado correctamente.");
+            else alert("❌ Error al actualizar.");
+        };
+
+        iniciar();
+    </script>
 </body>
+
 </html>

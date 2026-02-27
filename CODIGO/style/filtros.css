@@ -18,7 +18,10 @@ body {
 body::before {
     content: '';
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: linear-gradient(45deg, #1a1a1a 25%, #2a2a2a 25%, #2a2a2a 50%, #1a1a1a 50%, #1a1a1a 75%, #2a2a2a 75%, #2a2a2a);
     background-size: 100px 100px;
     opacity: 0.1;
@@ -29,21 +32,42 @@ body::before {
 .header {
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(10px);
-    padding: 15px 50px;
-    display: flex;
-    justify-content: space-between;
+    padding: 10px 50px;
+    display: grid;
+    grid-template-columns: 120px 1fr 120px;
     align-items: center;
     border-bottom: 1px solid #333;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
+}
+
+.header-left {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.header-center {
+    display: flex;
+    justify-content: center;
+}
+
+.header-right {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .logo-nav {
-    height: 40px;
+    height: 55px;
+    /* Agrandado según petición */
     background: white;
-    padding: 5px;
-    border-radius: 4px;
+    padding: 6px;
+    border-radius: 6px;
+    transition: transform 0.3s ease;
+}
+
+.logo-nav:hover {
+    transform: scale(1.05);
 }
 
 .btn-salir {
@@ -53,7 +77,10 @@ body::before {
     font-weight: 500;
     transition: color 0.3s;
 }
-.btn-salir:hover { color: #dc2626; }
+
+.btn-salir:hover {
+    color: #dc2626;
+}
 
 /* ── BOTÓN ABRIR SIDEBAR (derecha) ── */
 .btn-toggle-sidebar {
@@ -76,12 +103,17 @@ body::before {
     transition: all 0.3s ease;
     box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
 }
-.btn-toggle-sidebar i { font-size: 24px; }
+
+.btn-toggle-sidebar i {
+    font-size: 24px;
+}
+
 .btn-toggle-sidebar:hover {
     background-color: #b91c1c;
     transform: translateY(-3px) scale(1.05);
     box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6);
 }
+
 .btn-toggle-sidebar.oculto {
     opacity: 0;
     pointer-events: none;
@@ -112,7 +144,10 @@ body::before {
     z-index: 98;
     transition: right 0.3s ease;
 }
-.sidebar-filtros.activo { right: 0; }
+
+.sidebar-filtros.activo {
+    right: 0;
+}
 
 .sidebar-header {
     display: flex;
@@ -139,6 +174,7 @@ body::before {
     transition: all 0.3s ease;
     padding: 5px 10px;
 }
+
 .btn-cerrar-sidebar:hover {
     color: #dc2626;
     transform: rotate(90deg);
@@ -151,7 +187,10 @@ body::before {
     border-bottom: 1px solid #333;
     overflow: hidden;
 }
-.grupo-filtro:last-of-type { border-bottom: none; }
+
+.grupo-filtro:last-of-type {
+    border-bottom: none;
+}
 
 .filtro-header {
     display: flex;
@@ -162,11 +201,16 @@ body::before {
     user-select: none;
     transition: all 0.3s ease;
 }
+
 .filtro-header:hover {
     background-color: rgba(220, 38, 38, 0.1);
     padding-left: 5px;
 }
-.filtro-header .label-filtro { margin: 0; flex: 1; }
+
+.filtro-header .label-filtro {
+    margin: 0;
+    flex: 1;
+}
 
 .icono-toggle {
     color: #dc2626;
@@ -180,7 +224,10 @@ body::before {
     transition: max-height 0.3s ease;
     padding-bottom: 0;
 }
-.grupo-filtro:not(.colapsado) .filtro-contenido { padding-bottom: 15px; }
+
+.grupo-filtro:not(.colapsado) .filtro-contenido {
+    padding-bottom: 15px;
+}
 
 .label-filtro {
     display: block;
@@ -208,17 +255,23 @@ body::before {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin-bottom: 10px;
 }
+
 .select-filtro:focus {
     outline: none;
     border-color: #dc2626;
 }
+
 .select-filtro option {
     background-color: #2a2a2a;
     color: #ffffff;
     padding: 5px;
 }
 
-.rango-fechas { display: flex; flex-direction: column; gap: 10px; }
+.rango-fechas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
 .label-pequeno {
     display: block;
@@ -238,6 +291,7 @@ body::before {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color-scheme: dark;
 }
+
 .input-fecha:focus {
     outline: none;
     border-color: #dc2626;
@@ -265,6 +319,7 @@ body::before {
     cursor: pointer;
     transition: all 0.3s ease;
 }
+
 .btn-aplicar-filtros:hover {
     background-color: #b91c1c;
     transform: translateY(-2px);
@@ -284,6 +339,7 @@ body::before {
     cursor: pointer;
     transition: all 0.3s ease;
 }
+
 .btn-limpiar-filtros:hover {
     background-color: #333;
     border-color: #aaaaaa;
@@ -303,7 +359,10 @@ body::before {
     margin-bottom: 8px;
     line-height: 1;
 }
-.page-titulo span { color: #dc2626; }
+
+.page-titulo span {
+    color: #dc2626;
+}
 
 .page-subtitulo {
     color: #aaaaaa;
@@ -324,7 +383,10 @@ body::before {
     font-size: 13px;
     color: #aaaaaa;
 }
-.barra-resultados strong { color: #ffffff; }
+
+.barra-resultados strong {
+    color: #ffffff;
+}
 
 .tag-filtro-activo {
     display: inline-flex;
@@ -360,6 +422,7 @@ body::before {
     background: #0d0d0d;
     border-bottom: 2px solid #dc2626;
 }
+
 .tabla-reporte thead th {
     padding: 14px 16px;
     text-align: left;
@@ -373,7 +436,11 @@ body::before {
     transition: color 0.2s;
     white-space: nowrap;
 }
-.tabla-reporte thead th:hover { color: #ffffff; }
+
+.tabla-reporte thead th:hover {
+    color: #ffffff;
+}
+
 .tabla-reporte thead th .sort-icon {
     display: inline-block;
     margin-left: 5px;
@@ -382,18 +449,33 @@ body::before {
     opacity: 0.4;
     transition: opacity 0.2s;
 }
+
 .tabla-reporte thead th:hover .sort-icon,
 .tabla-reporte thead th.sort-asc .sort-icon,
-.tabla-reporte thead th.sort-desc .sort-icon { opacity: 1; }
+.tabla-reporte thead th.sort-desc .sort-icon {
+    opacity: 1;
+}
 
 .tabla-reporte tbody tr {
     border-bottom: 1px solid #2a2a2a;
     transition: background 0.15s;
 }
-.tabla-reporte tbody tr:last-child { border-bottom: none; }
-.tabla-reporte tbody tr:hover { background: rgba(255, 255, 255, 0.04); }
-.tabla-reporte tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
-.tabla-reporte tbody tr:nth-child(even):hover { background: rgba(255, 255, 255, 0.05); }
+
+.tabla-reporte tbody tr:last-child {
+    border-bottom: none;
+}
+
+.tabla-reporte tbody tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.tabla-reporte tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.tabla-reporte tbody tr:nth-child(even):hover {
+    background: rgba(255, 255, 255, 0.05);
+}
 
 .tabla-reporte tbody td {
     padding: 11px 16px;
@@ -407,6 +489,7 @@ body::before {
     font-variant-numeric: tabular-nums;
     text-align: right;
 }
+
 .tabla-reporte td.col-fecha {
     color: #aaaaaa;
     font-size: 12px;
@@ -420,11 +503,13 @@ body::before {
     font-size: 11px;
     font-weight: 600;
 }
+
 .badge-oferta.si {
     background: rgba(220, 38, 38, 0.2);
     color: #f87171;
     border: 1px solid rgba(220, 38, 38, 0.3);
 }
+
 .badge-oferta.no {
     background: rgba(255, 255, 255, 0.06);
     color: #aaaaaa;
@@ -441,8 +526,15 @@ body::before {
     color: #aaaaaa;
     gap: 12px;
 }
-.estado-tabla i { font-size: 36px; opacity: 0.3; }
-.estado-tabla p { font-size: 14px; }
+
+.estado-tabla i {
+    font-size: 36px;
+    opacity: 0.3;
+}
+
+.estado-tabla p {
+    font-size: 14px;
+}
 
 .spinner {
     width: 32px;
@@ -452,7 +544,12 @@ body::before {
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
 /* ── PAGINACIÓN ── */
 .paginacion {
@@ -462,6 +559,7 @@ body::before {
     gap: 6px;
     margin-top: 16px;
 }
+
 .paginacion button {
     padding: 6px 12px;
     background: rgba(0, 0, 0, 0.4);
@@ -473,13 +571,22 @@ body::before {
     cursor: pointer;
     transition: all 0.2s;
 }
-.paginacion button:hover { background: #2a2a2a; color: #ffffff; }
+
+.paginacion button:hover {
+    background: #2a2a2a;
+    color: #ffffff;
+}
+
 .paginacion button.activa {
     background: #dc2626;
     border-color: #dc2626;
     color: #ffffff;
 }
-.paginacion button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.paginacion button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
 
 /* ── RESPONSIVE ── */
 @media (max-width: 1024px) {
@@ -491,15 +598,44 @@ body::before {
         max-height: 80vh;
         top: 70px;
     }
-    .sidebar-filtros.activo { right: 0; }
-    .area-contenido { padding: 20px 16px; }
-    .btn-toggle-sidebar { right: 10px; top: 80px; }
+
+    .sidebar-filtros.activo {
+        right: 0;
+    }
+
+    .area-contenido {
+        padding: 20px 16px;
+    }
+
+    .btn-toggle-sidebar {
+        right: 10px;
+        top: 80px;
+    }
 }
 
 @media (max-width: 768px) {
-    .header { padding: 15px 20px; }
-    .page-titulo { font-size: 26px; }
-    .btn-toggle-sidebar { right: 10px; top: 80px; padding: 18px 30px; font-size: 18px; }
-    .btn-toggle-sidebar i { font-size: 22px; }
-    .barra-resultados { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .header {
+        padding: 15px 20px;
+    }
+
+    .page-titulo {
+        font-size: 26px;
+    }
+
+    .btn-toggle-sidebar {
+        right: 10px;
+        top: 80px;
+        padding: 18px 30px;
+        font-size: 18px;
+    }
+
+    .btn-toggle-sidebar i {
+        font-size: 22px;
+    }
+
+    .barra-resultados {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
 }

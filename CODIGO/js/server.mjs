@@ -732,6 +732,7 @@ const BASE_SELECT_REPORTE = `
     SELECT
         c.ID as ID_Carga,
         v.Fecha,
+        uCli.Nombre                                     AS Cliente,
         ca.Nombre                                       AS Cadena,
         s.Calle + ISNULL(' ' + CAST(s.Altura AS VARCHAR), ' S/N') AS Comercio,
         s.Localidad,
@@ -753,6 +754,7 @@ const BASE_SELECT_REPORTE = `
     JOIN Subzona sz      ON s.ID_Subzona   = sz.ID
     JOIN Zona z          ON sz.ID_Zona     = z.ID
     JOIN Usuario uRepo   ON v.ID_Repo      = uRepo.ID
+    LEFT JOIN Usuario uCli    ON v.ID_Cliente   = uCli.ID
     JOIN Carga c         ON v.ID           = c.ID_Visita
     JOIN Producto p      ON c.ID_Producto  = p.ID
     JOIN Categoria cat   ON p.ID_Categoria = cat.ID
@@ -771,6 +773,7 @@ function buildFiltrosReporte(query, request, extraWhere = '') {
     if (id_canal) { conds.push('ca.ID_Tipo = @id_canal'); request.input('id_canal', mssql.TinyInt, id_canal); }
     if (id_region) { conds.push('z.ID = @id_region'); request.input('id_region', mssql.TinyInt, id_region); }
     if (id_categoria) { conds.push('cat.ID = @id_categoria'); request.input('id_categoria', mssql.TinyInt, id_categoria); }
+    if (query.id_cliente) { conds.push('v.ID_Cliente = @id_cliente'); request.input('id_cliente', mssql.SmallInt, query.id_cliente); }
 
     return conds.length > 0 ? 'WHERE ' + conds.join(' AND ') : '';
 }

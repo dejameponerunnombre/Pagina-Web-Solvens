@@ -19,7 +19,10 @@ body {
 body::before {
     content: '';
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: linear-gradient(45deg, #1a1a1a 25%, #2a2a2a 25%, #2a2a2a 50%, #1a1a1a 50%, #1a1a1a 75%, #2a2a2a 75%, #2a2a2a);
     background-size: 100px 100px;
     opacity: 0.1;
@@ -30,18 +33,42 @@ body::before {
 .header {
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(10px);
-    padding: 15px 50px;
-    display: flex;
-    justify-content: space-between;
+    padding: 10px 50px;
+    display: grid;
+    grid-template-columns: 120px 1fr 120px;
     align-items: center;
     border-bottom: 1px solid #333;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-left {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.header-center {
+    display: flex;
+    justify-content: center;
+}
+
+.header-right {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .logo-nav {
-    height: 40px;
+    height: 55px;
+    /* Agrandado según petición */
     background: white;
-    padding: 5px;
-    border-radius: 4px;
+    padding: 6px;
+    border-radius: 6px;
+    transition: transform 0.3s ease;
+}
+
+.logo-nav:hover {
+    transform: scale(1.05);
 }
 
 .btn-salir {
@@ -53,7 +80,7 @@ body::before {
 }
 
 .btn-salir:hover {
-    color: #dc2626; 
+    color: #dc2626;
 }
 
 
@@ -72,7 +99,7 @@ body::before {
 }
 
 .bienvenida span {
-    color: #dc2626; 
+    color: #dc2626;
 }
 
 .bienvenida p {
@@ -85,9 +112,9 @@ body::before {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: stretch; 
+    align-items: stretch;
     gap: 30px;
-    flex-wrap: nowrap; 
+    flex-wrap: nowrap;
 }
 
 
@@ -168,7 +195,7 @@ body::before {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .tarjeta-accion {
         width: 100%;
         max-width: 350px;
