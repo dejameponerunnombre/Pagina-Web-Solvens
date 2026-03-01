@@ -29,43 +29,19 @@
 
     <main class="contenido">
         <h1>Nuevo <span>Producto</span></h1>
-
         <form class="formulario" id="form-producto">
-
-            <!-- FILA SELECTS -->
             <div class="fila">
-
-                <div class="campo">
-                    <select id="select-cliente">
-                        <option value="">Cargando Clientes...</option>
-                    </select>
-                    <small id="error-cliente"></small>
-                </div>
-
-                <div class="campo">
-                    <select id="select-categoria">
-                        <option value="">Cargando Categorías...</option>
-                    </select>
-                    <small id="error-categoria"></small>
-                </div>
-
+                <select id="select-cliente" required>
+                    <option value="">Cargando Clientes...</option>
+                </select>
+                <select id="select-categoria" required>
+                    <option value="">Cargando Categorías...</option>
+                </select>
             </div>
-
-            <!-- FILA INPUTS -->
             <div class="fila">
-
-                <div class="campo">
-                    <input type="text" id="descripcion" placeholder="Descripción del Producto">
-                    <small id="error-descripcion"></small>
-                </div>
-
-                <div class="campo">
-                    <input type="text" id="sku" placeholder="SKU / Código">
-                    <small id="error-sku"></small>
-                </div>
-
+                <input type="text" id="descripcion" placeholder="Descripción del Producto" required>
+                <input type="text" id="sku" placeholder="SKU / Código" required>
             </div>
-
             <button type="submit">Guardar Producto</button>
         </form>
     </main>
@@ -75,115 +51,88 @@
             const t = document.getElementById('toast');
             t.textContent = mensaje;
             t.className = 'toast ' + tipo;
-            t.style.display = 'block';
-
-            setTimeout(() => {
-                t.style.display = 'none';
-            }, 3500);
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 3500);
         }
 
         const URL_BASE = '/api';
 
-        const form = document.getElementById('form-producto');
-        const cliente = document.getElementById('select-cliente');
-        const categoria = document.getElementById('select-categoria');
-        const descripcion = document.getElementById('descripcion');
-        const sku = document.getElementById('sku');
-
-        const errorCliente = document.getElementById('error-cliente');
-        const errorCategoria = document.getElementById('error-categoria');
-        const errorDescripcion = document.getElementById('error-descripcion');
-        const errorSku = document.getElementById('error-sku');
-
-        function limpiarErrores() {
-            [errorCliente, errorCategoria, errorDescripcion, errorSku].forEach(e => e.textContent = '');
-            [cliente, categoria, descripcion, sku].forEach(i => i.classList.remove('input-error'));
-        }
-
-        function error(input, label, msg) {
-            label.textContent = msg;
-            input.classList.add('input-error');
-        }
-
-        // CARGA DE DATOS
         document.addEventListener('DOMContentLoaded', async () => {
-            // Clientes
+            // Cargar Clientes (Asumimos que tipo 2 es Cliente en tu BD)
             const resCli = await fetch(`${URL_BASE}/usuarios?tipo=2`);
             const clientes = await resCli.json();
-            cliente.innerHTML = '<option value="" disabled selected>Seleccione Cliente</option>' +
+            document.getElementById('select-cliente').innerHTML = '<option value="" disabled selected>Seleccione Cliente</option>' +
                 clientes.map(c => `<option value="${c.ID}">${c.Nombre}</option>`).join('');
 
-            // Categorías
+            // Cargar Categorías
             const resCat = await fetch(`${URL_BASE}/categorias`);
             const categorias = await resCat.json();
-            categoria.innerHTML = '<option value="" disabled selected>Seleccione Categoría</option>' +
+            document.getElementById('select-categoria').innerHTML = '<option value="" disabled selected>Seleccione Categoría</option>' +
                 categorias.map(c => `<option value="${c.ID}">${c.Categoria}</option>`).join('');
         });
 
-        // SUBMIT
-        form.addEventListener('submit', async (e) => {
+        document.getElementById('form-producto').addEventListener('submit', async (e) => {
             e.preventDefault();
-            limpiarErrores();
-
-            let ok = true;
-
-            if (!cliente.value) {
-                error(cliente, errorCliente, "Seleccione un cliente");
-                ok = false;
-            }
-
-            if (!categoria.value) {
-                error(categoria, errorCategoria, "Seleccione una categoría");
-                ok = false;
-            }
-
-            if (descripcion.value.trim().length < 3) {
-                error(descripcion, errorDescripcion, "La descripción es obligatoria");
-                ok = false;
-            }
-
-            if (sku.value.trim().length < 2) {
-                error(sku, errorSku, "El SKU es obligatorio");
-                ok = false;
-            }
-
-            if (!ok) return;
-
             const payload = {
-                id_cliente: cliente.value,
-                id_categoria: categoria.value,
-                descripcion: descripcion.value.trim(),
-                sku: sku.value.trim()
+                id_cliente: document.getElementById('select-cliente').value,
+                id_categoria: document.getElementById('select-categoria').value,
+                descripcion: document.getElementById('descripcion').value,
+                sku: document.getElementById('sku').value
             };
 
-            try {
-                const res = await fetch(`${URL_BASE}/agregar-producto`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await res.json();
-
-                if (res.ok) {
-                    mostrarToast(result.message, "exito");
-                    form.reset();
-                } else {
-                    mostrarToast(result.message, "aviso");
-                }
-
-            } catch {
-                mostrarToast("Error de conexión con el servidor.", "error");
-            }
-        });
-
-        // Limpieza en tiempo real
-        [cliente, categoria, descripcion, sku].forEach(i => {
-            i.addEventListener('input', limpiarErrores);
-            i.addEventListener('change', limpiarErrores);
+            const res = await fetch(`${URL_BASE}/agregar-producto`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            mostrarToast(result.message, res.ok ? "exito" : "aviso");
+            if (res.ok) e.target.reset();
         });
     </script>
 
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            max-width: 360px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast.exito {
+            background: #1a2e1a;
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
+
+        .toast.error {
+            background: #2e1a1a;
+            border: 1px solid #dc2626;
+            color: #f87171;
+        }
+
+        .toast.aviso {
+            background: #2e2a1a;
+            border: 1px solid #f59e0b;
+            color: #fbbf24;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
     <div class="toast" id="toast"></div>
 
 </body>

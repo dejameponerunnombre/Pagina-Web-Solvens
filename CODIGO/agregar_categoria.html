@@ -29,15 +29,10 @@
 
     <main class="contenido">
         <h1>Nueva <span>Categoría</span></h1>
-
         <form class="formulario" id="form-agregar">
-
-            <!-- Campo -->
-            <div class="campo">
-                <input type="text" id="nombre-cat" placeholder="Nombre de la Categoría">
-                <small id="error-cat"></small>
+            <div class="fila">
+                <input type="text" id="nombre-cat" placeholder="Nombre de la Categoría" required>
             </div>
-
             <button type="submit">Guardar Categoría</button>
         </form>
     </main>
@@ -47,65 +42,69 @@
             const t = document.getElementById('toast');
             t.textContent = mensaje;
             t.className = 'toast ' + tipo;
-            t.style.display = 'block';
-
-            setTimeout(() => {
-                t.style.display = 'none';
-            }, 3500);
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 3500);
         }
 
         const form = document.getElementById('form-agregar');
-        const inputCat = document.getElementById('nombre-cat');
-        const errorCat = document.getElementById('error-cat');
-
-        function limpiarError() {
-            errorCat.textContent = '';
-            inputCat.classList.remove('input-error');
-        }
-
-        function mostrarError(msg) {
-            errorCat.textContent = msg;
-            inputCat.classList.add('input-error');
-        }
-
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            limpiarError();
-
-            const categoria = inputCat.value.trim();
-
-            // Validación
-            if (categoria.length < 3) {
-                mostrarError("La categoría debe tener al menos 3 caracteres.");
-                return;
-            }
-
+            const categoria = document.getElementById('nombre-cat').value;
             try {
                 const res = await fetch('/api/agregar-categoria', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ categoria })
                 });
-
                 const result = await res.json();
-
-                if (res.ok) {
-                    mostrarToast(result.message, "exito");
-                    form.reset();
-                } else {
-                    mostrarToast(result.message, "aviso");
-                }
-
-            } catch (err) {
-                mostrarToast("Error al conectar con el servidor.", "error");
-            }
+                mostrarToast(result.message, res.ok ? "exito" : "aviso");
+                if (res.ok) form.reset();
+            } catch (err) { mostrarToast("Error al conectar.", "error"); }
         });
-
-        // Limpia error al escribir
-        inputCat.addEventListener('input', limpiarError);
     </script>
 
-    <!-- Toast -->
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            max-width: 360px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast.exito {
+            background: #1a2e1a;
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
+
+        .toast.error {
+            background: #2e1a1a;
+            border: 1px solid #dc2626;
+            color: #f87171;
+        }
+
+        .toast.aviso {
+            background: #2e2a1a;
+            border: 1px solid #f59e0b;
+            color: #fbbf24;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
     <div class="toast" id="toast"></div>
 
 </body>

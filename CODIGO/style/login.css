@@ -18,7 +18,6 @@ body
     overflow: hidden;
 }
 
-/* Fondo decorativo */
 body::before 
 {
     content: '';
@@ -41,7 +40,7 @@ body::before
 }
 
 .datos
-{
+ {
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(10px);
     border: 2px solid #ffffff;
@@ -70,7 +69,6 @@ label
     font-weight: 500;
 }
 
-/* INPUTS */
 input[type="text"],
 input[type="password"] 
 {
@@ -81,7 +79,7 @@ input[type="password"]
     border-radius: 6px;
     color: #ffffff;
     font-size: 15px;
-    transition: all 0.25s ease;
+    transition: all 0.3s ease;
     margin-bottom: 20px;
 }
 
@@ -91,7 +89,7 @@ input[type="password"]:focus
     outline: none;
     border-color: #dc2626;
     background-color: rgba(45, 45, 45, 0.8);
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
 input::placeholder 
@@ -99,14 +97,6 @@ input::placeholder
     color: #666;
 }
 
-/* INPUT ERROR (validación custom) */
-.input-error {
-    border: 1px solid #ff3b3b !important;
-    box-shadow: 0 0 10px rgba(255, 59, 59, 0.4) !important;
-    animation: shake 0.25s linear;
-}
-
-/* BOTÓN */
 button[type="submit"] 
 {
     width: 100%;
@@ -118,7 +108,7 @@ button[type="submit"]
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.3s ease;
     margin-top: 10px;
 }
 
@@ -134,7 +124,6 @@ button[type="submit"]:active
     transform: translateY(0);
 }
 
-/* LOGO */
 .imagen
 {
     margin-top: 20px;
@@ -155,58 +144,6 @@ button[type="submit"]:active
     border-radius: 8px;
 }
 
-/* TOAST */
-.toast {
-    position: fixed;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(20,20,20,0.95);
-    color: #fff;
-    padding: 14px 22px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    box-shadow: 0 0 25px rgba(255,0,0,0.25);
-    border: 1px solid rgba(255,0,0,0.4);
-    backdrop-filter: blur(6px);
-    animation: toastIn 0.4s ease;
-    z-index: 9999;
-}
-
-.toast-icon {
-    color: #ff3b3b;
-    font-size: 16px;
-}
-
-/* UTILIDAD */
-.hidden {
-    display: none;
-}
-
-/* ANIMACIONES */
-@keyframes toastIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, 20px);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
-}
-
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-2px); }
-    50% { transform: translateX(2px); }
-    75% { transform: translateX(-2px); }
-    100% { transform: translateX(0); }
-}
-
-/* RESPONSIVE */
 @media (max-width: 480px) {
     .borde {
         max-width: 90%;

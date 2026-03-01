@@ -8,64 +8,6 @@
     <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
     <link rel="stylesheet" href="style/formulario.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* Estilos específicos para esta página que no rompen el CSS global */
-        .fila-layout {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            width: 100%;
-        }
-
-        .fila-layout .campo {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        #seccion-abastece {
-            display: none;
-            border-top: 1px solid #2a2a2a;
-            padding-top: 20px;
-            margin-top: 10px;
-        }
-
-        #seccion-abastece h3 {
-            font-size: 14px;
-            font-weight: 600;
-            color: #aaaaaa;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-bottom: 4px;
-        }
-
-        #seccion-abastece>p {
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 14px;
-        }
-
-        #lista-sucursales-check {
-            background: #141414;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #2a2a2a;
-            max-height: 200px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-
-        #lista-sucursales-check div label {
-            color: #cccccc;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        #contador-seleccion {
-            font-size: 12px;
-            color: #dc2626;
-            font-weight: 600;
-        }
-    </style>
 </head>
 
 <body>
@@ -92,41 +34,28 @@
         <h1>Registro de <span>Usuarios</span></h1>
         <p class="subtitulo">Complete los datos del nuevo integrante del sistema</p>
 
-        <form class="formulario" id="form-usuario" novalidate>
-            <div class="fila-layout">
-                <div class="campo">
-                    <input type="text" id="nombre" placeholder="Nombre Completo" required>
-                    <small id="error-nombre"></small>
-                </div>
-                <div class="campo">
-                    <select id="tipo-usuario" required>
-                        <option value="" disabled selected>Cargando roles...</option>
-                    </select>
-                    <small id="error-tipo"></small>
-                </div>
+        <form class="formulario" id="form-usuario">
+            <div class="fila">
+                <input type="text" id="nombre" placeholder="Nombre Completo" required minlength="3">
+                <select id="tipo-usuario" required>
+                    <option value="" disabled selected>Cargando roles...</option>
+                </select>
             </div>
 
-            <div class="campo">
+            <div class="fila">
                 <input type="email" id="mail" placeholder="Correo Electrónico" required>
-                <small id="error-mail"></small>
             </div>
 
-            <div class="fila-layout">
-                <div class="campo">
-                    <input type="text" id="usuario" placeholder="Nombre de Usuario" required>
-                    <small id="error-usuario"></small>
-                </div>
-                <div class="campo">
-                    <input type="password" id="clave" placeholder="Contraseña" required>
-                    <small id="error-clave"></small>
-                </div>
+            <div class="fila">
+                <input type="text" id="usuario" placeholder="Nombre de Usuario" required minlength="4">
+                <input type="password" id="clave" placeholder="Contraseña" required minlength="4">
             </div>
 
             <div id="seccion-abastece">
                 <h3>Asignar Sucursales que Abastece</h3>
                 <p>Filtre por cadena y seleccione los puntos de venta.</p>
 
-                <div class="campo">
+                <div class="fila">
                     <select id="filtro-cadena-abastece">
                         <option value="" disabled selected>Filtrar por Cadena...</option>
                     </select>
@@ -143,9 +72,52 @@
         </form>
     </main>
 
-    <div class="toast" id="toast"></div>
+    <style>
+        #seccion-abastece {
+            display: none;
+            border-top: 1px solid #2a2a2a;
+            padding-top: 20px;
+            margin-top: 4px;
+        }
+
+        #seccion-abastece h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #aaaaaa;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+        }
+
+        #seccion-abastece>p {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 14px;
+        }
+
+        #lista-sucursales-check>div label {
+            color: #cccccc;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        #lista-sucursales-check>p {
+            color: #555;
+            font-size: 13px;
+            text-align: center;
+            padding: 8px 0;
+        }
+    </style>
 
     <script>
+        function mostrarToast(mensaje, tipo = 'exito') {
+            const t = document.getElementById('toast');
+            t.textContent = mensaje;
+            t.className = 'toast ' + tipo;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 3500);
+        }
+
         const URL_BASE = '/api';
         const form = document.getElementById('form-usuario');
         const selectTipo = document.getElementById('tipo-usuario');
@@ -153,30 +125,9 @@
         const filtroCadena = document.getElementById('filtro-cadena-abastece');
         const listaCheck = document.getElementById('lista-sucursales-check');
         const contadorText = document.getElementById('contador-seleccion');
-        const toast = document.getElementById('toast');
 
         let sucursalesSeleccionadas = new Set();
 
-        // --- FUNCIONES DE UTILIDAD ---
-        function mostrarToast(mensaje, tipo = 'exito') {
-            toast.textContent = mensaje;
-            toast.className = `toast ${tipo} visible`;
-            setTimeout(() => toast.classList.remove('visible'), 3500);
-        }
-
-        function limpiarErrores() {
-            document.querySelectorAll('.input-error').forEach(i => i.classList.remove('input-error'));
-            document.querySelectorAll('.campo small').forEach(s => s.textContent = '');
-        }
-
-        function setFieldError(id, mensaje) {
-            const field = document.getElementById(id);
-            field.classList.add('input-error');
-            const small = field.parentElement.querySelector('small');
-            if (small) small.textContent = mensaje;
-        }
-
-        // --- CARGA INICIAL ---
         document.addEventListener("DOMContentLoaded", async () => {
             try {
                 const res = await fetch(`${URL_BASE}/tipos-usuario`);
@@ -190,7 +141,6 @@
             }
         });
 
-        // --- LÓGICA DE ROLES ---
         selectTipo.addEventListener('change', async () => {
             const rolSeleccionado = selectTipo.options[selectTipo.selectedIndex].text.toLowerCase();
 
@@ -211,7 +161,6 @@
             }
         });
 
-        // --- LÓGICA DE SUCURSALES ---
         filtroCadena.addEventListener('change', async () => {
             const idCadena = filtroCadena.value;
             listaCheck.innerHTML = '<p>Buscando sucursales...</p>';
@@ -222,29 +171,29 @@
                 listaCheck.innerHTML = '';
 
                 if (sucursales.length === 0) {
-                    listaCheck.innerHTML = '<p>Sin sucursales registradas.</p>';
+                    listaCheck.innerHTML = '<p>Esta cadena no tiene sucursales registradas.</p>';
                     return;
                 }
 
                 sucursales.forEach(s => {
                     const estaSeleccionada = sucursalesSeleccionadas.has(s.ID.toString()) ? 'checked' : '';
-                    const div = document.createElement('div');
-                    div.style.cssText = "display: flex; align-items: center; margin-bottom: 8px;";
-                    div.innerHTML = `
-                        <input type="checkbox" value="${s.ID}" ${estaSeleccionada} style="margin-right: 10px; width: auto;">
+                    listaCheck.innerHTML += `
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <input type="checkbox" value="${s.ID}" ${estaSeleccionada} onchange="gestionarSeleccion(this)" style="margin-right: 10px;">
                         <label>${s.Calle} ${s.Altura || ''}, ${s.Localidad}</label>
-                    `;
-                    div.querySelector('input').addEventListener('change', (e) => gestionarSeleccion(e.target));
-                    listaCheck.appendChild(div);
+                    </div>`;
                 });
             } catch (err) {
-                listaCheck.innerHTML = '<p style="color: #dc2626;">Error de conexión.</p>';
+                listaCheck.innerHTML = '<p style="color: #dc2626;">Error al conectar con el servidor.</p>';
             }
         });
 
         function gestionarSeleccion(checkbox) {
-            if (checkbox.checked) sucursalesSeleccionadas.add(checkbox.value);
-            else sucursalesSeleccionadas.delete(checkbox.value);
+            if (checkbox.checked) {
+                sucursalesSeleccionadas.add(checkbox.value);
+            } else {
+                sucursalesSeleccionadas.delete(checkbox.value);
+            }
             actualizarContador();
         }
 
@@ -252,35 +201,8 @@
             contadorText.textContent = `Sucursales seleccionadas: ${sucursalesSeleccionadas.size}`;
         }
 
-        // --- ENVÍO DEL FORMULARIO ---
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            limpiarErrores();
-
-            // Validaciones básicas antes de enviar
-            let valid = true;
-            if (document.getElementById('nombre').value.trim().length < 3) {
-                setFieldError('nombre', 'Mínimo 3 caracteres');
-                valid = false;
-            }
-            if (!selectTipo.value) {
-                setFieldError('tipo-usuario', 'Seleccione un rol');
-                valid = false;
-            }
-            if (!document.getElementById('mail').value.includes('@')) {
-                setFieldError('mail', 'Email inválido');
-                valid = false;
-            }
-            if (document.getElementById('usuario').value.length < 4) {
-                setFieldError('usuario', 'Mínimo 4 caracteres');
-                valid = false;
-            }
-            if (document.getElementById('clave').value.length < 4) {
-                setFieldError('clave', 'Mínimo 4 caracteres');
-                valid = false;
-            }
-
-            if (!valid) return;
 
             const payload = {
                 nombre: document.getElementById('nombre').value,
@@ -314,5 +236,52 @@
             }
         });
     </script>
+
+
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            max-width: 360px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast.exito {
+            background: #1a2e1a;
+            border: 1px solid #4ade80;
+            color: #4ade80;
+        }
+
+        .toast.error {
+            background: #2e1a1a;
+            border: 1px solid #dc2626;
+            color: #f87171;
+        }
+
+        .toast.aviso {
+            background: #2e2a1a;
+            border: 1px solid #f59e0b;
+            color: #fbbf24;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <div class="toast" id="toast"></div>
+
 </body>
+
 </html>
