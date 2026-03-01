@@ -373,7 +373,10 @@
                         <div${i === 0 ? ' class="scroll-start"' : ''}>
                             <div class="img">
                                 <span class="status-pill status-${estClass}">${est}</span>
-                                <img src="../IMG/${img.ruta}" alt="Foto ${i + 1}" data-id="${img.id}">
+                                <button class="btn-rotar" title="Rotar imagen" onclick="rotarImagen(this, event)">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <img src="../IMG/${img.ruta}" alt="Foto ${i + 1}" data-id="${img.id}" data-rotation="0">
                                 <div class="img-actions">
                                     <button class="btn-accion aprobar" onclick="actualizarEstadoImagen(${img.id}, 'Aprobado')">✓</button>
                                     <button class="btn-accion rechazar" onclick="actualizarEstadoImagen(${img.id}, 'Rechazado')">✕</button>
@@ -433,10 +436,30 @@
         const lbImg = document.getElementById('lightbox-img');
         let current = 0;
         let currentLightboxImgId = null;
+
+        // --- LÓGICA DE ROTACIÓN ---
+        function rotarImagen(boton, event) {
+            event.stopPropagation(); // Evita abrir el Lightbox
+            const img = boton.parentElement.querySelector('img');
+            let rotation = parseInt(img.getAttribute('data-rotation') || 0);
+            rotation = (rotation + 90) % 360;
+
+            // Si la foto está de lado (90 o 270), se achica un poco para que no se corte
+            const scale = (rotation === 90 || rotation === 270) ? 0.7 : 1;
+            img.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+            img.setAttribute('data-rotation', rotation);
+        }
+
         function openLightbox(index) {
             current = index;
             lbImg.src = imgs[current].src;
             currentLightboxImgId = imgs[current].dataset.id || null;
+
+            // Apply current rotation to lightbox
+            const currentRotation = imgs[current].getAttribute('data-rotation') || 0;
+            const scale = (currentRotation == 90 || currentRotation == 270) ? 0.7 : 1;
+            lbImg.style.transform = `rotate(${currentRotation}deg) scale(${scale})`;
+
             updateLightboxInfo();
             lightbox.classList.add('activo');
         }
@@ -483,6 +506,9 @@
                 current--;
                 lbImg.src = imgs[current].src;
                 currentLightboxImgId = imgs[current].dataset.id || null;
+                const currentRotation = imgs[current].getAttribute('data-rotation') || 0;
+                const scale = (currentRotation == 90 || currentRotation == 270) ? 0.7 : 1;
+                lbImg.style.transform = `rotate(${currentRotation}deg) scale(${scale})`;
                 updateLightboxInfo();
             } else {
                 // Si es la primera foto, saltamos a la última de la visita anterior
@@ -497,6 +523,9 @@
                 current++;
                 lbImg.src = imgs[current].src;
                 currentLightboxImgId = imgs[current].dataset.id || null;
+                const currentRotation = imgs[current].getAttribute('data-rotation') || 0;
+                const scale = (currentRotation == 90 || currentRotation == 270) ? 0.7 : 1;
+                lbImg.style.transform = `rotate(${currentRotation}deg) scale(${scale})`;
                 updateLightboxInfo();
             } else {
                 // Si es la última foto, saltamos a la primera de la siguiente visita

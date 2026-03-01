@@ -229,7 +229,10 @@
                 <li>
                     <div${i === 0 ? ' class="scroll-start"' : ''}>
                         <div class="img">
-                            <img src="../IMG/${img.ruta}" alt="Foto ${i + 1}">
+                            <button class="btn-rotar" title="Rotar imagen" onclick="rotarImagen(this, event)">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <img src="../IMG/${img.ruta}" alt="Foto ${i + 1}" data-rotation="0">
                         </div>
                     </div>
                 </li>`;
@@ -308,6 +311,19 @@
             });
         }
 
+        // --- LÓGICA DE ROTACIÓN ---
+        function rotarImagen(boton, event) {
+            event.stopPropagation(); // Evita abrir el Lightbox
+            const img = boton.parentElement.querySelector('img');
+            let rotation = parseInt(img.getAttribute('data-rotation') || 0);
+            rotation = (rotation + 90) % 360;
+
+            // Si la foto está de lado (90 o 270), se achica un poco para que no se corte
+            const scale = (rotation === 90 || rotation === 270) ? 0.7 : 1;
+            img.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+            img.setAttribute('data-rotation', rotation);
+        }
+
         // lightbox helpers
         const lightbox = document.getElementById('lightbox');
         const lbImg = document.getElementById('lightbox-img');
@@ -315,6 +331,12 @@
         function openLightbox(index) {
             currentImg = index;
             lbImg.src = imgs[currentImg].src;
+
+            // Apply current rotation to lightbox
+            const currentRotation = imgs[currentImg].getAttribute('data-rotation') || 0;
+            const scale = (currentRotation == 90 || currentRotation == 270) ? 0.7 : 1;
+            lbImg.style.transform = `rotate(${currentRotation}deg) scale(${scale})`;
+
             updateLightboxInfo();
             lightbox.classList.add('activo');
         }
@@ -343,6 +365,9 @@
             if (currentImg > 0) {
                 currentImg--;
                 lbImg.src = imgs[currentImg].src;
+                const currentRotation = imgs[currentImg].getAttribute('data-rotation') || 0;
+                const scale = (currentRotation == 90 || currentRotation == 270) ? 0.7 : 1;
+                lbImg.style.transform = `rotate(${currentRotation}deg) scale(${scale})`;
                 updateLightboxInfo();
             } else {
                 // Salto a visita anterior
@@ -355,6 +380,9 @@
             if (currentImg < imgs.length - 1) {
                 currentImg++;
                 lbImg.src = imgs[currentImg].src;
+                const currentRotation = imgs[currentImg].getAttribute('data-rotation') || 0;
+                const scale = (currentRotation == 90 || currentRotation == 270) ? 0.7 : 1;
+                lbImg.style.transform = `rotate(${currentRotation}deg) scale(${scale})`;
                 updateLightboxInfo();
             } else {
                 // Salto a siguiente visita
