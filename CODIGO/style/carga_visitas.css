@@ -357,6 +357,39 @@ select option {
     transform: translateY(0);
 }
 
+.toast-exito {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid #2a2a2a;
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all 0.4s ease;
+    z-index: 9999;
+}
+
+.toast-exito i {
+    color: #22c55e; /* verde éxito */
+    font-size: 18px;
+}
+
+/* Estado visible */
+.toast-exito.activo {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
     .header {
