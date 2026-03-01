@@ -119,14 +119,17 @@ h1 span {
 
 /* pill showing image status above preview */
 .status-pill {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 20;
     padding: 6px 10px;
     border-radius: 4px;
     font-size: 14px;
-    /* larger than default */
     font-weight: bold;
     text-transform: uppercase;
     display: inline-block;
-    margin-bottom: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 .status-pill.status-aprobado {
@@ -149,7 +152,7 @@ h1 span {
     font-size: 14px;
     align-self: flex-start;
     margin-top: 6px;
-    margin-bottom: -40px;
+    margin-bottom: -10px;
 }
 
 .visita-bloque {
@@ -165,7 +168,7 @@ h1 span {
 
     width: min(calc(100% - 2rem), 780px);
     list-style: none;
-    padding-block: 2rem;
+    padding-block: 0.5rem 0.5rem;
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 240px;
@@ -218,11 +221,15 @@ h1 span {
             }
 
             >.img {
+                position: relative;
+                overflow: hidden;
                 grid-area: img;
                 width: 100%;
                 aspect-ratio: 3/4;
                 transition: all 300ms ease-in-out;
                 transform-origin: center center;
+                background-color: #111;
+                border-radius: 12px;
 
                 @container not scroll-state(snapped: inline) {
                     scale: 0.65;
@@ -236,13 +243,37 @@ h1 span {
                     border-radius: 12px;
                     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
                     border: 1px solid #2a2a2a;
-                    transition: box-shadow 0.3s, border-color 0.3s;
+                    transition: box-shadow 0.3s, border-color 0.3s, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 }
 
                 >img:hover {
                     box-shadow: 0 16px 50px rgba(220, 38, 38, 0.2);
                     border-color: #444;
                 }
+            }
+
+            .btn-rotar {
+                position: absolute;
+                top: 6px;
+                right: 6px;
+                background: #ffffff;
+                color: #000000;
+                border: none;
+                border-radius: 4px;
+                width: 32px;
+                height: 32px;
+                cursor: pointer;
+                z-index: 20;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            }
+
+            .btn-rotar:hover {
+                background: #dc2626;
+                transform: scale(1.1);
             }
         }
 
@@ -346,7 +377,7 @@ h1 span {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.93);
-    z-index: 999;
+    z-index: 2000;
     display: none;
     flex-direction: column;
     align-items: center;
