@@ -11,163 +11,149 @@
 
 <body>
 
-    <header class="header">
-        <div class="header-left">
-            <a href="Admin_gestion_cadena.html" class="btn-volver">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12" />
-                    <polyline points="12 19 5 12 12 5" />
-                </svg>
-            </a>
+<header class="header">
+    <div class="header-left">
+        <a href="Admin_gestion_cadena.html" class="btn-volver">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+        </a>
+    </div>
+    <div class="header-center">
+        <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
+    </div>
+    <div class="header-right">
+        <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+    </div>
+</header>
+
+<main class="contenido">
+    <h1>Carga de <span>Cadenas</span></h1>
+    <p class="subtitulo">Complete los datos de la cadena comercial</p>
+
+    <form class="formulario" id="form-cadena">
+
+        <div class="campo">
+            <input type="text" id="nombre_cadena" placeholder="Nombre de la Cadena">
+            <small id="error-nombre"></small>
         </div>
-        <div class="header-center">
-            <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
+
+        <div class="campo">
+            <select id="tipo_cadena">
+                <option value="" disabled selected>Cargando tipos...</option>
+            </select>
+            <small id="error-tipo"></small>
         </div>
-        <div class="header-right">
-            <a href="login.html" class="btn-salir">Cerrar Sesión</a>
-        </div>
-    </header>
 
-    <main class="contenido">
-        <h1>Carga de <span>Cadenas</span></h1>
-        <p class="subtitulo">Complete los datos de la cadena comercial</p>
+        <button type="submit">Guardar Cadena</button>
+    </form>
+</main>
 
-        <form class="formulario" id="form-cadena">
-            <div class="fila">
-                <input type="text" id="nombre_cadena" placeholder="Nombre de la Cadena" required minlength="3">
-                <select id="tipo_cadena" required>
-                    <option value="" disabled selected>Cargando tipos...</option>
-                </select>
-            </div>
-            <button type="submit">Guardar Cadena</button>
-        </form>
-    </main>
+<!-- Toast -->
+<div id="toast"></div>
 
-    <script>
-        function mostrarToast(mensaje, tipo = 'exito') {
-            const t = document.getElementById('toast');
-            t.textContent = mensaje;
-            t.className = 'toast ' + tipo;
-            t.classList.add('visible');
-            setTimeout(() => t.classList.remove('visible'), 3500);
-        }
+<script>
+const URL_BASE = '/api';
+const form = document.getElementById('form-cadena');
+const selectTipo = document.getElementById('tipo_cadena');
 
-        const URL_BASE = '/api';
-        const form = document.getElementById('form-cadena');
-        const selectTipo = document.getElementById('tipo_cadena');
+/* ===== TOAST ===== */
+function mostrarToast(mensaje, tipo = 'exito') {
+    const t = document.getElementById('toast');
+    t.textContent = mensaje;
+    t.className = tipo;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 3500);
+}
 
-        // 1. Cargar el menú desplegable al iniciar
-        async function cargarTipos() {
-            try {
-                const res = await fetch(`${URL_BASE}/tipos-cadena`);
-                const data = await res.json();
+/* ===== CARGA TIPOS ===== */
+async function cargarTipos() {
+    try {
+        const res = await fetch(`${URL_BASE}/tipos-cadena`);
+        const data = await res.json();
 
-                // LIMPIEZA TOTAL: Esto elimina cualquier duplicado previo
-                selectTipo.innerHTML = '';
+        selectTipo.innerHTML = '';
 
-                // Crear la opción por defecto
-                const optionDefault = document.createElement('option');
-                optionDefault.value = "";
-                optionDefault.textContent = "Seleccione un Tipo";
-                optionDefault.disabled = true;
-                optionDefault.selected = true;
-                selectTipo.appendChild(optionDefault);
+        const optionDefault = document.createElement('option');
+        optionDefault.value = "";
+        optionDefault.textContent = "Seleccione un Tipo";
+        optionDefault.disabled = true;
+        optionDefault.selected = true;
+        selectTipo.appendChild(optionDefault);
 
-                // Llenar con datos de la BD
-                // Asegúrate de que esta parte en tu fetch de tipos esté así:
-                data.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item.Tipo; // Enviamos el texto "Supermercado"
-                    option.textContent = item.Tipo;
-                    selectTipo.appendChild(option);
-                });
-            } catch (err) {
-                console.error("Error al cargar:", err);
-                selectTipo.innerHTML = '<option value="">Error al cargar</option>';
-            }
-        }
-
-        // Ejecutar la carga al iniciar
-        document.addEventListener("DOMContentLoaded", cargarTipos);
-
-        // 2. Enviar los datos al presionar el botón
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const payload = {
-                nombre: document.getElementById('nombre_cadena').value,
-                tipo: selectTipo.value
-            };
-
-            try {
-                const response = await fetch(`${URL_BASE}/agregar-cadena`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    // Si todo salió bien (Status 200)
-                    mostrarToast(result.message, "exito");
-                    form.reset();
-                } else {
-                    // Si el servidor envió un error (Status 400 o 500)
-                    // Aquí se mostrará el mensaje explicativo: "No se puede guardar: La cadena..."
-                    mostrarToast(result.message, "aviso");
-                }
-            } catch (err) {
-                mostrarToast("Error de conexión con el servidor.", "error");
-            }
+        data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.Tipo;
+            option.textContent = item.Tipo;
+            selectTipo.appendChild(option);
         });
-    </script>
 
-    <style>
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            padding: 14px 22px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #fff;
-            z-index: 9999;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.3s, transform 0.3s;
-            pointer-events: none;
-            max-width: 360px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    } catch (err) {
+        console.error("Error al cargar:", err);
+        selectTipo.innerHTML = '<option value="">Error al cargar</option>';
+    }
+}
+
+document.addEventListener("DOMContentLoaded", cargarTipos);
+
+/* ===== VALIDACIÓN + ENVÍO ===== */
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nombreInput = document.getElementById('nombre_cadena');
+    const tipoInput = document.getElementById('tipo_cadena');
+
+    const errorNombre = document.getElementById('error-nombre');
+    const errorTipo = document.getElementById('error-tipo');
+
+    let valido = true;
+
+    // Reset mensajes
+    errorNombre.textContent = '';
+    errorTipo.textContent = '';
+
+    // Validar nombre
+    if (nombreInput.value.trim().length < 3) {
+        errorNombre.textContent = "El nombre debe tener al menos 3 caracteres";
+        valido = false;
+    }
+
+    // Validar tipo
+    if (!tipoInput.value) {
+        errorTipo.textContent = "Seleccione un tipo de cadena";
+        valido = false;
+    }
+
+    if (!valido) return;
+
+    const payload = {
+        nombre: nombreInput.value.trim(),
+        tipo: tipoInput.value
+    };
+
+    try {
+        const response = await fetch(`${URL_BASE}/agregar-cadena`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            mostrarToast(result.message, "exito");
+            form.reset();
+        } else {
+            mostrarToast(result.message, "aviso");
         }
 
-        .toast.exito {
-            background: #1a2e1a;
-            border: 1px solid #4ade80;
-            color: #4ade80;
-        }
-
-        .toast.error {
-            background: #2e1a1a;
-            border: 1px solid #dc2626;
-            color: #f87171;
-        }
-
-        .toast.aviso {
-            background: #2e2a1a;
-            border: 1px solid #f59e0b;
-            color: #fbbf24;
-        }
-
-        .toast.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    </style>
-    <div class="toast" id="toast"></div>
+    } catch (err) {
+        mostrarToast("Error de conexión con el servidor.", "error");
+    }
+});
+</script>
 
 </body>
-
 </html>
