@@ -9,10 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style/filtros.css">
     <link rel="stylesheet" href="style/vista_fotos.css">
-    <!-- include footer styles from inicioCliente -->
     <link rel="stylesheet" href="style/inicio.css">
     <style>
-        /* buttons for each image (approve/reject) */
+        /* Estilos de botones de acción */
         .btn-accion {
             margin: 4px;
             padding: 6px 10px;
@@ -23,13 +22,8 @@
             font-size: 12px;
         }
 
-        .btn-accion.aprobar {
-            background-color: #22c55e;
-        }
-
-        .btn-accion.rechazar {
-            background-color: #ef4444;
-        }
+        .btn-accion.aprobar { background-color: #22c55e; }
+        .btn-accion.rechazar { background-color: #ef4444; }
 
         .img-actions {
             position: absolute;
@@ -37,171 +31,129 @@
             right: 6px;
             display: flex;
             gap: 4px;
+            z-index: 10;
         }
 
-        /* navigation between visits */
+        /* Lógica de Rotación */
+        .btn-rotar {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-rotar:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .img {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #000;
+            border-radius: 8px;
+        }
+
+        .img img {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 100%;
+            display: block;
+        }
+
+        /* Navegación de visitas */
         .visita-nav {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
+            margin-top: 20px;
         }
 
         .nav-btn {
             background: rgba(0, 0, 0, 0.6);
             border: none;
             color: #fff;
-            padding: 8px;
+            padding: 12px;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 20px;
+            transition: background 0.3s;
         }
 
-        .nav-btn:hover {
-            background: rgba(0, 0, 0, 0.8);
-        }
+        .nav-btn:hover { background: #dc2626; }
 
-        /* lightbox action buttons */
-        .lightbox-accion {
-            position: absolute;
-            bottom: 20px;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            color: #fff;
-            z-index: 1000;
-            opacity: 0.9;
-            transition: opacity 0.2s;
-        }
-
-        .lightbox-accion.aprobar {
-            background: #22c55e;
-            left: calc(50% - 110px);
-            bottom: 30px;
-        }
-
-        .lightbox-accion.rechazar {
-            background: #ef4444;
-            left: calc(50% + 10px);
-            bottom: 30px;
-        }
-
-        .lightbox-accion:hover {
-            opacity: 1;
-        }
-
-        .lightbox-close {
-            z-index: 10001 !important;
-            /* Asegurar que esté por encima de todo */
-        }
-
-        /* Info Card in Lightbox (The "Cartel") */
+        /* Lightbox Meta & Acciones */
         .lightbox-meta {
             position: relative;
-            order: -1;
-            left: auto;
-            transform: none;
             margin: 0 0 15px 0;
             background: rgba(18, 18, 18, 0.9);
             padding: 10px 24px;
             border-radius: 30px;
             color: #fff;
-            text-align: center;
-            z-index: 1000;
+            display: flex;
+            gap: 15px;
             backdrop-filter: blur(15px);
             border: 1px solid rgba(220, 38, 38, 0.3);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-            width: fit-content;
-            max-width: 90vw;
-            transition: all 0.3s ease;
+            z-index: 1000;
         }
 
-        .lightbox-meta span {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #ddd;
-            white-space: nowrap;
-        }
-
-        .lightbox-meta i {
-            color: #dc2626;
-            width: 16px;
-        }
-
-        .lightbox-meta .status-badge {
-            display: inline-block;
-            margin-top: 5px;
+        .status-badge {
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .status-badge.status-aprobado {
-            background: #22c55e;
+        .status-aprobado { background: #22c55e; }
+        .status-rechazado { background: #ef4444; }
+        .status-pendiente { background: #eab308; }
+
+        .lightbox-accion {
+            position: absolute;
+            bottom: 30px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
             color: #fff;
+            cursor: pointer;
+            font-weight: 600;
         }
 
-        .status-badge.status-rechazado {
-            background: #ef4444;
-            color: #fff;
-        }
+        .lightbox-accion.aprobar { background: #22c55e; left: calc(50% - 115px); }
+        .lightbox-accion.rechazar { background: #ef4444; left: calc(50% + 5px); }
 
-        .status-badge.status-pendiente {
-            background: #eab308;
-            color: #fff;
-        }
-
-        /* Toast notifications */
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 30px;
             right: 30px;
             padding: 14px 22px;
             border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
             color: #fff;
             z-index: 9999;
             opacity: 0;
             transform: translateY(10px);
-            transition: opacity 0.3s, transform 0.3s;
-            pointer-events: none;
-            max-width: 360px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            transition: all 0.3s;
         }
 
-        .toast.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .toast.exito {
-            background: #1a2e1a;
-            border: 1px solid #4ade80;
-            color: #4ade80;
-        }
-
-        .toast.error {
-            background: #2e1a1a;
-            border: 1px solid #dc2626;
-            color: #f87171;
-        }
+        .toast.visible { opacity: 1; transform: translateY(0); }
+        .toast.exito { background: #1a2e1a; border: 1px solid #4ade80; color: #4ade80; }
+        .toast.error { background: #2e1a1a; border: 1px solid #dc2626; color: #f87171; }
     </style>
 </head>
 
@@ -210,8 +162,7 @@
     <header class="header">
         <div class="header-left">
             <a href="Admin_gestion_visitas.html" class="btn-volver">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="19" y1="12" x2="5" y2="12" />
                     <polyline points="12 19 5 12 12 5" />
                 </svg>
@@ -222,7 +173,7 @@
             </button>
         </div>
         <div class="header-center">
-            <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
+            <img src="../IMG/logo.png" alt="Logo" class="logo-nav">
         </div>
         <div class="header-right">
             <a href="login.html" class="btn-salir">Cerrar Sesión</a>
@@ -230,9 +181,8 @@
     </header>
 
     <main class="contenido">
-
         <h1>Evidencia <span>Fotográfica</span></h1>
-        <p class="page-subtitulo">Todas las imágenes subidas por repositores</p>
+        <p class="page-subtitulo">Panel de auditoría de imágenes</p>
 
         <div class="contenedor-layout">
             <aside class="sidebar-filtros" id="sidebarFiltros">
@@ -241,94 +191,39 @@
                     <button class="btn-cerrar-sidebar" id="btnCerrarSidebar"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="grupo-filtro">
-                    <div class="filtro-header">
-                        <label class="label-filtro">Periodo</label>
-                        <i class="fas fa-chevron-down icono-toggle"></i>
-                    </div>
+                    <div class="filtro-header"><label class="label-filtro">Periodo</label></div>
                     <div class="filtro-contenido">
-                        <p class="descripcion-filtro">Seleccione un rango de fechas:</p>
-                        <div class="rango-fechas">
-                            <div><label class="label-pequeno">Desde:</label><input type="date" class="input-fecha"
-                                    id="fechaDesde"></div>
-                            <div><label class="label-pequeno">Hasta:</label><input type="date" class="input-fecha"
-                                    id="fechaHasta"></div>
-                        </div>
+                        <input type="date" class="input-fecha" id="fechaDesde">
+                        <input type="date" class="input-fecha" id="fechaHasta">
                     </div>
                 </div>
                 <div class="grupo-filtro">
-                    <div class="filtro-header">
-                        <label class="label-filtro">Cliente</label>
-                        <i class="fas fa-chevron-down icono-toggle"></i>
-                    </div>
-                    <div class="filtro-contenido">
-                        <p class="descripcion-filtro">Seleccione el cliente:</p>
-                        <select class="select-filtro" id="filtroCliente">
-                            <option value="">Todos</option>
-                        </select>
-                    </div>
+                    <div class="filtro-header"><label class="label-filtro">Cliente</label></div>
+                    <select class="select-filtro" id="filtroCliente"><option value="">Todos</option></select>
                 </div>
                 <div class="grupo-filtro">
-                    <div class="filtro-header">
-                        <label class="label-filtro">Cadena</label>
-                        <i class="fas fa-chevron-down icono-toggle"></i>
-                    </div>
-                    <div class="filtro-contenido">
-                        <p class="descripcion-filtro">Seleccione la cadena:</p>
-                        <select class="select-filtro" id="filtroCadena">
-                            <option value="">Todas</option>
-                        </select>
-                    </div>
+                    <div class="filtro-header"><label class="label-filtro">Cadena</label></div>
+                    <select class="select-filtro" id="filtroCadena"><option value="">Todas</option></select>
                 </div>
-                <div class="grupo-filtro">
-                    <div class="filtro-header">
-                        <label class="label-filtro">Sucursal</label>
-                        <i class="fas fa-chevron-down icono-toggle"></i>
-                    </div>
-                    <div class="filtro-contenido">
-                        <p class="descripcion-filtro">Seleccione la sucursal:</p>
-                        <select class="select-filtro" id="filtroSucursal">
-                            <option value="">Todas</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grupo-filtro">
-                    <div class="filtro-header">
-                        <label class="label-filtro">Repositor</label>
-                        <i class="fas fa-chevron-down icono-toggle"></i>
-                    </div>
-                    <div class="filtro-contenido">
-                        <p class="descripcion-filtro">Seleccione el repositor:</p>
-                        <select class="select-filtro" id="filtroRepo">
-                            <option value="">Todos</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="botones-filtro" style="display:flex;gap:10px;">
+                <div class="botones-filtro">
                     <button id="btnAplicarFiltros" class="btn-aplicar-filtros">Aplicar</button>
                     <button id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
                 </div>
             </aside>
-            <!-- end sidebar -->
 
             <div class="visita-nav">
                 <button id="prevVisita" class="nav-btn"><i class="fas fa-chevron-left"></i></button>
-                <div id="contenedorVisitas"></div>
+                <div id="contenedorVisitas" style="width: 100%;"></div>
                 <button id="nextVisita" class="nav-btn"><i class="fas fa-chevron-right"></i></button>
             </div>
-
+        </div>
     </main>
-
-    <footer class="footer-contacto">
-        <p><i class="fa-solid fa-envelope"></i> contacto@gruposolvens.com | <i class="fa-solid fa-phone"></i> +54 11
-            1234-5678</p>
-    </footer>
 
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" id="lightbox-close"><i class="fas fa-times"></i></button>
         <button class="lightbox-prev" id="lightbox-prev"><i class="fas fa-chevron-left"></i></button>
-        <img class="lightbox-img" id="lightbox-img" src="" alt="">
+        <img class="lightbox-img" id="lightbox-img" src="">
         <button class="lightbox-next" id="lightbox-next"><i class="fas fa-chevron-right"></i></button>
-        <!-- approval actions inside lightbox -->
         <div id="lightbox-meta" class="lightbox-meta"></div>
         <button class="lightbox-accion aprobar" id="lightbox-aprobar">✓ Aprobar</button>
         <button class="lightbox-accion rechazar" id="lightbox-rechazar">✕ Rechazar</button>
@@ -340,257 +235,135 @@
         let visitasData = [];
         let filteredVisitas = [];
         let visitaIndex = 0;
+        let imgs = [];
+        let current = 0;
+        let currentLightboxImgId = null;
 
         async function cargarVisitasAdmin() {
-            const tipo = Number(localStorage.getItem('tipoUsuario'));
-            if (tipo !== 1) {
-                window.location.href = 'login.html';
-                return;
-            }
             const res = await fetch('/api/imagenes-visitas');
-            if (!res.ok) {
-                document.getElementById('contenedorVisitas').innerHTML = '<p>Error al obtener las imágenes.</p>';
-                return;
-            }
-            visitasData = await res.json();
-            if (visitasData.length === 0) {
-                document.getElementById('contenedorVisitas').innerHTML = '<p>No hay imágenes cargadas.</p>';
-                return;
-            }
-            // inicializa filtros y vistas
+            visitasData = res.ok ? await res.json() : [];
             populateFilters();
-            clearFilters();
+            applyFilters();
         }
 
         function renderVisita(idx) {
             const v = filteredVisitas[idx];
             const cont = document.getElementById('contenedorVisitas');
+            if (!v) return;
+
             const imgsHtml = v.imagenes.map((img, i) => {
                 const est = img.estado || 'Pendiente';
-                const estClass = est.toLowerCase();
                 return `
-                    <li>
-                        <div${i === 0 ? ' class="scroll-start"' : ''}>
-                            <div class="img">
-                                <span class="status-pill status-${estClass}">${est}</span>
-                                <img src="../IMG/${img.ruta}" alt="Foto ${i + 1}" data-id="${img.id}">
-                                <div class="img-actions">
-                                    <button class="btn-accion aprobar" onclick="actualizarEstadoImagen(${img.id}, 'Aprobado')">✓</button>
-                                    <button class="btn-accion rechazar" onclick="actualizarEstadoImagen(${img.id}, 'Rechazado')">✕</button>
-                                </div>
-                            </div>
+                <li>
+                    <div class="img">
+                        <span class="status-pill status-${est.toLowerCase()}">${est}</span>
+                        <button class="btn-rotar" title="Rotar imagen" onclick="rotarImagen(this, event)">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <img src="../IMG/${img.ruta}" alt="Foto" data-id="${img.id}" data-rotation="0">
+                        <div class="img-actions">
+                            <button class="btn-accion aprobar" onclick="actualizarEstadoImagen(${img.id}, 'Aprobado')">✓</button>
+                            <button class="btn-accion rechazar" onclick="actualizarEstadoImagen(${img.id}, 'Rechazado')">✕</button>
                         </div>
-                    </li>`;
+                    </div>
+                </li>`;
             }).join('');
+
             cont.innerHTML = `
-            <div class="visita-bloque" data-id="${v.id}">
+            <div class="visita-bloque">
                 <ul class="carousel">${imgsHtml}</ul>
                 <div class="visita-meta">
                     <span><i class="fas fa-building"></i> <strong>${v.cadena}</strong></span>
-                    <span><i class="fas fa-user-check"></i> ${v.cliente}</span>
-                    <span><i class="fas fa-map-marker-alt"></i> ${v.sucursal} - ${v.localidad}</span>
-                    <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${v.sucursal}</span>
                     <span><i class="fas fa-user"></i> ${v.repositor}</span>
+                    <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString()}</span>
                 </div>
             </div>`;
             wireImages();
-            const showNav = filteredVisitas.length > 1;
-            document.getElementById('prevVisita').style.display = showNav ? 'inline-block' : 'none';
-            document.getElementById('nextVisita').style.display = showNav ? 'inline-block' : 'none';
         }
 
-        function mostrarToast(mensaje, tipo = 'exito') {
-            const t = document.getElementById('toast');
-            t.textContent = mensaje;
-            t.className = 'toast ' + tipo + ' visible';
-            setTimeout(() => t.classList.remove('visible'), 3000);
+        // --- LÓGICA DE ROTACIÓN ---
+        function rotarImagen(boton, event) {
+            event.stopPropagation(); // Evita abrir el Lightbox
+            const img = boton.parentElement.querySelector('img');
+            let rotation = parseInt(img.getAttribute('data-rotation') || 0);
+            rotation = (rotation + 90) % 360;
+            
+            // Si la foto está de lado (90 o 270), se achica un poco para que no se corte
+            const scale = (rotation === 90 || rotation === 270) ? 0.7 : 1;
+            img.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+            img.setAttribute('data-rotation', rotation);
         }
 
         async function actualizarEstadoImagen(idImg, nuevoEstado) {
-            try {
-                const res = await fetch(`/api/imagen/${idImg}/estado`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ estado: nuevoEstado })
-                });
-                if (res.ok) {
-                    mostrarToast(`Imagen ${nuevoEstado.toLowerCase()} correctamente.`);
-                    await cargarVisitasAdmin();
-                    // Si estamos en lightbox, actualizar la info
-                    if (lightbox.classList.contains('activo')) {
-                        updateLightboxInfo();
-                    }
-                }
-                else mostrarToast('Error al actualizar servidor.', 'error');
-            } catch (err) {
-                console.error(err);
-                mostrarToast('Error de conexión.', 'error');
+            const res = await fetch(`/api/imagen/${idImg}/estado`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: nuevoEstado })
+            });
+            if (res.ok) {
+                mostrarToast(`Imagen ${nuevoEstado}`);
+                await cargarVisitasAdmin();
+                if (document.getElementById('lightbox').classList.contains('activo')) updateLightboxInfo();
             }
         }
 
-        // lightbox helpers copied from cliente view
-        const lightbox = document.getElementById('lightbox');
-        const lbImg = document.getElementById('lightbox-img');
-        let current = 0;
-        let currentLightboxImgId = null;
+        function wireImages() {
+            imgs = Array.from(document.querySelectorAll('.carousel .img img'));
+            imgs.forEach((img, i) => {
+                img.addEventListener('click', () => openLightbox(i));
+            });
+        }
+
         function openLightbox(index) {
             current = index;
+            const lb = document.getElementById('lightbox');
+            const lbImg = document.getElementById('lightbox-img');
             lbImg.src = imgs[current].src;
-            currentLightboxImgId = imgs[current].dataset.id || null;
+            currentLightboxImgId = imgs[current].dataset.id;
             updateLightboxInfo();
-            lightbox.classList.add('activo');
+            lb.classList.add('activo');
         }
 
         function updateLightboxInfo() {
             const v = filteredVisitas[visitaIndex];
             const metaEl = document.getElementById('lightbox-meta');
-            // Obtener el estado actual de visitasData sincronizado
-            const visitaOriginal = visitasData.find(vis => vis.id === v.id);
-            const imgData = visitaOriginal.imagenes.find(img => img.id == currentLightboxImgId);
-            const estado = imgData ? imgData.estado || 'Pendiente' : 'Pendiente';
-            const estClass = estado.toLowerCase();
+            const imgData = v.imagenes.find(img => img.id == currentLightboxImgId);
+            const estado = imgData ? imgData.estado : 'Pendiente';
 
-            if (v && metaEl) {
-                metaEl.innerHTML = `
-                    <span><i class="fas fa-building"></i> <strong>${v.cadena}</strong></span>
-                    <span><i class="fas fa-user-check"></i> ${v.cliente}</span>
-                    <span><i class="fas fa-map-marker-alt"></i> ${v.sucursal} - ${v.localidad}</span>
-                    <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
-                    <span><i class="fas fa-user"></i> ${v.repositor}</span>
-                    <span class="status-badge status-${estClass}">${estado}</span>
-                `;
-            }
-        }
-        function closeLightbox() {
-            const lb = document.getElementById('lightbox');
-            if (lb) lb.classList.remove('activo');
+            metaEl.innerHTML = `
+                <span><i class="fas fa-building"></i> ${v.cadena}</span>
+                <span><i class="fas fa-user"></i> ${v.repositor}</span>
+                <span class="status-badge status-${estado.toLowerCase()}">${estado}</span>
+            `;
         }
 
-        document.getElementById('lightbox-close').onclick = (e) => {
-            e.stopPropagation();
-            closeLightbox();
-        };
-
-        function wireImages() {
-            imgs = Array.from(document.querySelectorAll('.carousel .img img'));
-            imgs.forEach((img, i) => {
-                img.style.cursor = 'zoom-in';
-                img.addEventListener('click', () => openLightbox(i));
-            });
+        function mostrarToast(mensaje) {
+            const t = document.getElementById('toast');
+            t.textContent = mensaje;
+            t.className = 'toast exito visible';
+            setTimeout(() => t.classList.remove('visible'), 3000);
         }
-        document.getElementById('lightbox-prev').addEventListener('click', () => {
-            if (current > 0) {
-                current--;
-                lbImg.src = imgs[current].src;
-                currentLightboxImgId = imgs[current].dataset.id || null;
-                updateLightboxInfo();
-            } else {
-                // Si es la primera foto, saltamos a la última de la visita anterior
-                visitaIndex = (visitaIndex - 1 + filteredVisitas.length) % filteredVisitas.length;
-                renderVisita(visitaIndex);
-                openLightbox(imgs.length - 1);
-            }
-        });
 
-        document.getElementById('lightbox-next').addEventListener('click', () => {
-            if (current < imgs.length - 1) {
-                current++;
-                lbImg.src = imgs[current].src;
-                currentLightboxImgId = imgs[current].dataset.id || null;
-                updateLightboxInfo();
-            } else {
-                // Si es la última foto, saltamos a la primera de la siguiente visita
-                visitaIndex = (visitaIndex + 1) % filteredVisitas.length;
-                renderVisita(visitaIndex);
-                openLightbox(0);
-            }
-        });
-        document.getElementById('lightbox-aprobar').addEventListener('click', () => {
-            if (currentLightboxImgId) actualizarEstadoImagen(currentLightboxImgId, 'Aprobado');
-        });
-        document.getElementById('lightbox-rechazar').addEventListener('click', () => {
-            if (currentLightboxImgId) actualizarEstadoImagen(currentLightboxImgId, 'Rechazado');
-        });
-        lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
-        document.addEventListener('keydown', (e) => {
-            if (!lightbox.classList.contains('activo')) return;
-            if (e.key === 'Escape') closeLightbox();
-            if (e.key === 'ArrowLeft') document.getElementById('lightbox-prev').click();
-            if (e.key === 'ArrowRight') document.getElementById('lightbox-next').click();
-        });
-
-        document.getElementById('prevVisita').addEventListener('click', () => {
-            visitaIndex = (visitaIndex - 1 + filteredVisitas.length) % filteredVisitas.length;
-            renderVisita(visitaIndex);
-        });
-        document.getElementById('nextVisita').addEventListener('click', () => {
-            visitaIndex = (visitaIndex + 1) % filteredVisitas.length;
-            renderVisita(visitaIndex);
-        });
-
-        // filtro helpers
+        // Filtros básicos
         function populateFilters() {
-            const makeOptions = (arr) => [...new Set(arr)].sort();
-            const llenar = (id, items, prefix) => {
-                const sel = document.getElementById(id);
-                sel.innerHTML = `<option value="">${prefix}</option>` +
-                    items.map(x => `<option value="${x}">${x}</option>`).join('');
-            };
-            llenar('filtroCliente', makeOptions(visitasData.map(v => v.cliente)), 'Cliente (todos)');
-            llenar('filtroCadena', makeOptions(visitasData.map(v => v.cadena)), 'Cadena (todas)');
-            llenar('filtroSucursal', makeOptions(visitasData.map(v => v.sucursal)), 'Sucursal (todas)');
-            llenar('filtroRepo', makeOptions(visitasData.map(v => v.repositor)), 'Repositor (todos)');
+            const selC = document.getElementById('filtroCliente');
+            const clientes = [...new Set(visitasData.map(v => v.cliente))];
+            clientes.forEach(c => selC.innerHTML += `<option value="${c}">${c}</option>`);
         }
-        function applyFilters() {
-            const fDesde = document.getElementById('fechaDesde').value;
-            const fHasta = document.getElementById('fechaHasta').value;
-            const fC = document.getElementById('filtroCliente').value;
-            const fCad = document.getElementById('filtroCadena').value;
-            const fSuc = document.getElementById('filtroSucursal').value;
-            const fR = document.getElementById('filtroRepo').value;
 
-            filteredVisitas = visitasData.filter(v => {
-                // filter by date range first
-                if (fDesde) {
-                    const vDate = new Date(v.fecha).setHours(0, 0, 0, 0);
-                    const dDesde = new Date(fDesde).setHours(0, 0, 0, 0);
-                    if (vDate < dDesde) return false;
-                }
-                if (fHasta) {
-                    const vDate = new Date(v.fecha).setHours(0, 0, 0, 0);
-                    const dHasta = new Date(fHasta).setHours(0, 0, 0, 0);
-                    if (vDate > dHasta) return false;
-                }
-                if (fC && v.cliente !== fC) return false;
-                if (fCad && v.cadena !== fCad) return false;
-                if (fSuc && v.sucursal !== fSuc) return false;
-                if (fR && v.repositor !== fR) return false;
-                return true;
-            });
+        function applyFilters() {
+            const fC = document.getElementById('filtroCliente').value;
+            filteredVisitas = fC ? visitasData.filter(v => v.cliente === fC) : visitasData;
             visitaIndex = 0;
-            if (filteredVisitas.length === 0) {
-                document.getElementById('contenedorVisitas').innerHTML = '<p>No hay visitas que coincidan.</p>';
-                document.getElementById('prevVisita').style.display = 'none';
-                document.getElementById('nextVisita').style.display = 'none';
-                return;
-            }
             renderVisita(visitaIndex);
         }
-        function clearFilters() {
-            ['fechaDesde', 'fechaHasta', 'filtroCliente', 'filtroCadena', 'filtroSucursal', 'filtroRepo']
-                .forEach(id => document.getElementById(id).value = '');
-            applyFilters();
-        }
 
-        document.getElementById('btnAplicarFiltros').addEventListener('click', applyFilters);
-        document.getElementById('btnLimpiarFiltros').addEventListener('click', clearFilters);
-
+        document.getElementById('lightbox-close').onclick = () => document.getElementById('lightbox').classList.remove('activo');
+        document.getElementById('nextVisita').onclick = () => { visitaIndex = (visitaIndex + 1) % filteredVisitas.length; renderVisita(visitaIndex); };
+        document.getElementById('prevVisita').onclick = () => { visitaIndex = (visitaIndex - 1 + filteredVisitas.length) % filteredVisitas.length; renderVisita(visitaIndex); };
+        
         document.addEventListener('DOMContentLoaded', cargarVisitasAdmin);
     </script>
-
-    <!-- filtros utility script -->
-    <script src="js/filtros.js"></script>
-
 </body>
-
 </html>
