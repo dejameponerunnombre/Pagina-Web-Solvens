@@ -789,8 +789,7 @@ app.get('/api/reporte-visitas-cliente', async (req, res, next) => {
 
         const pool = await getConnection();
         const request = pool.request();
-        request.input('id_cliente', mssql.SmallInt, id_cliente);
-        const where = buildFiltrosReporte(req.query, request, 'v.ID_Cliente = @id_cliente');
+        const where = buildFiltrosReporte(req.query, request);
         const result = await request.query(`${BASE_SELECT_REPORTE} ${where} ORDER BY v.Fecha DESC`);
         res.json(result.recordset);
     } catch (e) { next(e); }

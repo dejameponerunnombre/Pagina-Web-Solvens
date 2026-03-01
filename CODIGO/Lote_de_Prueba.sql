@@ -25,9 +25,6 @@ INSERT INTO Zona (Nombre) VALUES
 ('Mendoza'),
 ('Santa Fe');
 GO
-Select * from Carga
-Select * from Visita
-Select * from Imagen
 INSERT INTO Subzona (Nombre, ID_Zona) VALUES
 ('Sur', 1),
 ('Oeste', 1),
