@@ -47,9 +47,17 @@ body::before {
     align-items: center;
 }
 
-.header-left { justify-content: flex-start; }
-.header-center { justify-content: center; }
-.header-right { justify-content: flex-end; }
+.header-left {
+    justify-content: flex-start;
+}
+
+.header-center {
+    justify-content: center;
+}
+
+.header-right {
+    justify-content: flex-end;
+}
 
 .logo-nav {
     height: 52px;
@@ -102,7 +110,9 @@ h1 {
     margin-bottom: 8px;
 }
 
-h1 span { color: #dc2626; }
+h1 span {
+    color: #dc2626;
+}
 
 .subtitulo {
     color: #aaaaaa;
@@ -119,7 +129,7 @@ h1 span { color: #dc2626; }
     display: flex;
     flex-direction: column;
     gap: 18px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
 /* ===== CAMPOS ===== */
@@ -217,7 +227,7 @@ button:active {
     color: #fff;
     display: none;
     z-index: 9999;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
 }
 
 #toast.exito {
@@ -236,6 +246,93 @@ button:active {
     background: #2e250f;
     border: 1px solid #f59e0b;
     color: #fbbf24;
+}
+
+/* ===== LISTA DE SUCURSALES ===== */
+.lista-sucursales {
+    max-height: 260px;
+    overflow-y: auto;
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Fila */
+.sucursal-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: #141414;
+    border: 1px solid #1f1f1f;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sucursal-item:hover {
+    background: #1a1a1a;
+    border-color: #333;
+}
+
+/* Checkbox custom */
+.sucursal-item input[type="checkbox"] {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #444;
+    border-width: 1.5px;
+    border-radius: 4px;
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sucursal-item input[type="checkbox"]::before {
+    content: "✔";
+    font-size: 10px;
+    color: #fff;
+    transform: scale(0);
+    transition: transform 0.15s ease;
+}
+
+.sucursal-item input[type="checkbox"]:checked {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+.sucursal-item input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+/* Texto */
+.sucursal-texto {
+    color: #e5e5e5;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Scroll moderno */
+.lista-sucursales::-webkit-scrollbar {
+    width: 6px;
+}
+
+.lista-sucursales::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.lista-sucursales::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+    border-radius: 10px;
+}
+
+.lista-sucursales::-webkit-scrollbar-thumb:hover {
+    background: #444;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -279,7 +376,8 @@ button:active {
         font-size: 13px;
     }
 
-    input, select {
+    input,
+    select {
         font-size: 13px;
         padding: 11px 12px;
     }

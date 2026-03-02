@@ -77,12 +77,29 @@
                 <p class="file-hint">Puede registrar la visita sin imágenes o precios, siempre que complete cliente,
                     sucursal y una de las anteriores</p>
             </div>
+            <div class="indicacion-final elegante">
+                <div class="icono-advertencia">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="texto-indicacion">
+                    <p class="indicacion-titulo">Paso final</p>
+                    <p class="indicacion-descripcion">
+                        Para completar la carga de la visita, debe presionar el botón
+                    </p>
+                </div>
+            </div>
 
             <button type="submit" class="btn-registrar">
                 <i class="fas fa-paper-plane" style="margin-right:8px;"></i>Registrar Visita
             </button>
 
         </form>
+    </div>
+
+    <!-- ── TOAST ÉXITO ── -->
+    <div id="toast-exito" class="toast-exito">
+        <i class="fas fa-check-circle"></i>
+        <span>Registro exitoso</span>
     </div>
 
     <script>
@@ -149,17 +166,17 @@
                 const div = document.createElement('div');
                 div.className = 'prod-item';
                 div.innerHTML = `
-            <span class="prod-nombre">${p.Descripcion}</span>
-            <div class="prod-controles">
-                <input type="number" step="0.01" min="0" class="precio-input"
-                       placeholder="$ —" value="${guardado.precio}"
-                       oninput="guardarProgreso(${p.ID}, this.value, null)">
-                <label class="label-oferta">
-                    <input type="checkbox" ${guardado.oferta ? 'checked' : ''}
-                           onchange="guardarProgreso(${p.ID}, null, this.checked)">
-                    Oferta
-                </label>
-            </div>`;
+                    <span class="prod-nombre">${p.Descripcion}</span>
+                    <div class="prod-controles">
+                        <input type="number" step="0.01" min="0" class="precio-input"
+                               placeholder="$ —" value="${guardado.precio}"
+                               oninput="guardarProgreso(${p.ID}, this.value, null)">
+                        <label class="label-oferta">
+                            <input type="checkbox" ${guardado.oferta ? 'checked' : ''}
+                                   onchange="guardarProgreso(${p.ID}, null, this.checked)">
+                            Oferta
+                        </label>
+                    </div>`;
                 prodContenedor.appendChild(div);
             });
         }
@@ -177,7 +194,7 @@
             renderizar(productosOriginales.filter(p => p.Descripcion.toLowerCase().includes(q)));
         });
 
-        // 6. FOTOS — label dinámico y límite
+        // 6. FOTOS
         inputFotos.addEventListener('change', function () {
             const previewContenedor = document.getElementById('previewFotos');
             if (this.files.length > 3) {
@@ -187,18 +204,18 @@
                 previewContenedor.innerHTML = '';
                 return;
             }
+
             labelFotos.textContent = this.files.length > 0
                 ? `${this.files.length} foto${this.files.length > 1 ? 's' : ''} seleccionada${this.files.length > 1 ? 's' : ''}`
                 : 'Seleccionar fotos (máx. 3)';
 
-            // Generar vista previa
             previewContenedor.innerHTML = '';
             Array.from(this.files).forEach(file => {
                 const url = URL.createObjectURL(file);
                 const img = document.createElement('img');
                 img.src = url;
                 img.className = 'preview-img';
-                img.onload = () => URL.revokeObjectURL(url); // Liberar memoria
+                img.onload = () => URL.revokeObjectURL(url);
                 previewContenedor.appendChild(img);
             });
         });
@@ -207,11 +224,9 @@
         document.getElementById('visitaForm').addEventListener('submit', async e => {
             e.preventDefault();
 
-            // Validar selects
             if (!clienteSel.value) { alert('Seleccioná un cliente.'); return; }
             if (!sucursalSel.value) { alert('Seleccioná una sucursal.'); return; }
 
-            // Fotos
             const archivos = inputFotos.files;
             for (let i = 0; i < archivos.length; i++) {
                 if (archivos[i].size > 2 * 1024 * 1024) {
@@ -220,7 +235,6 @@
                 }
             }
 
-            // Productos con precio cargado (puede ser vacío — es opcional)
             const productosParaEnviar = Object.keys(datosIngresados)
                 .filter(id => datosIngresados[id].precio !== '' && parseFloat(datosIngresados[id].precio) > 0)
                 .map(id => ({
@@ -229,7 +243,6 @@
                     oferta: datosIngresados[id].oferta
                 }));
 
-            // Necesita al menos fotos o productos
             if (productosParaEnviar.length === 0 && archivos.length === 0) {
                 alert('Cargá al menos una foto o el precio de algún producto.');
                 return;
@@ -252,8 +265,10 @@
                 const res = await fetch('/api/cargar-visita', { method: 'POST', body: formData });
                 const data = await res.json();
                 if (data.success) {
-                    alert('Registro exitoso.');
-                    window.location.href = 'inicioRepositor.html';
+                    mostrarToast();
+                    setTimeout(() => {
+                        window.location.href = 'inicioRepositor.html';
+                    }, 1600);
                 } else {
                     alert('Error: ' + data.error);
                 }
@@ -261,7 +276,18 @@
                 alert('Error de conexión con el servidor.');
             }
         });
+
+        // ── TOAST ──
+        function mostrarToast() {
+            const toast = document.getElementById('toast-exito');
+            toast.classList.add('activo');
+
+            setTimeout(() => {
+                toast.classList.remove('activo');
+            }, 1400);
+        }
     </script>
+
 </body>
 
 </html>

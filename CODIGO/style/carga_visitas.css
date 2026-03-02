@@ -357,6 +357,88 @@ select option {
     transform: translateY(0);
 }
 
+.toast-exito {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid #2a2a2a;
+    color: #fff;
+    padding: 14px 24px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s ease;
+    z-index: 9999;
+}
+
+/* Estado visible */
+.toast-exito.activo {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast-exito i {
+    color: #22c55e;
+    /* verde éxito */
+    font-size: 18px;
+}
+
+.indicacion-final.elegante {
+    margin: 25px 0 15px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.08), rgba(220, 38, 38, 0.02));
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.icono-advertencia {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 50%;
+    background: rgba(220, 38, 38, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icono-advertencia i {
+    color: #dc2626;
+    font-size: 20px;
+}
+
+.texto-indicacion {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.indicacion-titulo {
+    font-size: 13px;
+    font-weight: 700;
+    color: #dc2626;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.indicacion-descripcion {
+    font-size: 13px;
+    color: #ddd;
+    line-height: 1.4;
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
     .header {
