@@ -424,7 +424,6 @@ h1 span {
     color: #dc2626;
 }
 
-.lightbox-close,
 .lightbox-prev,
 .lightbox-next {
     position: absolute;
@@ -441,11 +440,6 @@ h1 span {
     font-size: 14px;
     transition: border-color 0.2s, color 0.2s, background 0.2s;
     backdrop-filter: blur(8px);
-}
-
-.lightbox-close {
-    top: 20px;
-    right: 20px;
 }
 
 .lightbox-prev {

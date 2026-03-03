@@ -426,6 +426,9 @@ app.get('/api/imagenes-aprobadas-cliente', async (req, res, next) => {
                    ca.Nombre AS Cadena,
                    s.Localidad,
                    s.Calle + ' ' + ISNULL(CAST(s.Altura AS VARCHAR),'') AS Sucursal,
+                   sz.Nombre AS SubzonaNombre,
+                   z.Nombre AS ZonaNombre,
+                   tc.Tipo  AS CanalTipo,
                    im.ID          AS idImagen,
                    im.Ruta_Imagen,
                    im.Estado      AS EstadoImagen
@@ -433,6 +436,9 @@ app.get('/api/imagenes-aprobadas-cliente', async (req, res, next) => {
             JOIN Usuario uRepo ON v.ID_Repo = uRepo.ID
             JOIN Sucursal s   ON v.ID_Sucursal = s.ID
             JOIN Cadena ca    ON s.ID_Cadena = ca.ID
+            LEFT JOIN Subzona sz ON s.ID_Subzona = sz.ID
+            LEFT JOIN Zona z     ON sz.ID_Zona = z.ID
+            LEFT JOIN Tipo_Cadena tc ON ca.ID_Tipo = tc.ID
             JOIN Imagen im    ON im.ID_Visita = v.ID
             WHERE v.ID_Cliente = @id
               AND im.Estado = 'Aprobado'
@@ -450,6 +456,9 @@ app.get('/api/imagenes-aprobadas-cliente', async (req, res, next) => {
                     cadena: r.Cadena,
                     localidad: r.Localidad,
                     sucursal: r.Sucursal,
+                    subzona: r.SubzonaNombre,
+                    zona: r.ZonaNombre,
+                    canal: r.CanalTipo,
                     imagenes: []
                 };
             }
@@ -474,6 +483,9 @@ app.get('/api/imagenes-visitas', async (req, res, next) => {
                    ca.Nombre AS Cadena,
                    s.Localidad,
                    s.Calle + ' ' + ISNULL(CAST(s.Altura AS VARCHAR),'') AS Sucursal,
+                   sz.Nombre AS SubzonaNombre,
+                   z.Nombre  AS ZonaNombre,
+                   tc.Tipo   AS CanalTipo,
                    im.ID           AS idImagen,
                    im.Ruta_Imagen,
                    im.Estado       AS EstadoImagen,
@@ -483,6 +495,9 @@ app.get('/api/imagenes-visitas', async (req, res, next) => {
             JOIN Usuario uCliente ON v.ID_Cliente = uCliente.ID
             JOIN Sucursal s      ON v.ID_Sucursal = s.ID
             JOIN Cadena ca       ON s.ID_Cadena = ca.ID
+            LEFT JOIN Subzona sz ON s.ID_Subzona = sz.ID
+            LEFT JOIN Zona z     ON sz.ID_Zona = z.ID
+            LEFT JOIN Tipo_Cadena tc ON ca.ID_Tipo = tc.ID
             JOIN Imagen im       ON im.ID_Visita = v.ID
             LEFT JOIN Carga c    ON c.ID_Visita = v.ID
             ORDER BY v.Fecha DESC
@@ -501,6 +516,9 @@ app.get('/api/imagenes-visitas', async (req, res, next) => {
                     cadena: r.Cadena,
                     localidad: r.Localidad,
                     sucursal: r.Sucursal,
+                    subzona: r.SubzonaNombre,
+                    zona: r.ZonaNombre,
+                    canal: r.CanalTipo,
                     estadoCarga: r.EstadoCarga || 'Pendiente',
                     imagenes: []
                 };

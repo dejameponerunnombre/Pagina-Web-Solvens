@@ -38,6 +38,44 @@
             z-index: 10001 !important;
         }
 
+        .lightbox-actions {
+            position: absolute;
+            top: 32px;
+            right: 40px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            z-index: 10002;
+        }
+
+        .lightbox-actions button {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: rgba(15, 23, 42, 0.88);
+            color: #e5e7eb;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease;
+        }
+
+        .lightbox-actions button i {
+            font-size: 18px;
+        }
+
+        .lightbox-actions button:hover {
+            transform: translateY(-1px) scale(1.05);
+            background: rgba(220, 38, 38, 0.95);
+            color: #fff;
+            box-shadow: 0 16px 35px rgba(0, 0, 0, 0.65);
+        }
+
         /* Info Card in Lightbox (The "Cartel") */
         .lightbox-meta {
             position: relative;
@@ -154,12 +192,36 @@
                 </div>
                 <div class="grupo-filtro">
                     <div class="filtro-header">
-                        <label class="label-filtro">Repositor</label>
+                        <label class="label-filtro">Zona</label>
                         <i class="fas fa-chevron-down icono-toggle"></i>
                     </div>
                     <div class="filtro-contenido">
-                        <p class="descripcion-filtro">Seleccione el repositor:</p>
-                        <select class="select-filtro" id="filtroRepo">
+                        <p class="descripcion-filtro">Seleccione la zona:</p>
+                        <select class="select-filtro" id="filtroZona">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grupo-filtro">
+                    <div class="filtro-header">
+                        <label class="label-filtro">Subzona</label>
+                        <i class="fas fa-chevron-down icono-toggle"></i>
+                    </div>
+                    <div class="filtro-contenido">
+                        <p class="descripcion-filtro">Seleccione la subzona:</p>
+                        <select class="select-filtro" id="filtroSubzona">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grupo-filtro">
+                    <div class="filtro-header">
+                        <label class="label-filtro">Canal</label>
+                        <i class="fas fa-chevron-down icono-toggle"></i>
+                    </div>
+                    <div class="filtro-contenido">
+                        <p class="descripcion-filtro">Seleccione el canal:</p>
+                        <select class="select-filtro" id="filtroCanal">
                             <option value="">Todos</option>
                         </select>
                     </div>
@@ -184,7 +246,14 @@
     </footer>
 
     <div class="lightbox" id="lightbox">
-        <button class="lightbox-close" id="lightbox-close"><i class="fas fa-times"></i></button>
+        <div class="lightbox-actions">
+            <button class="lightbox-download" id="lightbox-download" title="Descargar imagen seleccionada">
+                <i class="fas fa-download"></i>
+            </button>
+            <button class="lightbox-close" id="lightbox-close" title="Cerrar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
         <button class="lightbox-prev" id="lightbox-prev"><i class="fas fa-chevron-left"></i></button>
         <!-- visit metadata shown when lightbox is open -->
         <div id="lightbox-meta" class="lightbox-meta"></div>
@@ -244,7 +313,6 @@
                 <span><i class="fas fa-building"></i> <strong>${v.cadena}</strong></span>
                 <span><i class="fas fa-map-marker-alt"></i> ${v.sucursal} - ${v.localidad}</span>
                 <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
-                <span><i class="fas fa-user"></i> ${v.repositor}</span>
             </div>
         </div>`;
             wireImages();
@@ -264,14 +332,18 @@
             };
             llenar('filtroCadena', makeOptions(visitasData.map(v => v.cadena)), 'Cadena (todas)');
             llenar('filtroSucursal', makeOptions(visitasData.map(v => v.sucursal)), 'Sucursal (todas)');
-            llenar('filtroRepo', makeOptions(visitasData.map(v => v.repositor)), 'Repositor (todos)');
+            llenar('filtroZona', makeOptions(visitasData.map(v => v.zona)), 'Zona (todas)');
+            llenar('filtroSubzona', makeOptions(visitasData.map(v => v.subzona)), 'Subzona (todas)');
+            llenar('filtroCanal', makeOptions(visitasData.map(v => v.canal)), 'Canal (todos)');
         }
         function applyFilters() {
             const fDesde = document.getElementById('fechaDesde').value;
             const fHasta = document.getElementById('fechaHasta').value;
             const fCad = document.getElementById('filtroCadena').value;
             const fSuc = document.getElementById('filtroSucursal').value;
-            const fR = document.getElementById('filtroRepo').value;
+            const fZona = document.getElementById('filtroZona').value;
+            const fSubzona = document.getElementById('filtroSubzona').value;
+            const fCanal = document.getElementById('filtroCanal').value;
             filteredVisitas = visitasData.filter(v => {
                 if (fDesde) {
                     const vDate = new Date(v.fecha).setHours(0, 0, 0, 0);
@@ -285,7 +357,9 @@
                 }
                 if (fCad && v.cadena !== fCad) return false;
                 if (fSuc && v.sucursal !== fSuc) return false;
-                if (fR && v.repositor !== fR) return false;
+                if (fZona && v.zona !== fZona) return false;
+                if (fSubzona && v.subzona !== fSubzona) return false;
+                if (fCanal && v.canal !== fCanal) return false;
                 return true;
             });
             visitaIndex = 0;
@@ -298,7 +372,7 @@
             renderVisita(visitaIndex);
         }
         function clearFilters() {
-            ['fechaDesde', 'fechaHasta', 'filtroCadena', 'filtroSucursal', 'filtroRepo']
+            ['fechaDesde', 'fechaHasta', 'filtroCadena', 'filtroSucursal', 'filtroZona', 'filtroSubzona', 'filtroCanal']
                 .forEach(id => document.getElementById(id).value = '');
             applyFilters();
         }
@@ -327,6 +401,7 @@
         // lightbox helpers
         const lightbox = document.getElementById('lightbox');
         const lbImg = document.getElementById('lightbox-img');
+        const lbDownload = document.getElementById('lightbox-download');
         let currentImg = 0;
         function openLightbox(index) {
             currentImg = index;
@@ -349,7 +424,6 @@
                     <span><i class="fas fa-building"></i> <strong>${v.cadena}</strong></span>
                     <span><i class="fas fa-map-marker-alt"></i> ${v.sucursal} - ${v.localidad}</span>
                     <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
-                    <span><i class="fas fa-user"></i> ${v.repositor}</span>
                 `;
             }
         }
@@ -361,6 +435,19 @@
             e.stopPropagation();
             closeLightbox();
         };
+        if (lbDownload) {
+            lbDownload.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!lbImg || !lbImg.src) return;
+                const link = document.createElement('a');
+                link.href = lbImg.src;
+                const parts = lbImg.src.split('/');
+                link.download = parts[parts.length - 1] || 'imagen.jpg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
         document.getElementById('lightbox-prev').addEventListener('click', () => {
             if (currentImg > 0) {
                 currentImg--;
