@@ -27,7 +27,7 @@
             <h1>Panel de <span>Administrador</span></h1>
             <p>Gestión interna del sistema</p>
         </div>
-
+<!--
         <div class="grid-acciones">
             <div class="tarjeta-accion">
                 <i class="fa-solid fa-boxes-stacked"></i>
@@ -35,7 +35,7 @@
                 <p>Gestión de productos del sistema.</p>
                 <a class="btn-entrar" href="Admin_gestion_producto.html">Gestionar Productos</a>
             </div>
-
+-->
             <div class="tarjeta-accion">
                 <i class="fa-solid fa-users-gear"></i>
                 <h3>Administración Usuario</h3>
@@ -76,6 +76,20 @@
     <footer class="footer-contacto">
         <p>Panel de Control Interno | Grupo Solvens</p>
     </footer>
+
+    <script>
+        document.querySelectorAll(".tarjeta-accion").forEach(function(card) {
+            var link = card.querySelector(".btn-entrar");
+            if (link) {
+                card.style.cursor = "pointer";
+                card.addEventListener("click", function(e) {
+                    if (!e.target.closest(".btn-entrar")) {
+                        window.location.href = link.href;
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
