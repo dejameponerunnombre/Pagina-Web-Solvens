@@ -130,6 +130,8 @@ body::before {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    position: relative;
+    cursor: pointer;
 }
 
 .tarjeta-accion:hover {

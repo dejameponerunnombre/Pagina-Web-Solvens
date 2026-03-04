@@ -59,4 +59,18 @@
     </footer>
 </body>
 
+    <script>
+    document.querySelectorAll(".tarjeta-accion").forEach(function(card) {
+        var link = card.querySelector(".btn-entrar");
+        if (link) {
+            card.style.cursor = "pointer";
+            card.addEventListener("click", function(e) {
+                if (!e.target.closest(".btn-entrar")) {
+                    window.location.href = link.href;
+                    }
+                });
+            }
+        });
+    </script>
+
 </html>
