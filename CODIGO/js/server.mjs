@@ -408,7 +408,7 @@ app.get('/api/mis-sucursales', async (req, res, next) => {
 
 // IMÁGENES APROBADAS POR CLIENTE
 app.get('/api/imagenes-aprobadas-cliente', async (req, res, next) => {
-    const { id_cliente } = req.query;
+    const { id_cliente, latest } = req.query;
     if (!id_cliente) return res.status(400).json({ error: 'Falta id_cliente' });
     try {
         // validar que se trate de un cliente
@@ -419,31 +419,71 @@ app.get('/api/imagenes-aprobadas-cliente', async (req, res, next) => {
         if (check.recordset.length === 0)
             return res.status(403).json({ error: 'Acceso no autorizado' });
 
-        const query = `
-            SELECT v.ID AS idVisita,
-                   v.Fecha,
-                   uRepo.Nombre AS Repositor,
-                   ca.Nombre AS Cadena,
-                   s.Localidad,
-                   s.Calle + ' ' + ISNULL(CAST(s.Altura AS VARCHAR),'') AS Sucursal,
-                   sz.Nombre AS SubzonaNombre,
-                   z.Nombre AS ZonaNombre,
-                   tc.Tipo  AS CanalTipo,
-                   im.ID          AS idImagen,
-                   im.Ruta_Imagen,
-                   im.Estado      AS EstadoImagen
-            FROM Visita v
-            JOIN Usuario uRepo ON v.ID_Repo = uRepo.ID
-            JOIN Sucursal s   ON v.ID_Sucursal = s.ID
-            JOIN Cadena ca    ON s.ID_Cadena = ca.ID
-            LEFT JOIN Subzona sz ON s.ID_Subzona = sz.ID
-            LEFT JOIN Zona z     ON sz.ID_Zona = z.ID
-            LEFT JOIN Tipo_Cadena tc ON ca.ID_Tipo = tc.ID
-            JOIN Imagen im    ON im.ID_Visita = v.ID
-            WHERE v.ID_Cliente = @id
-              AND im.Estado = 'Aprobado'
-            ORDER BY v.Fecha DESC
-        `;
+        let query = "";
+        if (latest === '1') {
+            // Caso Reporte: Solo la última visita por cada Sucursal
+            query = `
+                WITH LatestVisits AS (
+                    SELECT v.ID as idVisitaRow, v.ID_Sucursal as idSucursalRow,
+                           ROW_NUMBER() OVER (PARTITION BY v.ID_Sucursal ORDER BY v.Fecha DESC, v.ID DESC) as rn
+                    FROM Visita v
+                    WHERE v.ID_Cliente = @id
+                      AND EXISTS (SELECT 1 FROM Imagen im WHERE im.ID_Visita = v.ID AND im.Estado = 'Aprobado')
+                )
+                SELECT v.ID AS idVisita,
+                       v.Fecha,
+                       uRepo.Nombre AS Repositor,
+                       ca.Nombre AS Cadena,
+                       s.Localidad,
+                       s.Calle + ' ' + ISNULL(CAST(s.Altura AS VARCHAR),'') AS Sucursal,
+                       sz.Nombre AS SubzonaNombre,
+                       z.Nombre AS ZonaNombre,
+                       tc.Tipo  AS CanalTipo,
+                       im.ID          AS idImagen,
+                       im.Ruta_Imagen,
+                       im.Estado      AS EstadoImagen
+                FROM LatestVisits lv
+                JOIN Visita v ON lv.idVisitaRow = v.ID
+                JOIN Usuario uRepo ON v.ID_Repo = uRepo.ID
+                JOIN Sucursal s   ON v.ID_Sucursal = s.ID
+                JOIN Cadena ca    ON s.ID_Cadena = ca.ID
+                LEFT JOIN Subzona sz ON s.ID_Subzona = sz.ID
+                LEFT JOIN Zona z     ON sz.ID_Zona = z.ID
+                LEFT JOIN Tipo_Cadena tc ON ca.ID_Tipo = tc.ID
+                JOIN Imagen im    ON im.ID_Visita = v.ID
+                WHERE lv.rn = 1
+                  AND im.Estado = 'Aprobado'
+                ORDER BY v.Fecha DESC, v.ID DESC
+            `;
+        } else {
+            // Caso Galería: Todas las visitas
+            query = `
+                SELECT v.ID AS idVisita,
+                       v.Fecha,
+                       uRepo.Nombre AS Repositor,
+                       ca.Nombre AS Cadena,
+                       s.Localidad,
+                       s.Calle + ' ' + ISNULL(CAST(s.Altura AS VARCHAR),'') AS Sucursal,
+                       sz.Nombre AS SubzonaNombre,
+                       z.Nombre AS ZonaNombre,
+                       tc.Tipo  AS CanalTipo,
+                       im.ID          AS idImagen,
+                       im.Ruta_Imagen,
+                       im.Estado      AS EstadoImagen
+                FROM Visita v
+                JOIN Usuario uRepo ON v.ID_Repo = uRepo.ID
+                JOIN Sucursal s   ON v.ID_Sucursal = s.ID
+                JOIN Cadena ca    ON s.ID_Cadena = ca.ID
+                LEFT JOIN Subzona sz ON s.ID_Subzona = sz.ID
+                LEFT JOIN Zona z     ON sz.ID_Zona = z.ID
+                LEFT JOIN Tipo_Cadena tc ON ca.ID_Tipo = tc.ID
+                JOIN Imagen im    ON im.ID_Visita = v.ID
+                WHERE v.ID_Cliente = @id
+                  AND im.Estado = 'Aprobado'
+                ORDER BY v.Fecha DESC, v.ID DESC
+            `;
+        }
+
         const result = await ejecutarQuery(query, [{ name: 'id', type: mssql.SmallInt, value: id_cliente }]);
         // agrupar por visita
         const grouped = {};
@@ -468,7 +508,18 @@ app.get('/api/imagenes-aprobadas-cliente', async (req, res, next) => {
                 estado: r.EstadoImagen
             });
         });
-        res.json(Object.values(grouped));
+        // IMPORTANTE: Para mantener el orden de la consulta SQL, NO usaremos Object.values directamente
+        // si idVisita es numérico porque JS lo re-ordena. Usaremos un array con el orden de aparición.
+        const finalArray = [];
+        const seen = new Set();
+        result.recordset.forEach(r => {
+            if (!seen.has(r.idVisita)) {
+                finalArray.push(grouped[r.idVisita]);
+                seen.add(r.idVisita);
+            }
+        });
+
+        res.json(finalArray);
     } catch (e) { next(e); }
 });
 

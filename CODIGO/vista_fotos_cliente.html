@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="style/vista_fotos.css">
     <!-- use same footer styling as inicioCliente -->
     <link rel="stylesheet" href="style/inicio.css">
+    <!-- PptxGenJS Library -->
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <style>
         /* navigation between visits (copied from admin page) */
         .visita-nav {
@@ -116,6 +118,44 @@
             color: #dc2626;
             width: 16px;
         }
+
+        /* PPTX Button Styling */
+        .btn-pptx {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+            margin-right: 15px;
+        }
+
+        .btn-pptx:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(211, 47, 47, 0.4);
+        }
+
+        .btn-pptx i {
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .btn-pptx span {
+                display: none;
+            }
+
+            .btn-pptx {
+                padding: 10px;
+                margin-right: 5px;
+            }
+        }
     </style>
 </head>
 
@@ -134,11 +174,15 @@
                 <i class="fas fa-filter"></i>
                 <span>Filtros</span>
             </button>
+            <button id="btnExportarPPTX" class="btn-pptx" title="Generar reporte PowerPoint" style="margin-left: 15px;">
+                <i class="fas fa-file-powerpoint"></i>
+                <span>Exportar PPTX</span>
+            </button>
         </div>
         <div class="header-center">
             <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
         </div>
-        <div class="header-right">
+        <div class="header-right" style="display: flex; align-items: center;">
             <a href="login.html" class="btn-salir">Cerrar Sesión</a>
         </div>
     </header>
@@ -496,6 +540,135 @@
             visitaIndex = (visitaIndex + 1) % filteredVisitas.length;
             renderVisita(visitaIndex);
         });
+
+        // --- LÓGICA GENERACIÓN PPTX ---
+        async function generarReportePPTX() {
+            const idCliente = localStorage.getItem('id_usuario');
+            if (!idCliente) return;
+
+            const btn = document.getElementById('btnExportarPPTX');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Generando...</span>';
+            btn.disabled = true;
+
+            try {
+                // 1. Obtener los datos frescos del servidor (ya filtrados por la última visita por PDV)
+                const res = await fetch(`${URL_BASE}/imagenes-aprobadas-cliente?id_cliente=${idCliente}&latest=1`);
+                if (!res.ok) throw new Error("Error en la descarga de datos");
+                const ultimasVisitas = await res.json();
+
+                if (!ultimasVisitas || ultimasVisitas.length === 0) {
+                    alert("No hay visitas aprobadas recientes para exportar.");
+                    return;
+                }
+
+                const pres = new PptxGenJS();
+                pres.layout = 'LAYOUT_16x9';
+
+                // --- A. DIAPOSITIVA DE PORTADA ---
+                let coverSlide = pres.addSlide();
+                coverSlide.background = { color: 'DC2626' }; // Rojo Solvens
+                coverSlide.addText('Grupo Solvens', {
+                    x: 0, y: 1.5, w: '100%', h: 1,
+                    fontSize: 44, color: 'FFFFFF', bold: true, align: 'center'
+                });
+                coverSlide.addText('Reporte de Evidencia Fotográfica', {
+                    x: 0, y: 2.5, w: '100%', h: 0.8,
+                    fontSize: 24, color: 'FFFFFF', align: 'center'
+                });
+                coverSlide.addText(`Exportado el: ${new Date().toLocaleDateString('es-AR')}`, {
+                    x: 0, y: 3.5, w: '100%', h: 0.5,
+                    fontSize: 14, color: 'FFFFFF', italic: true, align: 'center'
+                });
+
+                // --- B. GENERACIÓN DE DIAPOSITIVAS POR PDV ---
+                ultimasVisitas.forEach((v, vIdx) => {
+                    let slide = pres.addSlide();
+
+                    // Barra superior decorativa manual (Usamos un bloque con fondo para máxima compatibilidad)
+                    slide.addText("", {
+                        x: 0, y: 0, w: '100%', h: 0.4,
+                        fill: { color: 'DC2626' }
+                    });
+                    slide.addText('Grupo Solvens', {
+                        x: 8.5, y: 0.1, w: 1.5, h: 0.3,
+                        color: 'FFFFFF', fontSize: 10, align: 'right'
+                    });
+
+                    // Datos del PDV
+                    slide.addText(`${v.cadena}`, {
+                        x: 0.5, y: 0.6, w: 9, h: 0.4,
+                        fontSize: 20, color: 'DC2626', bold: true
+                    });
+
+                    slide.addText(`${v.sucursal} - ${v.localidad}`, {
+                        x: 0.5, y: 1.0, w: 9, h: 0.3,
+                        fontSize: 13, color: '333333'
+                    });
+
+                    slide.addText(`Fecha visita: ${new Date(v.fecha).toLocaleDateString('es-AR')}`, {
+                        x: 0.5, y: 1.3, w: 9, h: 0.3,
+                        fontSize: 11, color: '666666', italic: true
+                    });
+
+                    // Numeración
+                    slide.addText(`Pág. ${vIdx + 1} de ${ultimasVisitas.length}`, {
+                        x: 8.5, y: 5.3, w: 1, h: 0.3,
+                        fontSize: 10, color: '999999', align: 'right'
+                    });
+
+                    // Imágenes
+                    const imgs = v.imagenes;
+                    if (imgs.length > 0) {
+                        const marginX = 0.5;
+                        const marginY = 1.7;
+
+                        imgs.forEach((img, idx) => {
+                            let x, y, w, h;
+                            if (imgs.length === 1) {
+                                w = 7.0; h = 3.6;
+                                x = (10 - w) / 2;
+                                y = marginY;
+                            } else if (imgs.length === 2) {
+                                w = 4.4; h = 3.6;
+                                x = marginX + (idx * 4.6);
+                                y = marginY;
+                            } else if (imgs.length === 3 || imgs.length === 4) {
+                                w = 4.4; h = 1.7;
+                                x = marginX + ((idx % 2) * 4.6);
+                                y = marginY + (Math.floor(idx / 2) * 1.9);
+                            } else {
+                                w = 2.9; h = 1.7;
+                                x = marginX + ((idx % 3) * 3.1);
+                                y = marginY + (Math.floor(idx / 3) * 1.9);
+                            }
+
+                            slide.addImage({
+                                path: `../IMG/${img.ruta}`,
+                                x: x, y: y, w: w, h: h,
+                                sizing: { type: 'contain', w: w, h: h }
+                            });
+                        });
+                    } else {
+                        slide.addText("Sin imágenes aprobadas", {
+                            x: 0.5, y: 3, w: 9, h: 1,
+                            fontSize: 16, color: '999999', align: 'center'
+                        });
+                    }
+                });
+
+                const nombreArchivo = `Reporte_Solvens_${new Date().toISOString().split('T')[0]}.pptx`;
+                await pres.writeFile({ fileName: nombreArchivo });
+            } catch (err) {
+                console.error("Error al generar PPTX:", err);
+                alert("Hubo un error al generar el PowerPoint.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        document.getElementById('btnExportarPPTX').addEventListener('click', generarReportePPTX);
 
         document.addEventListener('DOMContentLoaded', cargarVisitasCliente);
     </script>
