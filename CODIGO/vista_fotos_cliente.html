@@ -119,7 +119,29 @@
             width: 16px;
         }
 
-        /* PPTX Button Styling */
+        /* Botón Volver */
+        .btn-volver {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            /* Eliminado contorno */
+            color: #ef4444;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-volver:hover {
+            background: #ef4444;
+            color: white;
+            transform: translateX(-3px);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+
         .btn-pptx {
             background: #d32f2f;
             color: white;
@@ -129,21 +151,21 @@
             cursor: pointer;
             display: flex;
             align-items: center;
+            flex-direction: row;
+            /* Asegurar misma fila */
+            flex-wrap: nowrap;
             gap: 10px;
             font-weight: 600;
             transition: all 0.2s;
             box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
             margin-right: 15px;
+            white-space: nowrap;
         }
 
         .btn-pptx:hover {
             background: #b71c1c;
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(211, 47, 47, 0.4);
-        }
-
-        .btn-pptx i {
-            font-size: 1.1em;
         }
 
         @media (max-width: 768px) {
@@ -153,7 +175,6 @@
 
             .btn-pptx {
                 padding: 10px;
-                margin-right: 5px;
             }
         }
     </style>
@@ -163,12 +184,8 @@
 
     <header class="header">
         <div class="header-left">
-            <a href="inicioCliente.html" class="btn-volver">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12" />
-                    <polyline points="12 19 5 12 12 5" />
-                </svg>
+            <a href="inicioCliente.html" class="btn-volver" title="Volver al inicio">
+                <i class="fas fa-arrow-left"></i>
             </a>
             <button class="btn-toggle-sidebar" id="btnToggleSidebar">
                 <i class="fas fa-filter"></i>
@@ -276,13 +293,19 @@
                 </div>
             </aside>
 
-            <div class="visita-nav">
-                <button id="prevVisita" class="nav-btn"><i class="fas fa-chevron-left"></i></button>
-                <div id="contenedorVisitas"></div>
-                <button id="nextVisita" class="nav-btn"><i class="fas fa-chevron-right"></i></button>
-            </div>
+            <div id="contenedorVisitas" style="width: 100%;"></div>
         </div>
     </main>
+
+    <!-- Navegación entre visitas (Fija a los costados) -->
+    <div class="nav-container" id="navVisitas" style="display: none;">
+        <button class="btn-nav-visita" id="prevVisita" title="Visita Anterior">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="btn-nav-visita" id="nextVisita" title="Siguiente Visita">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
 
     <footer class="footer-contacto">
         <p><i class="fa-solid fa-envelope"></i> contacto@gruposolvens.com | <i class="fa-solid fa-phone"></i> +54 11
@@ -290,19 +313,30 @@
     </footer>
 
     <div class="lightbox" id="lightbox">
-        <div class="lightbox-actions">
-            <button class="lightbox-download" id="lightbox-download" title="Descargar imagen seleccionada">
+        <button class="lightbox-prev" id="lightbox-prev" title="Imagen anterior">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="lightbox-next" id="lightbox-next" title="Siguiente imagen">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <div class="lightbox-controls">
+            <button class="btn-control" id="lightbox-download" title="Descargar">
                 <i class="fas fa-download"></i>
             </button>
-            <button class="lightbox-close" id="lightbox-close" title="Cerrar">
+            <button class="btn-control" id="lightbox-close" title="Cerrar">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <button class="lightbox-prev" id="lightbox-prev"><i class="fas fa-chevron-left"></i></button>
-        <!-- visit metadata shown when lightbox is open -->
-        <div id="lightbox-meta" class="lightbox-meta"></div>
+
         <img class="lightbox-img" id="lightbox-img" src="" alt="">
-        <button class="lightbox-next" id="lightbox-next"><i class="fas fa-chevron-right"></i></button>
+
+        <div class="lightbox-info">
+            <div id="lightbox-info-content" style="display:contents;"></div>
+            <button class="btn-control-inline" id="lightbox-rotate" title="Rotar">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
     </div>
 
     <script>
@@ -337,32 +371,43 @@
         function renderVisita(idx) {
             const v = filteredVisitas[idx];
             const cont = document.getElementById('contenedorVisitas');
+
             const imgsHtml = v.imagenes.map((img, i) => {
                 return `
-                <li>
-                    <div${i === 0 ? ' class="scroll-start"' : ''}>
-                        <div class="img">
-                            <button class="btn-rotar" title="Rotar imagen" onclick="rotarImagen(this, event)">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                            <img src="../IMG/${img.ruta}" alt="Foto ${i + 1}" data-rotation="0">
+                <div class="foto-card" onclick="openLightbox(${i})">
+                    <div class="foto-wrapper">
+                        <img src="../IMG/${img.ruta}" alt="Foto ${i + 1}" data-rotation="0" class="img-preview">
+                    </div>
+                    <button class="btn-rotar-gallery" onclick="rotarImagenGaleria(this, event)" title="Rotar vista">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>`;
+            }).join('');
+
+            cont.innerHTML = `
+                <div class="visita-seccion">
+                    <div class="visita-header">
+                        <h1>${v.cadena}</h1>
+                        <div class="sub">
+                            <i class="fas fa-map-marker-alt"></i> ${v.sucursal} - ${v.localidad} | 
+                            <i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR', { timeZone: 'UTC' })}
                         </div>
                     </div>
-                </li>`;
-            }).join('');
-            cont.innerHTML = `
-        <div class="visita-bloque" data-id="${v.id}">
-            <ul class="carousel">${imgsHtml}</ul>
-            <div class="visita-meta">
-                <span><i class="fas fa-building"></i> <strong>${v.cadena}</strong></span>
-                <span><i class="fas fa-map-marker-alt"></i> ${v.sucursal} - ${v.localidad}</span>
-                <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
-            </div>
-        </div>`;
-            wireImages();
-            const showNav = filteredVisitas.length > 1;
-            document.getElementById('prevVisita').style.display = showNav ? 'inline-block' : 'none';
-            document.getElementById('nextVisita').style.display = showNav ? 'inline-block' : 'none';
+                    <div class="galeria-grid">
+                        ${imgsHtml}
+                    </div>
+                </div>`;
+
+            const nav = document.getElementById('navVisitas');
+            if (nav) nav.style.display = filteredVisitas.length > 1 ? 'flex' : 'none';
+        }
+
+        function rotarImagenGaleria(btn, e) {
+            e.stopPropagation();
+            const img = btn.parentElement.querySelector('img');
+            let rot = (parseInt(img.getAttribute('data-rotation')) + 90) % 360;
+            img.setAttribute('data-rotation', rot);
+            img.style.transform = `rotate(${rot}deg) ${(rot % 180 !== 0) ? 'scale(0.8)' : ''}`;
         }
 
         function populateFilters() {
@@ -421,40 +466,29 @@
             applyFilters();
         }
 
-        function wireImages() {
-            imgs = Array.from(document.querySelectorAll('.carousel .img img'));
-            imgs.forEach((img, i) => {
-                img.style.cursor = 'zoom-in';
-                img.addEventListener('click', () => openLightbox(i));
-            });
-        }
+        // lightbox setup
 
-        // --- LÓGICA DE ROTACIÓN ---
-        function rotarImagen(boton, event) {
-            event.stopPropagation(); // Evita abrir el Lightbox
-            const img = boton.parentElement.querySelector('img');
-            let rotation = parseInt(img.getAttribute('data-rotation') || 0);
-            rotation = (rotation + 90) % 360;
 
-            // Si la foto está de lado (90 o 270), se achica un poco para que no se corte
-            const scale = (rotation === 90 || rotation === 270) ? 0.7 : 1;
-            img.style.transform = `rotate(${rotation}deg) scale(${scale})`;
-            img.setAttribute('data-rotation', rotation);
-        }
+        // lightbox setup
 
-        // lightbox helpers
         const lightbox = document.getElementById('lightbox');
         const lbImg = document.getElementById('lightbox-img');
         const lbDownload = document.getElementById('lightbox-download');
+        const lbRotate = document.getElementById('lightbox-rotate');
         let currentImg = 0;
+
         function openLightbox(index) {
             currentImg = index;
-            lbImg.src = imgs[currentImg].src;
+            const previews = document.querySelectorAll('.img-preview');
+            const sourceImg = previews[index];
 
-            // Apply current rotation to lightbox
-            const currentRotation = imgs[currentImg].getAttribute('data-rotation') || 0;
-            const scale = (currentRotation == 90 || currentRotation == 270) ? 0.7 : 1;
-            lbImg.style.transform = `rotate(${currentRotation}deg) scale(${scale})`;
+            lbImg.src = sourceImg.src;
+
+            // Sincronizar rotación
+            const rot = sourceImg.getAttribute('data-rotation') || 0;
+            const scale = (rot % 180 !== 0) ? 0.75 : 1;
+            lbImg.style.transform = `rotate(${rot}deg) scale(${scale})`;
+            lbImg.setAttribute('data-rotation', rot);
 
             updateLightboxInfo();
             lightbox.classList.add('activo');
@@ -462,84 +496,94 @@
 
         function updateLightboxInfo() {
             const v = filteredVisitas[visitaIndex];
-            const metaEl = document.getElementById('lightbox-meta');
-            if (v && metaEl) {
-                metaEl.innerHTML = `
-                    <span><i class="fas fa-building"></i> <strong>${v.cadena}</strong></span>
-                    <span><i class="fas fa-map-marker-alt"></i> ${v.sucursal} - ${v.localidad}</span>
-                    <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR')}</span>
+            const contentEl = document.getElementById('lightbox-info-content');
+            if (v && contentEl) {
+                contentEl.innerHTML = `
+                    <span><i class="fas fa-building"></i> ${v.cadena}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${v.sucursal}</span>
+                    <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR', { timeZone: 'UTC' })}</span>
                 `;
             }
         }
-        function closeLightbox() {
-            const lb = document.getElementById('lightbox');
-            if (lb) lb.classList.remove('activo');
-        }
-        document.getElementById('lightbox-close').onclick = (e) => {
+
+        lbRotate.onclick = (e) => {
             e.stopPropagation();
-            closeLightbox();
-        };
-        if (lbDownload) {
-            lbDownload.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (!lbImg || !lbImg.src) return;
-                const link = document.createElement('a');
-                link.href = lbImg.src;
-                const parts = lbImg.src.split('/');
-                link.download = parts[parts.length - 1] || 'imagen.jpg';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            });
-        }
-        document.getElementById('lightbox-prev').addEventListener('click', () => {
-            if (currentImg > 0) {
-                currentImg--;
-                lbImg.src = imgs[currentImg].src;
-                const currentRotation = imgs[currentImg].getAttribute('data-rotation') || 0;
-                const scale = (currentRotation == 90 || currentRotation == 270) ? 0.7 : 1;
-                lbImg.style.transform = `rotate(${currentRotation}deg) scale(${scale})`;
-                updateLightboxInfo();
-            } else {
-                // Salto a visita anterior
-                visitaIndex = (visitaIndex - 1 + filteredVisitas.length) % filteredVisitas.length;
-                renderVisita(visitaIndex);
-                openLightbox(imgs.length - 1);
+            let rot = (parseInt(lbImg.getAttribute('data-rotation') || 0) + 90) % 360;
+            lbImg.setAttribute('data-rotation', rot);
+            const scale = (rot % 180 !== 0) ? 0.75 : 1;
+            lbImg.style.transform = `rotate(${rot}deg) scale(${scale})`;
+
+            // Sincronizar de vuelta a la galería
+            const previews = document.querySelectorAll('.img-preview');
+            if (previews[currentImg]) {
+                previews[currentImg].setAttribute('data-rotation', rot);
+                previews[currentImg].style.transform = `rotate(${rot}deg) ${(rot % 180 !== 0) ? 'scale(0.8)' : ''}`;
             }
-        });
-        document.getElementById('lightbox-next').addEventListener('click', () => {
-            if (currentImg < imgs.length - 1) {
-                currentImg++;
-                lbImg.src = imgs[currentImg].src;
-                const currentRotation = imgs[currentImg].getAttribute('data-rotation') || 0;
-                const scale = (currentRotation == 90 || currentRotation == 270) ? 0.7 : 1;
-                lbImg.style.transform = `rotate(${currentRotation}deg) scale(${scale})`;
-                updateLightboxInfo();
-            } else {
-                // Salto a siguiente visita
+        };
+
+        function changeImage(delta) {
+            const v = filteredVisitas[visitaIndex];
+            if (!v || !v.imagenes) return;
+
+            // Lógica para saltar entre visitas si llegamos al final/inicio
+            if (delta > 0 && currentImg === v.imagenes.length - 1) {
                 visitaIndex = (visitaIndex + 1) % filteredVisitas.length;
                 renderVisita(visitaIndex);
-                openLightbox(0);
+                currentImg = 0;
+            } else if (delta < 0 && currentImg === 0) {
+                visitaIndex = (visitaIndex - 1 + filteredVisitas.length) % filteredVisitas.length;
+                renderVisita(visitaIndex);
+                currentImg = filteredVisitas[visitaIndex].imagenes.length - 1;
+            } else {
+                currentImg = (currentImg + delta + v.imagenes.length) % v.imagenes.length;
             }
-        });
-        lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
-        document.addEventListener('keydown', (e) => {
-            if (!lightbox.classList.contains('activo')) return;
-            if (e.key === 'Escape') closeLightbox();
-            if (e.key === 'ArrowLeft') document.getElementById('lightbox-prev').click();
-            if (e.key === 'ArrowRight') document.getElementById('lightbox-next').click();
-        });
 
-        document.getElementById('btnAplicarFiltros').addEventListener('click', applyFilters);
-        document.getElementById('btnLimpiarFiltros').addEventListener('click', clearFilters);
-        document.getElementById('prevVisita').addEventListener('click', () => {
+            // Usamos setTimeout para asegurar que el renderVisita terminó de inyectar el DOM
+            setTimeout(() => {
+                const previews = document.querySelectorAll('.img-preview');
+                const sourceImg = previews[currentImg];
+                if (!sourceImg) return;
+
+                lbImg.src = sourceImg.src;
+
+                // Aplicar rotación sincronizada
+                const rot = parseInt(sourceImg.getAttribute('data-rotation') || 0);
+                lbImg.setAttribute('data-rotation', rot);
+                const scale = (rot % 180 !== 0) ? 0.75 : 1;
+                lbImg.style.transform = `rotate(${rot}deg) scale(${scale})`;
+
+                updateLightboxInfo();
+            }, 0);
+        }
+
+        document.getElementById('lightbox-prev').onclick = (e) => { e.stopPropagation(); changeImage(-1); };
+        document.getElementById('lightbox-next').onclick = (e) => { e.stopPropagation(); changeImage(1); };
+
+        function closeLightbox() {
+            lightbox.classList.remove('activo');
+        }
+
+        document.getElementById('lightbox-close').onclick = closeLightbox;
+        lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
+
+        if (lbDownload) {
+            lbDownload.onclick = (e) => {
+                e.stopPropagation();
+                const a = document.createElement('a');
+                a.href = lbImg.src;
+                a.download = "foto_solvens.jpg";
+                a.click();
+            };
+        }
+
+        document.getElementById('prevVisita').onclick = () => {
             visitaIndex = (visitaIndex - 1 + filteredVisitas.length) % filteredVisitas.length;
             renderVisita(visitaIndex);
-        });
-        document.getElementById('nextVisita').addEventListener('click', () => {
+        };
+        document.getElementById('nextVisita').onclick = () => {
             visitaIndex = (visitaIndex + 1) % filteredVisitas.length;
             renderVisita(visitaIndex);
-        });
+        };
 
         // --- LÓGICA GENERACIÓN PPTX ---
         async function generarReportePPTX() {
