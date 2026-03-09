@@ -729,11 +729,6 @@ app.get('/api/carga-imagenes-por-cliente', async (req, res, next) => {
             ORDER BY NombreSucursal
         `;
         const result = await ejecutarQuery(query, [{ name: 'id', type: mssql.SmallInt, value: id_cliente }]);
-        // DEBUG: log number of rows and sample output
-        console.log('DEBUG carga-imagenes-por-cliente rows=', result.recordset.length);
-        if (result.recordset.length) {
-            console.log('DEBUG sample row:', result.recordset[0]);
-        }
         res.json(result.recordset);
     } catch (e) {
         next(e);

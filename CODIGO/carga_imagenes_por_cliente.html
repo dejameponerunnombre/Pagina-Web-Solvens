@@ -9,62 +9,74 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style/vista_fotos.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="style/filtros.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        .filtro-container {
-            margin: 20px 0;
+        .controles-consulta {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 24px;
+            border-radius: 12px;
             display: flex;
-            gap: 12px;
-            align-items: center;
+            gap: 20px;
+            align-items: flex-end;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
         }
 
-        .filtro-container select {
-            padding: 6px 10px;
-            border-radius: 4px;
-            border: 1px solid #444;
-            background: #1a1a1a;
-            color: #fff;
-        }
-
-        .filtro-container button {
-            padding: 6px 14px;
-            border: none;
-            border-radius: 4px;
-            background: #dc2626;
-            color: #fff;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-
-        .filtro-container button:hover {
-            background: #b91c1c;
-        }
-
-        #tblResultados {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        #tblResultados th,
-        #tblResultados td {
-            padding: 8px 12px;
-            border: 1px solid #444;
-        }
-
-        #tblResultados th {
-            background: #222;
-            color: #fff;
+        .filtro-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .check-yes {
             color: #22c55e;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .check-no {
             color: #ef4444;
-            font-weight: bold;
+            font-weight: 700;
+        }
+
+        .btn-consultar {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            height: 42px;
+        }
+
+        .btn-consultar:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-exportar-excel {
+            background: #107c10;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            height: 42px;
+        }
+
+        .btn-exportar-excel:hover {
+            background: #0e6b0e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 124, 16, 0.3);
         }
     </style>
 </head>
@@ -74,7 +86,7 @@
     <header class="header">
         <div class="header-left">
             <a href="Admin_gestion_visitas.html" class="btn-volver">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"
                     stroke-linecap="round" stroke-linejoin="round">
                     <line x1="19" y1="12" x2="5" y2="12" />
                     <polyline points="12 19 5 12 12 5" />
@@ -89,36 +101,52 @@
         </div>
     </header>
 
-    <main class="contenido">
-        <h1>Carga de <span>Imágenes por Cliente</span></h1>
-        <p class="page-subtitulo">Seleccione un cliente para ver en qué sucursales hay imágenes cargadas</p>
+    <main class="area-contenido" style="max-width: 1200px; margin: 0 auto; padding-top: 40px;">
+        <h1 class="page-titulo">Carga de <span>Imágenes por Cliente</span></h1>
+        <p class="page-subtitulo">Consulte las sucursales asignadas y verifique la existencia de registro fotográfico.
+        </p>
 
-        <div class="filtro-container">
-            <label for="selCliente">Cliente:</label>
-            <select id="selCliente">
-                <option>Cargando...</option>
-            </select>
-            <label for="filtroImagenes" style="margin-left:20px;">Imágenes:</label>
-            <select id="filtroImagenes">
-                <option value="">Todos</option>
-                <option value="1">Con imágenes</option>
-                <option value="0">Sin imágenes</option>
-            </select>
-            <button id="btnBuscar">Consultar</button>
-            <button id="btnExportar"
-                style="background-color:#107c10;color:white;border:none;padding:6px 14px;border-radius:4px;display:flex;align-items:center;gap:8px;font-weight:bold;margin-left:10px;">
-                <i class="fas fa-file-excel"></i> Exportar
+        <div class="controles-consulta">
+            <div class="filtro-item">
+                <label class="label-pequeno">Seleccione Cliente</label>
+                <select id="selCliente" class="select-filtro" style="margin-bottom:0; width: 250px;">
+                    <option>Cargando...</option>
+                </select>
+            </div>
+
+            <div class="filtro-item">
+                <label class="label-pequeno">Filtrar Imágenes</label>
+                <select id="filtroImagenes" class="select-filtro" style="margin-bottom:0; width: 180px;">
+                    <option value="">Todas</option>
+                    <option value="1">Con imágenes</option>
+                    <option value="0">Sin imágenes</option>
+                </select>
+            </div>
+
+            <button id="btnBuscar" class="btn-consultar">Consultar</button>
+
+            <button id="btnExportar" class="btn-exportar-excel">
+                <i class="fas fa-file-excel"></i> Exportar a Excel
             </button>
         </div>
-        <table id="tblResultados">
-            <thead>
-                <tr>
-                    <th>Sucursal</th>
-                    <th>Imágenes cargadas</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+
+        <div class="tabla-wrapper">
+            <table class="tabla-reporte" id="tblResultados">
+                <thead>
+                    <tr>
+                        <th>Sucursal / Punto de Venta</th>
+                        <th style="width: 200px; text-align: center;">Imágenes Cargadas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2" style="text-align: center; padding: 40px; color: #64748b;">
+                            Seleccione un cliente y haga clic en consultar para ver los resultados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </main>
 
     <script>
@@ -140,25 +168,31 @@
             const id = sel.value;
             if (!id) return;
             const tbody = document.querySelector('#tblResultados tbody');
-            tbody.innerHTML = '<tr><td colspan="2">Consultando…</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; padding:40px;"><div class="spinner"></div><p style="margin-top:10px;">Consultando datos...</p></td></tr>';
             try {
                 const res = await fetch(`/api/carga-imagenes-por-cliente?id_cliente=${id}`);
                 let rows = await res.json();
+
+                const filtroImg = document.getElementById('filtroImagenes').value;
+
+                if (filtroImg !== '') {
+                    rows = rows.filter(r => String(r.TieneImagenes) === filtroImg);
+                }
+
                 if (!Array.isArray(rows) || rows.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="2">No se encontraron sucursales.</td></tr>';
                     return;
                 }
-                // aplicar filtro de imágenes si se eligió
-                const filtroImg = document.getElementById('filtroImagenes').value;
-                if (filtroImg !== '') {
-                    rows = rows.filter(r => String(r.TieneImagenes) === filtroImg);
-                }
+
                 tbody.innerHTML = rows.map(r => `<tr>
-                <td>${r.NombreSucursal}</td>
-                <td class="${r.TieneImagenes ? 'check-yes' : 'check-no'}">${r.TieneImagenes ? 'Sí' : 'No'}</td>
-            </tr>`).join('');
-                // store for export
+                    <td>${r.NombreSucursal}</td>
+                    <td style="text-align: center;" class="${r.TieneImagenes ? 'check-yes' : 'check-no'}">
+                        ${r.TieneImagenes ? 'SI' : 'NO'}
+                    </td>
+                </tr>`).join('');
+
                 ultimaConsulta = rows;
+
             } catch (e) {
                 console.error(e);
                 tbody.innerHTML = '<tr><td colspan="2">Error en consulta</td></tr>';

@@ -440,16 +440,19 @@ select option {
 }
 
 .accion-final {
-    margin-top: 4px;
-    margin-left: 4px;
-    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 13px;
     font-weight: 700;
+    margin-top: 3px;
     color: #fff;
     background: #dc2626;
-    padding: 5px 6px;
-    border-radius: 6px;
-    width: fit-content;
-    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35);
+    padding: 4px 8px;
+    border-radius: 5px;
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1;
 }
 
 /* ── RESPONSIVE ── */
@@ -474,5 +477,29 @@ select option {
     .prod-controles {
         width: 100%;
         justify-content: flex-end;
+    }
+
+    .indicacion-final.elegante {
+        margin: 15px 0 10px;
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .icono-advertencia {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+    }
+
+    .icono-advertencia i {
+        font-size: 16px;
+    }
+
+    .indicacion-titulo {
+        font-size: 11px;
+    }
+
+    .indicacion-descripcion {
+        font-size: 12px;
     }
 }
