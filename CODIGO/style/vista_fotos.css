@@ -93,9 +93,9 @@ body {
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 32px;
-    padding: 20px 0;
+    padding: 20px 100px;
+    /* Mas padding a los lados para que no las tapen las flechas */
     justify-content: flex-start;
-    /* Por defecto a la izquierda si rebalsa */
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     /* Ocultamos barra en Firefox */
@@ -115,15 +115,15 @@ body {
 
 .foto-card {
     position: relative;
-    flex: 0 0 450px;
-    /* Ancho fijo para mantener la fila */
+    flex: 0 0 400px;
+    /* Ancho reducido para que entren 3 sin que se tapen */
     cursor: pointer;
     border-radius: 20px;
     overflow: hidden;
-    background: #1e293b;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    border: none;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    box-shadow: none;
     scroll-snap-align: center;
 }
 

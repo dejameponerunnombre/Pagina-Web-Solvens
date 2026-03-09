@@ -50,8 +50,7 @@
                     </select>
                 </div>
             </div>
-
-            <!-- ── SECCIÓN PRODUCTOS ── -->
+            <!-- ── SECCIÓN PRODUCTOS (COMENTADA) ──
             <div class="seccion" id="seccionProductos" style="display:none;">
                 <p class="seccion-titulo">Productos <span
                         style="color:#555;font-weight:400;font-size:12px;text-transform:none;letter-spacing:0;">(opcional)</span>
@@ -62,6 +61,7 @@
                 </div>
                 <div id="listaProductos"></div>
             </div>
+            -->
 
             <!-- ── SECCIÓN FOTOS ── -->
             <div class="seccion">
@@ -78,6 +78,19 @@
                     sucursal y una de las anteriores</p>
             </div>
 
+            <div class="indicacion-final elegante">
+                <div class="icono-advertencia">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="texto-indicacion">
+                    <p class="indicacion-titulo">Paso final</p>
+                    <p class="indicacion-descripcion">
+                        Para completar la carga de la visita, debe presionar el botón
+                        <span class="accion-final">Registrar Visita</span>
+                    </p>
+                </div>
+            </div>
+
 
             <button type="submit" class="btn-registrar">
                 <i class="fas fa-paper-plane" style="margin-right:8px;"></i>Registrar Visita
@@ -92,12 +105,6 @@
         <span>Registro exitoso</span>
     </div>
 
-    <!-- ── TOAST AVISO INICIAL ── -->
-    <div id="toast-aviso" class="toast-exito" style="bottom:100px;">
-        <i class="fas fa-exclamation-circle" style="color:#dc2626;"></i>
-        <span>Al finalizar, presioná <strong>Registrar Visita</strong></span>
-    </div>
-
     <script>
         // --- ESTADO ---
         let productosOriginales = [];
@@ -106,11 +113,14 @@
         // --- DOM ---
         const clienteSel = document.getElementById('cliente');
         const sucursalSel = document.getElementById('sucursal');
+        const inputFotos = document.getElementById('fotos');
+        const labelFotos = document.getElementById('labelFotos');
+
+        /* 
         const buscarInput = document.getElementById('buscarProducto');
         const prodContenedor = document.getElementById('listaProductos');
         const seccionProd = document.getElementById('seccionProductos');
-        const inputFotos = document.getElementById('fotos');
-        const labelFotos = document.getElementById('labelFotos');
+        */
 
         // 1. CLIENTES
         fetch('/api/clientes-activos')
@@ -129,34 +139,31 @@
         clienteSel.addEventListener('change', async () => {
             const idCli = clienteSel.value;
             datosIngresados = {};
-            buscarInput.value = '';
-
-            const [resS, resP] = await Promise.all([
-                fetch(`/api/mis-sucursales?id_cliente=${idCli}`),
-                fetch(`/api/productos-cliente?id_cliente=${idCli}`)
-            ]);
-
+            const resS = await fetch(`/api/mis-sucursales?id_cliente=${idCli}`);
             const sucursales = await resS.json();
+
             sucursalSel.innerHTML = '<option value="" disabled selected>Seleccione Sucursal</option>';
             sucursales.forEach(s => {
                 sucursalSel.innerHTML += `<option value="${s.ID}">${s.Calle} ${s.Altura ?? ''}</option>`;
             });
             sucursalSel.disabled = false;
 
+            /*
+            const resP = await fetch(`/api/productos-cliente?id_cliente=${idCli}`);
             productosOriginales = await resP.json();
             seccionProd.style.display = 'block';
             renderizar(productosOriginales);
+            */
         });
 
         // 3. RENDERIZADO
+        /*
         function renderizar(lista) {
             prodContenedor.innerHTML = '';
-
             if (lista.length === 0) {
                 prodContenedor.innerHTML = '<p class="prod-vacio">No se encontraron productos.</p>';
                 return;
             }
-
             lista.forEach(p => {
                 const guardado = datosIngresados[p.ID] || { precio: '', oferta: false };
                 const div = document.createElement('div');
@@ -177,18 +184,17 @@
             });
         }
 
-        // 4. MEMORIA TEMPORAL
         window.guardarProgreso = (id, precio, oferta) => {
             if (!datosIngresados[id]) datosIngresados[id] = { precio: '', oferta: false };
             if (precio !== null) datosIngresados[id].precio = precio;
             if (oferta !== null) datosIngresados[id].oferta = oferta;
         };
 
-        // 5. BUSCADOR
         buscarInput.addEventListener('input', e => {
             const q = e.target.value.toLowerCase();
             renderizar(productosOriginales.filter(p => p.Descripcion.toLowerCase().includes(q)));
         });
+        */
 
         // 6. FOTOS
         inputFotos.addEventListener('change', function () {
@@ -231,6 +237,7 @@
                 }
             }
 
+            /*
             const productosParaEnviar = Object.keys(datosIngresados)
                 .filter(id => datosIngresados[id].precio !== '' && parseFloat(datosIngresados[id].precio) > 0)
                 .map(id => ({
@@ -238,9 +245,12 @@
                     precio: parseFloat(datosIngresados[id].precio),
                     oferta: datosIngresados[id].oferta
                 }));
+            */
 
-            if (productosParaEnviar.length === 0 && archivos.length === 0) {
-                alert('Cargá al menos una foto o el precio de algún producto.');
+            const productosParaEnviar = [];
+
+            if (archivos.length === 0) {
+                alert('Cargá al menos una foto.');
                 return;
             }
 

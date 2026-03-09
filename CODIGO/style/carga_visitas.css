@@ -439,6 +439,19 @@ select option {
     line-height: 1.4;
 }
 
+.accion-final {
+    margin-top: 4px;
+    margin-left: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    background: #dc2626;
+    padding: 5px 6px;
+    border-radius: 6px;
+    width: fit-content;
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35);
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
     .header {
