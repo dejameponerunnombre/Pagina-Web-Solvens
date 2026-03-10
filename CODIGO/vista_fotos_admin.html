@@ -443,4 +443,10 @@
         document.getElementById('btnLimpiarFiltros').onclick = clearFilters;
 
         document.getElementById('btnToggleSidebar').onclick = () => document.getElementById('sidebarFiltros').classList.add('activo');
-        docume
+        document.getElementById('btnCerrarSidebar').onclick = () => document.getElementById('sidebarFiltros').classList.remove('activo');
+
+        document.addEventListener('DOMContentLoaded', cargarVisitasAdmin);
+    </script>
+</body>
+
+</html>
