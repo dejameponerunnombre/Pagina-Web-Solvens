@@ -91,7 +91,6 @@
                 </div>
             </div>
 
-
             <button type="submit" class="btn-registrar">
                 <i class="fas fa-paper-plane" style="margin-right:8px;"></i>Registrar Visita
             </button>
@@ -103,6 +102,12 @@
     <div id="toast-exito" class="toast-exito">
         <i class="fas fa-check-circle"></i>
         <span>Registro exitoso</span>
+    </div>
+
+    <!-- ── TOAST FOTOS ── -->
+    <div id="toast-fotos" class="toast-exito">
+        <i class="fas fa-images" style="color:#dc2626;"></i>
+        <span id="toast-fotos-texto"></span>
     </div>
 
     <script>
@@ -199,16 +204,18 @@
         // 6. FOTOS
         inputFotos.addEventListener('change', function () {
             const previewContenedor = document.getElementById('previewFotos');
+
             if (this.files.length > 3) {
-                alert('Podés seleccionar máximo 3 fotos.');
                 this.value = '';
                 labelFotos.textContent = 'Seleccionar fotos (máx. 3)';
                 previewContenedor.innerHTML = '';
+                mostrarToastFotos('Límite superado: solo se permiten 3 fotos');
                 return;
             }
 
-            labelFotos.textContent = this.files.length > 0
-                ? `${this.files.length} foto${this.files.length > 1 ? 's' : ''} seleccionada${this.files.length > 1 ? 's' : ''}`
+            const cant = this.files.length;
+            labelFotos.textContent = cant > 0
+                ? `${cant} foto${cant > 1 ? 's' : ''} seleccionada${cant > 1 ? 's' : ''}`
                 : 'Seleccionar fotos (máx. 3)';
 
             previewContenedor.innerHTML = '';
@@ -220,6 +227,12 @@
                 img.onload = () => URL.revokeObjectURL(url);
                 previewContenedor.appendChild(img);
             });
+
+            if (cant === 3) {
+                mostrarToastFotos('3 de 3 fotos cargadas — límite alcanzado');
+            } else if (cant > 0) {
+                mostrarToastFotos(`${cant} de 3 foto${cant > 1 ? 's' : ''} cargada${cant > 1 ? 's' : ''}`);
+            }
         });
 
         // 7. SUBMIT
@@ -283,22 +296,20 @@
             }
         });
 
-        // ── TOAST ──
+        // ── TOAST ÉXITO ──
         function mostrarToast() {
             const toast = document.getElementById('toast-exito');
             toast.classList.add('activo');
-
-            setTimeout(() => {
-                toast.classList.remove('activo');
-            }, 1400);
+            setTimeout(() => toast.classList.remove('activo'), 1400);
         }
 
-        // ── AVISO INICIAL ──
-        window.addEventListener('load', () => {
-            const aviso = document.getElementById('toast-aviso');
-            setTimeout(() => aviso.classList.add('activo'), 500);
-            setTimeout(() => aviso.classList.remove('activo'), 4000);
-        });
+        // ── TOAST FOTOS ──
+        function mostrarToastFotos(mensaje) {
+            const toast = document.getElementById('toast-fotos');
+            document.getElementById('toast-fotos-texto').textContent = mensaje;
+            toast.classList.add('activo');
+            setTimeout(() => toast.classList.remove('activo'), 2500);
+        }
     </script>
 
 </body>
