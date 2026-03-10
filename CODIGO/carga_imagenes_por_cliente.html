@@ -8,78 +8,8 @@
     <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style/vista_fotos.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="style/filtros.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        .controles-consulta {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 24px;
-            border-radius: 12px;
-            display: flex;
-            gap: 20px;
-            align-items: flex-end;
-            margin-bottom: 30px;
-            backdrop-filter: blur(10px);
-        }
-
-        .filtro-item {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .check-yes {
-            color: #22c55e;
-            font-weight: 700;
-        }
-
-        .check-no {
-            color: #ef4444;
-            font-weight: 700;
-        }
-
-        .btn-consultar {
-            background: #dc2626;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            height: 42px;
-        }
-
-        .btn-consultar:hover {
-            background: #b91c1c;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-        }
-
-        .btn-exportar-excel {
-            background: #107c10;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s;
-            height: 42px;
-        }
-
-        .btn-exportar-excel:hover {
-            background: #0e6b0e;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 124, 16, 0.3);
-        }
-    </style>
-</head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script></head>
 
 <body>
 
@@ -101,7 +31,7 @@
         </div>
     </header>
 
-    <main class="area-contenido" style="max-width: 1200px; margin: 0 auto; padding-top: 40px;">
+    <main class="area-contenido area-contenido-centrada">
         <h1 class="page-titulo">Carga de <span>Imágenes por Cliente</span></h1>
         <p class="page-subtitulo">Consulte las sucursales asignadas y verifique la existencia de registro fotográfico.
         </p>
@@ -109,14 +39,14 @@
         <div class="controles-consulta">
             <div class="filtro-item">
                 <label class="label-pequeno">Seleccione Cliente</label>
-                <select id="selCliente" class="select-filtro" style="margin-bottom:0; width: 250px;">
+                <select id="selCliente" class="select-filtro select-consulta-cliente">
                     <option>Cargando...</option>
                 </select>
             </div>
 
             <div class="filtro-item">
                 <label class="label-pequeno">Filtrar Imágenes</label>
-                <select id="filtroImagenes" class="select-filtro" style="margin-bottom:0; width: 180px;">
+                <select id="filtroImagenes" class="select-filtro select-consulta-filtro">
                     <option value="">Todas</option>
                     <option value="1">Con imágenes</option>
                     <option value="0">Sin imágenes</option>
@@ -135,12 +65,12 @@
                 <thead>
                     <tr>
                         <th>Sucursal / Punto de Venta</th>
-                        <th style="width: 200px; text-align: center;">Imágenes Cargadas</th>
+                        <th class="col-centrada">Imágenes Cargadas</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="2" style="text-align: center; padding: 40px; color: #64748b;">
+                        <td colspan="2" class="estado-tabla-inicial">
                             Seleccione un cliente y haga clic en consultar para ver los resultados.
                         </td>
                     </tr>

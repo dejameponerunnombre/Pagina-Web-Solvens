@@ -4,6 +4,7 @@
     opacity: 0.8;
     transition: opacity 0.2s, transform 0.2s;
 }
+
 .btn-volver:hover {
     opacity: 1;
     transform: translateX(-3px);
@@ -26,11 +27,13 @@
     transition: all 0.25s ease;
     white-space: nowrap;
 }
+
 .btn-aprobar:hover {
     background-color: #15803d;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
 }
+
 .btn-aprobar:disabled {
     background-color: #2a2a2a;
     color: #555;
@@ -39,6 +42,7 @@
     box-shadow: none;
     border: 1px solid #333;
 }
+
 .btn-aprobar.aprobado {
     background-color: transparent;
     color: #4ade80;
@@ -48,9 +52,154 @@
 }
 
 /* ── Columna acción centrada ── */
-.col-accion { text-align: center; }
+.col-accion {
+    text-align: center;
+}
 
-/* ── Toast de notificación ── */
+/* Control visibilidad botón filtros */
+.btn-toggle-sidebar.oculto {
+    display: none !important;
+}
+
+/* Estilos de botones de estado y tabla */
+.btn-accion {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    margin: 2px;
+    text-transform: uppercase;
+    transition: 0.2s;
+}
+
+.btn-accion.aprobar {
+    background-color: #22c55e;
+    color: white;
+}
+
+.btn-accion.rechazar {
+    background-color: #ef4444;
+    color: white;
+}
+
+.btn-accion:hover {
+    transform: scale(1.1);
+}
+
+/* Botón exportar Excel */
+.btn-excel {
+    background-color: #15803d;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+/* Badges de oferta */
+.badge-oferta {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.badge-oferta.si {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-oferta.no {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Columna Estado */
+.status-pill {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-aprobado {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-rechazado {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-pendiente {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* Corrección línea de más en filtros */
+.grupo-filtro {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 0;
+}
+
+.filtro-header {
+    border-bottom: none !important;
+}
+
+/* Área de contenido */
+.area-contenido {
+    width: 100%;
+    transition: margin 0.3s;
+}
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 14px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    max-width: 360px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.exito {
+    background: #1a2e1a;
+    border: 1px solid #4ade80;
+    color: #4ade80;
+}
+
+.toast.error {
+    background: #2e1a1a;
+    border: 1px solid #dc2626;
+    color: #f87171;
+}
+
+/* ── Toast simple anterior (compatibilidad) ── */
 #toast {
     position: fixed;
     bottom: 30px;
@@ -66,6 +215,18 @@
     transition: all 0.3s ease;
     pointer-events: none;
 }
-#toast.show  { opacity: 1; transform: translateY(0); }
-#toast.exito { background: #16a34a; box-shadow: 0 4px 16px rgba(22, 163, 74, 0.5); }
-#toast.error { background: #dc2626; box-shadow: 0 4px 16px rgba(220, 38, 38, 0.5); }
+
+#toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#toast.exito {
+    background: #16a34a;
+    box-shadow: 0 4px 16px rgba(22, 163, 74, 0.5);
+}
+
+#toast.error {
+    background: #dc2626;
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.5);
+}

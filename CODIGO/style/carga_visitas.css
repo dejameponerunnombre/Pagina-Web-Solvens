@@ -503,3 +503,11 @@ select option {
         font-size: 12px;
     }
 }
+/* ── ÍCONOS INLINE (cargar_visita) ── */
+.icono-btn {
+    margin-right: 8px;
+}
+
+.icono-fotos-toast {
+    color: #dc2626;
+}

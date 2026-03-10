@@ -9,202 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style/filtros.css">
     <link rel="stylesheet" href="style/vista_fotos.css">
-    <link rel="stylesheet" href="style/inicio.css">
-    <style>
-        /* Botón Volver */
-        .btn-volver {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: none;
-            color: #ef4444;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-
-        .btn-volver:hover {
-            background: #ef4444;
-            color: white;
-            transform: translateX(-3px);
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
-        }
-
-        /* Status Badges en Gallery */
-        .status-pill {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            z-index: 5;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .status-pill.status-pendiente {
-            background: rgba(234, 179, 8, 0.9);
-            color: white;
-        }
-
-        .status-pill.status-aprobado {
-            background: rgba(34, 197, 94, 0.9);
-            color: white;
-        }
-
-        .status-pill.status-rechazado {
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-        }
-
-        /* Acciones en la card */
-        .img-actions-overlay {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            display: flex;
-            gap: 8px;
-            z-index: 5;
-            opacity: 1;
-            /* Siempre visibles en admin */
-        }
-
-        .btn-mini-accion {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            color: white;
-        }
-
-        .btn-mini-accion.aprobar {
-            background: #22c55e;
-        }
-
-        .btn-mini-accion.rechazar {
-            background: #ef4444;
-        }
-
-        .btn-mini-accion:hover {
-            transform: scale(1.1);
-            filter: brightness(1.2);
-        }
-
-        /* Lightbox Admin Controls */
-        .admin-lightbox-actions {
-            display: flex;
-            gap: 12px;
-            margin-left: 20px;
-            padding-left: 20px;
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-admin-lb {
-            padding: 8px 16px;
-            border-radius: 50px;
-            border: none;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-            color: white;
-        }
-
-        .btn-admin-lb.aprobar {
-            background: #22c55e;
-        }
-
-        .btn-admin-lb.rechazar {
-            background: #ef4444;
-        }
-
-        .btn-admin-lb:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .status-badge-lb {
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #ddd;
-        }
-
-        .status-badge-lb.status-aprobado {
-            background: #22c55e;
-            color: white;
-        }
-
-        .status-badge-lb.status-rechazado {
-            background: #ef4444;
-            color: white;
-        }
-
-        .status-badge-lb.status-pendiente {
-            background: #eab308;
-            color: white;
-        }
-
-        /* Toast notifications */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            padding: 14px 22px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #fff;
-            z-index: 99999;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .toast.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .toast.exito {
-            background: #064e3b;
-            border: 1px solid #10b981;
-            color: #34d399;
-        }
-
-        .toast.error {
-            background: #450a0a;
-            border: 1px solid #ef4444;
-            color: #f87171;
-        }
-    </style>
-</head>
+    <link rel="stylesheet" href="style/inicio.css"></head>
 
 <body>
 
@@ -213,7 +18,7 @@
             <a href="Admin_gestion_visitas.html" class="btn-volver" title="Volver a Gestión">
                 <i class="fas fa-arrow-left"></i>
             </a>
-            <button class="btn-toggle-sidebar" id="btnToggleSidebar" style="margin-left: 15px;">
+            <button class="btn-toggle-sidebar btn-toggle-fotos" id="btnToggleSidebar">
                 <i class="fas fa-filter"></i>
                 <span>Filtros</span>
             </button>
@@ -306,7 +111,7 @@
                 </div>
             </aside>
 
-            <div id="contenedorVisitas" style="width: 100%;"></div>
+            <div id="contenedorVisitas" class="contenedor-visitas-full"></div>
         </div>
     </main>
 
@@ -320,7 +125,7 @@
     </div>
 
     <footer class="footer-contacto">
-        <p><i class="fa-solid fa-envelope"></i> contacto@gruposolvens.com | <i class="fa-solid fa-phone"></i> +54 11
+        <p><i class="fa-solid fa-envelope"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="beddd1d0cadfddcad1fed9cccbced1cdd1d2c8dbd0cd90ddd1d3">[email&#160;protected]</a> | <i class="fa-solid fa-phone"></i> +54 11
             1234-5678</p>
     </footer>
 
@@ -363,7 +168,7 @@
 
     <div id="toast" class="toast"></div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         const URL_BASE = '/api';
 
         let visitasData = [];
@@ -638,10 +443,4 @@
         document.getElementById('btnLimpiarFiltros').onclick = clearFilters;
 
         document.getElementById('btnToggleSidebar').onclick = () => document.getElementById('sidebarFiltros').classList.add('activo');
-        document.getElementById('btnCerrarSidebar').onclick = () => document.getElementById('sidebarFiltros').classList.remove('activo');
-
-        document.addEventListener('DOMContentLoaded', cargarVisitasAdmin);
-    </script>
-</body>
-
-</html>
+        docume
