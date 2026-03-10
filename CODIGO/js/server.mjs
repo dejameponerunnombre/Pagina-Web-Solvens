@@ -551,6 +551,7 @@ app.get('/api/imagenes-visitas', async (req, res, next) => {
             LEFT JOIN Tipo_Cadena tc ON ca.ID_Tipo = tc.ID
             JOIN Imagen im       ON im.ID_Visita = v.ID
             LEFT JOIN Carga c    ON c.ID_Visita = v.ID
+            WHERE v.Fecha >= DATEADD(DAY, -15, CAST(GETDATE() AS DATE))
             ORDER BY v.Fecha DESC
         `;
         const result = await ejecutarQuery(query);
@@ -721,6 +722,7 @@ app.get('/api/carga-imagenes-por-cliente', async (req, res, next) => {
                         JOIN Imagen im ON im.ID_Visita = v2.ID
                         WHERE v2.ID_Sucursal = s.ID
                           AND v2.ID_Cliente = @id
+                          AND v2.Fecha >= DATEADD(DAY, -15, CAST(GETDATE() AS DATE))
                    ) THEN 1 ELSE 0 END AS TieneImagenes
             FROM Abastece a
             JOIN Sucursal s ON a.ID_Sucursal = s.ID
