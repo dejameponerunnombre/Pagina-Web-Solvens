@@ -94,32 +94,21 @@ body {
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 32px;
-    padding: 20px 0;
-    justify-content: flex-start;
+    padding: 20px 60px;
+    justify-content: center;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    -ms-overflow-style: none;
+    
 }
 
-/* Espaciado lateral via pseudo-elementos: evita el bug de Chromium
-   donde el padding-right se ignora en flex con overflow-x: auto */
-.galeria-grid::before,
-.galeria-grid::after {
-    content: '';
-    flex: 0 0 100px;
-    /* mismo ancho que las flechas nav + su padding */
-}
+
 
 /* Centrado si hay pocos elementos y no rebalsan el contenedor */
 .galeria-grid:not(:has(:nth-child(4))) {
     justify-content: center;
 }
 
-/* Con centrado, los pseudo-elementos no deben empujar */
-.galeria-grid:not(:has(:nth-child(4)))::before,
-.galeria-grid:not(:has(:nth-child(4)))::after {
-    display: none;
-}
+
 
 /* Ocultar scrollbar en Chrome/Safari */
 .galeria-grid::-webkit-scrollbar {
@@ -128,7 +117,7 @@ body {
 
 .foto-card {
     position: relative;
-    flex: 0 0 450px;
+    flex: 0 0 calc((100% - 64px) / 3);
     /* Regresamos al ancho original */
     cursor: pointer;
     border-radius: 20px;
