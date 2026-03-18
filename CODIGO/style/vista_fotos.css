@@ -101,13 +101,25 @@ body {
     
 }
 
-
+/* Espaciado lateral via pseudo-elementos: evita el bug de Chromium
+   donde el padding-right se ignora en flex con overflow-x: auto */
+.galeria-grid::before,
+.galeria-grid::after {
+    content: '';
+    flex: 0 0 100px;
+    /* mismo ancho que las flechas nav + su padding */
+}
 
 /* Centrado si hay pocos elementos y no rebalsan el contenedor */
 .galeria-grid:not(:has(:nth-child(4))) {
     justify-content: center;
 }
 
+/* Con centrado, los pseudo-elementos no deben empujar */
+.galeria-grid:not(:has(:nth-child(4)))::before,
+.galeria-grid:not(:has(:nth-child(4)))::after {
+    display: none;
+}
 
 
 /* Ocultar scrollbar en Chrome/Safari */
