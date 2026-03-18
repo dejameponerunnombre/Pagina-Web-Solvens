@@ -1,0 +1,21 @@
+{
+  "name": "proyecto-sql",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "nodemon server.mjs"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "multer": "^2.0.2",
+    "sharp": "^0.34.5",
+    "pg": "^8.13.3",
+    "@aws-sdk/client-s3": "^3.840.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}

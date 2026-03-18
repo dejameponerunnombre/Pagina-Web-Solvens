@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo Solvens - Evidencia de Visita</title>
+    <link rel="icon" href="../IMG/logo2.jpg" type="image/jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style/filtros.css">
+    <link rel="stylesheet" href="style/vista_fotos.css">
+    <!-- use same footer styling as inicioCliente -->
+    <link rel="stylesheet" href="style/inicio.css">
+    <!-- PptxGenJS Library -->
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script></head>
+
+<body>
+
+    <header class="header">
+        <div class="header-left">
+            <a href="inicioCliente.html" class="btn-volver" title="Volver al inicio">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <button class="btn-toggle-sidebar" id="btnToggleSidebar">
+                <i class="fas fa-filter"></i>
+                <span>Filtros</span>
+            </button>
+            <button id="btnExportarPPTX" class="btn-pptx btn-toggle-fotos" title="Generar reporte PowerPoint">
+                <i class="fas fa-file-powerpoint"></i>
+                <span>Exportar PPTX</span>
+            </button>
+        </div>
+        <div class="header-center">
+            <img src="../IMG/logo.png" alt="Logo Grupo Solvens" class="logo-nav">
+        </div>
+        <div class="header-right header-right-flex">
+            <a href="login.html" class="btn-salir">Cerrar Sesión</a>
+        </div>
+    </header>
+    <main class="contenido">
+        <h1>Evidencia <span>Fotográfica</span></h1>
+        <p class="page-subtitulo">Registro visual de visitas aprobadas</p>
+        <div class="contenedor-layout">
+            <aside class="sidebar-filtros" id="sidebarFiltros">
+                <div class="sidebar-header">
+                    <h2 class="titulo-filtros">Filtros</h2>
+                    <button class="btn-cerrar-sidebar" id="btnCerrarSidebar"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="grupo-filtro">
+                    <div class="filtro-header">
+                        <label class="label-filtro">Periodo</label>
+                        <i class="fas fa-chevron-down icono-toggle"></i>
+                    </div>
+                    <div class="filtro-contenido">
+                        <p class="descripcion-filtro">Seleccione un rango de fechas:</p>
+                        <div class="rango-fechas">
+                            <div><label class="label-pequeno">Desde:</label><input type="date" class="input-fecha"
+                                    id="fechaDesde"></div>
+                            <div><label class="label-pequeno">Hasta:</label><input type="date" class="input-fecha"
+                                    id="fechaHasta"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grupo-filtro">
+                    <div class="filtro-header">
+                        <label class="label-filtro">Cadena</label>
+                        <i class="fas fa-chevron-down icono-toggle"></i>
+                    </div>
+                    <div class="filtro-contenido">
+                        <p class="descripcion-filtro">Seleccione la cadena:</p>
+                        <select class="select-filtro" id="filtroCadena">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grupo-filtro">
+                    <div class="filtro-header">
+                        <label class="label-filtro">Sucursal</label>
+                        <i class="fas fa-chevron-down icono-toggle"></i>
+                    </div>
+                    <div class="filtro-contenido">
+                        <p class="descripcion-filtro">Seleccione la sucursal:</p>
+                        <select class="select-filtro" id="filtroSucursal">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grupo-filtro">
+                    <div class="filtro-header">
+                        <label class="label-filtro">Zona</label>
+                        <i class="fas fa-chevron-down icono-toggle"></i>
+                    </div>
+                    <div class="filtro-contenido">
+                        <p class="descripcion-filtro">Seleccione la zona:</p>
+                        <select class="select-filtro" id="filtroZona">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grupo-filtro">
+                    <div class="filtro-header">
+                        <label class="label-filtro">Subzona</label>
+                        <i class="fas fa-chevron-down icono-toggle"></i>
+                    </div>
+                    <div class="filtro-contenido">
+                        <p class="descripcion-filtro">Seleccione la subzona:</p>
+                        <select class="select-filtro" id="filtroSubzona">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grupo-filtro">
+                    <div class="filtro-header">
+                        <label class="label-filtro">Canal</label>
+                        <i class="fas fa-chevron-down icono-toggle"></i>
+                    </div>
+                    <div class="filtro-contenido">
+                        <p class="descripcion-filtro">Seleccione el canal:</p>
+                        <select class="select-filtro" id="filtroCanal">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="botones-filtro botones-filtro-row">
+                    <button id="btnAplicarFiltros" class="btn-aplicar-filtros">Aplicar</button>
+                    <button id="btnLimpiarFiltros" class="btn-limpiar-filtros">Limpiar</button>
+                </div>
+            </aside>
+
+            <div id="contenedorVisitas" class="contenedor-visitas-full"></div>
+        </div>
+    </main>
+
+    <!-- Navegación entre visitas (Fija a los costados) -->
+    <div class="nav-container" id="navVisitas" style="display: none;">
+        <button class="btn-nav-visita" id="prevVisita" title="Visita Anterior">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="btn-nav-visita" id="nextVisita" title="Siguiente Visita">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <footer class="footer-contacto">
+        <p><i class="fa-solid fa-envelope"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="50333f3e243133243f10372225203f233f3c26353e237e333f3d">[email&#160;protected]</a> | <i class="fa-solid fa-phone"></i> +54 11
+            1234-5678</p>
+    </footer>
+
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-prev" id="lightbox-prev" title="Imagen anterior">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="lightbox-next" id="lightbox-next" title="Siguiente imagen">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <div class="lightbox-controls">
+            <button class="btn-control" id="lightbox-download" title="Descargar">
+                <i class="fas fa-download"></i>
+            </button>
+            <button class="btn-control" id="lightbox-close" title="Cerrar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <img class="lightbox-img" id="lightbox-img" src="" alt="">
+
+        <div class="lightbox-info">
+            <div id="lightbox-info-content" style="display:contents;"></div>
+            <button class="btn-control-inline" id="lightbox-rotate" title="Rotar">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        const URL_BASE = '/api';
+
+        let visitasData = [];
+        let filteredVisitas = [];
+        let visitaIndex = 0;
+        let imgs = [];
+
+        async function cargarVisitasCliente() {
+            const idCliente = localStorage.getItem('id_usuario');
+            const tipo = Number(localStorage.getItem('tipoUsuario'));
+            if (tipo !== 2 || !idCliente) {
+                window.location.href = 'login.html';
+                return;
+            }
+            const res = await fetch(`${URL_BASE}/imagenes-aprobadas-cliente?id_cliente=${idCliente}`);
+            if (!res.ok) {
+                document.getElementById('contenedorVisitas').innerHTML = '<p>Error al obtener las imágenes.</p>';
+                return;
+            }
+            visitasData = await res.json();
+            if (visitasData.length === 0) {
+                document.getElementById('contenedorVisitas').innerHTML = '<p>No hay imágenes aprobadas.</p>';
+                return;
+            }
+            populateFilters();
+            clearFilters();
+        }
+
+        function renderVisita(idx) {
+            const v = filteredVisitas[idx];
+            const cont = document.getElementById('contenedorVisitas');
+
+            const imgsHtml = v.imagenes.map((img, i) => {
+                return `
+                <div class="foto-card" onclick="openLightbox(${i})">
+                    <div class="foto-wrapper">
+                        <img src="${img.ruta}" alt="Foto ${i + 1}" data-rotation="0" class="img-preview">
+                    </div>
+                    <button class="btn-rotar-gallery" onclick="rotarImagenGaleria(this, event)" title="Rotar vista">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>`;
+            }).join('');
+
+            cont.innerHTML = `
+                <div class="visita-seccion">
+                    <div class="visita-header">
+                        <h1>${v.cadena}</h1>
+                        <div class="sub">
+                            <i class="fas fa-map-marker-alt"></i> ${v.sucursal} - ${v.localidad} | 
+                            <i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR', { timeZone: 'UTC' })}
+                        </div>
+                    </div>
+                    <div class="galeria-grid">
+                        ${imgsHtml}
+                    </div>
+                </div>`;
+
+            const nav = document.getElementById('navVisitas');
+            if (nav) nav.style.display = filteredVisitas.length > 1 ? 'flex' : 'none';
+        }
+
+        function rotarImagenGaleria(btn, e) {
+            e.stopPropagation();
+            const img = btn.parentElement.querySelector('img');
+            let rot = (parseInt(img.getAttribute('data-rotation')) + 90) % 360;
+            img.setAttribute('data-rotation', rot);
+            img.style.transform = `rotate(${rot}deg) ${(rot % 180 !== 0) ? 'scale(0.8)' : ''}`;
+        }
+
+        function populateFilters() {
+            const makeOptions = (items) => {
+                const uniq = [...new Set(items)];
+                return uniq.map(x => `<option value="${x}">${x}</option>`).join('');
+            };
+            const llenar = (id, opciones, titulo) => {
+                const sel = document.getElementById(id);
+                sel.innerHTML = `<option value="">${titulo}</option>` + opciones;
+            };
+            llenar('filtroCadena', makeOptions(visitasData.map(v => v.cadena)), 'Cadena (todas)');
+            llenar('filtroSucursal', makeOptions(visitasData.map(v => v.sucursal)), 'Sucursal (todas)');
+            llenar('filtroZona', makeOptions(visitasData.map(v => v.zona)), 'Zona (todas)');
+            llenar('filtroSubzona', makeOptions(visitasData.map(v => v.subzona)), 'Subzona (todas)');
+            llenar('filtroCanal', makeOptions(visitasData.map(v => v.canal)), 'Canal (todos)');
+        }
+        function applyFilters() {
+            const fDesde = document.getElementById('fechaDesde').value;
+            const fHasta = document.getElementById('fechaHasta').value;
+            const fCad = document.getElementById('filtroCadena').value;
+            const fSuc = document.getElementById('filtroSucursal').value;
+            const fZona = document.getElementById('filtroZona').value;
+            const fSubzona = document.getElementById('filtroSubzona').value;
+            const fCanal = document.getElementById('filtroCanal').value;
+            filteredVisitas = visitasData.filter(v => {
+                if (fDesde) {
+                    const vDate = new Date(v.fecha).setHours(0, 0, 0, 0);
+                    const dDesde = new Date(fDesde).setHours(0, 0, 0, 0);
+                    if (vDate < dDesde) return false;
+                }
+                if (fHasta) {
+                    const vDate = new Date(v.fecha).setHours(0, 0, 0, 0);
+                    const dHasta = new Date(fHasta).setHours(0, 0, 0, 0);
+                    if (vDate > dHasta) return false;
+                }
+                if (fCad && v.cadena !== fCad) return false;
+                if (fSuc && v.sucursal !== fSuc) return false;
+                if (fZona && v.zona !== fZona) return false;
+                if (fSubzona && v.subzona !== fSubzona) return false;
+                if (fCanal && v.canal !== fCanal) return false;
+                return true;
+            });
+            visitaIndex = 0;
+            if (filteredVisitas.length === 0) {
+                document.getElementById('contenedorVisitas').innerHTML = '<p>No hay visitas que coincidan.</p>';
+                document.getElementById('prevVisita').style.display = 'none';
+                document.getElementById('nextVisita').style.display = 'none';
+                return;
+            }
+            renderVisita(visitaIndex);
+        }
+        function clearFilters() {
+            ['fechaDesde', 'fechaHasta', 'filtroCadena', 'filtroSucursal', 'filtroZona', 'filtroSubzona', 'filtroCanal']
+                .forEach(id => document.getElementById(id).value = '');
+            applyFilters();
+        }
+
+        // lightbox setup
+
+
+        // lightbox setup
+
+        const lightbox = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lightbox-img');
+        const lbDownload = document.getElementById('lightbox-download');
+        const lbRotate = document.getElementById('lightbox-rotate');
+        let currentImg = 0;
+
+        function openLightbox(index) {
+            currentImg = index;
+            const previews = document.querySelectorAll('.img-preview');
+            const sourceImg = previews[index];
+
+            lbImg.src = sourceImg.src;
+
+            // Sincronizar rotación
+            const rot = sourceImg.getAttribute('data-rotation') || 0;
+            const scale = (rot % 180 !== 0) ? 0.75 : 1;
+            lbImg.style.transform = `rotate(${rot}deg) scale(${scale})`;
+            lbImg.setAttribute('data-rotation', rot);
+
+            updateLightboxInfo();
+            lightbox.classList.add('activo');
+        }
+
+        function updateLightboxInfo() {
+            const v = filteredVisitas[visitaIndex];
+            const contentEl = document.getElementById('lightbox-info-content');
+            if (v && contentEl) {
+                contentEl.innerHTML = `
+                    <span><i class="fas fa-building"></i> ${v.cadena}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${v.sucursal}</span>
+                    <span><i class="fas fa-calendar-alt"></i> ${new Date(v.fecha).toLocaleDateString('es-AR', { timeZone: 'UTC' })}</span>
+                `;
+            }
+        }
+
+        lbRotate.onclick = (e) => {
+            e.stopPropagation();
+            let rot = (parseInt(lbImg.getAttribute('data-rotation') || 0) + 90) % 360;
+            lbImg.setAttribute('data-rotation', rot);
+            const scale = (rot % 180 !== 0) ? 0.75 : 1;
+            lbImg.style.transform = `rotate(${rot}deg) scale(${scale})`;
+
+            // Sincronizar de vuelta a la galería
+            const previews = document.querySelectorAll('.img-preview');
+            if (previews[currentImg]) {
+                previews[currentImg].setAttribute('data-rotation', rot);
+                previews[currentImg].style.transform = `rotate(${rot}deg) ${(rot % 180 !== 0) ? 'scale(0.8)' : ''}`;
+            }
+        };
+
+        function changeImage(delta) {
+            const v = filteredVisitas[visitaIndex];
+            if (!v || !v.imagenes) return;
+
+            // Lógica para saltar entre visitas si llegamos al final/inicio
+            if (delta > 0 && currentImg === v.imagenes.length - 1) {
+                visitaIndex = (visitaIndex + 1) % filteredVisitas.length;
+                renderVisita(visitaIndex);
+                currentImg = 0;
+            } else if (delta < 0 && currentImg === 0) {
+                visitaIndex = (visitaIndex - 1 + filteredVisitas.length) % filteredVisitas.length;
+                renderVisita(visitaIndex);
+                currentImg = filteredVisitas[visitaIndex].imagenes.length - 1;
+            } else {
+                currentImg = (currentImg + delta + v.imagenes.length) % v.imagenes.length;
+            }
+
+            // Usamos setTimeout para asegurar que el renderVisita terminó de inyectar el DOM
+            setTimeout(() => {
+                const previews = document.querySelectorAll('.img-preview');
+                const sourceImg = previews[currentImg];
+                if (!sourceImg) return;
+
+                lbImg.src = sourceImg.src;
+
+                // Aplicar rotación sincronizada
+                const rot = parseInt(sourceImg.getAttribute('data-rotation') || 0);
+                lbImg.setAttribute('data-rotation', rot);
+                const scale = (rot % 180 !== 0) ? 0.75 : 1;
+                lbImg.style.transform = `rotate(${rot}deg) scale(${scale})`;
+
+                updateLightboxInfo();
+            }, 0);
+        }
+
+        document.getElementById('lightbox-prev').onclick = (e) => { e.stopPropagation(); changeImage(-1); };
+        document.getElementById('lightbox-next').onclick = (e) => { e.stopPropagation(); changeImage(1); };
+
+        function closeLightbox() {
+            lightbox.classList.remove('activo');
+        }
+
+        document.getElementById('lightbox-close').onclick = closeLightbox;
+        lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
+
+        if (lbDownload) {
+            lbDownload.onclick = (e) => {
+                e.stopPropagation();
+                const a = document.createElement('a');
+                a.href = lbImg.src;
+                a.download = "foto_solvens.jpg";
+                a.click();
+            };
+        }
+
+        document.getElementById('prevVisita').onclick = () => {
+            visitaIndex = (visitaIndex - 1 + filteredVisitas.length) % filteredVisitas.length;
+            renderVisita(visitaIndex);
+        };
+        document.getElementById('nextVisita').onclick = () => {
+            visitaIndex = (visitaIndex + 1) % filteredVisitas.length;
+            renderVisita(visitaIndex);
+        };
+
+        // --- LÓGICA GENERACIÓN PPTX (ESTILO PREMIUM) ---
+        async function imgUrlToBase64(url) {
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const blob = await res.blob();
+                return await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const full = reader.result;
+                        const comma = full.indexOf(',');
+                        const mime = full.substring(5, full.indexOf(';'));
+                        const b64 = full.substring(comma + 1);
+                        resolve(`${mime};base64,${b64}`);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            } catch (err) {
+                console.error('Error cargando imagen:', err);
+                return null;
+            }
+        }
+
+        async function generarReportePPTX() {
+            const idCliente = localStorage.getItem('id_usuario');
+            if (!idCliente) return;
+
+            const btn = document.getElementById('btnExportarPPTX');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Generando...</span>';
+            btn.disabled = true;
+
+            try {
+                // 1. Obtener los datos frescos (última visita aprobada por PDV)
+                const res = await fetch(`${URL_BASE}/imagenes-aprobadas-cliente?id_cliente=${idCliente}&latest=1`);
+                if (!res.ok) throw new Error('Error al obtener datos');
+                const ultimasVisitas = await res.json();
+
+                if (!ultimasVisitas || ultimasVisitas.length === 0) {
+                    alert('No hay visitas aprobadas recientes para exportar.');
+                    return;
+                }
+
+                const pptx = new PptxGenJS();
+                pptx.layout = 'LAYOUT_16x9';
+
+                // --- A. PORTADA (GRIS CLARO CON HEADER ROJO) ---
+                const slidePortada = pptx.addSlide();
+                slidePortada.bkgd = { color: 'F5F5F5' }; // Fondo Gris Claro
+
+                // Header Rojo en Portada (Mismo alto que las demás: 0.6)
+                slidePortada.addShape(pptx.ShapeType.rect, {
+                    x: 0, y: 0, w: 10, h: 0.6,
+                    fill: { color: 'DC2626' }
+                });
+
+                const logoUrl = '/IMG/logo.png';
+                const logoB64 = await imgUrlToBase64(logoUrl);
+
+                // Variables para dimensiones del logo calculadas (para uso en todas las slides)
+                let headerLogoW, headerLogoH;
+
+                if (logoB64) {
+                    // Calculamos proporciones reales para evitar estiramiento
+                    const imgObj = new Image();
+                    await new Promise(res => { imgObj.onload = res; imgObj.src = logoUrl; });
+                    const ratio = imgObj.width / imgObj.height;
+
+                    // 1. Logo en PORTADA (FUERA del header, centrado en el fondo gris)
+                    let coverLogoW = 3.5;
+                    let coverLogoH = coverLogoW / ratio;
+                    if (coverLogoH > 1.8) {
+                        coverLogoH = 1.8;
+                        coverLogoW = coverLogoH * ratio;
+                    }
+
+                    slidePortada.addImage({
+                        data: logoB64,
+                        x: (10 - coverLogoW) / 2, // Centrado horizontal
+                        y: 1.0, // Posicionado debajo del header
+                        w: coverLogoW,
+                        h: coverLogoH,
+                        sizing: { type: 'contain', w: coverLogoW, h: coverLogoH }
+                    });
+
+                    // 2. Dimensiones para Header de slides internas (re-utilizables)
+                    headerLogoH = 0.45;
+                    headerLogoW = headerLogoH * ratio;
+                    if (headerLogoW > 1.8) {
+                        headerLogoW = 1.8;
+                        headerLogoH = headerLogoW / ratio;
+                    }
+                }
+
+                slidePortada.addText('Reporte de Evidencia Fotográfica', {
+                    x: 0, y: 3.2, w: '100%', h: 0.8,
+                    fontSize: 32, color: '8B0000', bold: true, align: 'center', fontFace: 'Arial'
+                });
+
+                slidePortada.addText(`Exportado el: ${new Date().toLocaleDateString('es-AR')}`, {
+                    x: 0, y: 4.8, w: '100%', h: 0.4,
+                    fontSize: 12, color: '666666', align: 'center'
+                });
+
+
+
+                // --- B. DIAPOSITIVAS DE CONTENIDO ---
+                for (const v of ultimasVisitas) {
+                    const slide = pptx.addSlide();
+                    slide.bkgd = { color: 'F9F9F9' };
+
+                    // Header Rojo
+                    slide.addShape(pptx.ShapeType.rect, {
+                        x: 0, y: 0, w: 10, h: 0.6,
+                        fill: { color: 'DC2626' }
+                    });
+
+                    if (logoB64 && headerLogoW) {
+                        slide.addImage({
+                            data: logoB64,
+                            x: 0.2, y: (0.6 - headerLogoH) / 2, // Centrado vertical en el header
+                            w: headerLogoW,
+                            h: headerLogoH,
+                            sizing: { type: 'contain', w: headerLogoW, h: headerLogoH }
+                        });
+                    }
+
+                    const fechaStr = new Date(v.fecha).toLocaleDateString('es-AR', { timeZone: 'UTC' });
+                    slide.addText(`${v.cadena} | ${fechaStr}`, {
+                        x: 1.5, y: 0.05, w: 8.3, h: 0.5,
+                        fontSize: 12, color: 'FFFFFF', align: 'right', valign: 'middle', bold: true
+                    });
+
+                    // Título PDV
+                    slide.addText(`${v.sucursal} - ${v.localidad}`, {
+                        x: 0.5, y: 0.7, w: 9, h: 0.4,
+                        fontSize: 20, color: 'DC2626', bold: true
+                    });
+
+                    // Grid de imágenes
+                    const areaX = 0.5, areaY = 1.3, areaW = 9, areaH = 4.1;
+                    const imgs = v.imagenes;
+                    let cols = imgs.length === 1 ? 1 : (imgs.length <= 4 ? 2 : 3);
+                    let rows = Math.ceil(imgs.length / cols);
+
+                    const gutter = 0.15;
+                    const cW = (areaW - (cols - 1) * gutter) / cols;
+                    const cH = (areaH - (rows - 1) * gutter) / rows;
+
+                    for (let i = 0; i < Math.min(imgs.length, 9); i++) {
+                        const col = i % cols, row = Math.floor(i / cols);
+                        const imgB64 = await imgUrlToBase64(imgs[i].ruta);
+                        if (imgB64) {
+                            slide.addImage({
+                                data: imgB64,
+                                x: areaX + col * (cW + gutter), y: areaY + row * (cH + gutter), w: cW, h: cH,
+                                sizing: { type: 'contain', w: cW, h: cH }
+                            });
+                        }
+                    }
+                }
+
+                await pptx.writeFile({ fileName: `Reporte_Solvens_${idCliente}.pptx` });
+
+            } catch (err) {
+                console.error('Error al generar PPTX:', err);
+                alert('Hubo un error al generar el PowerPoint.');
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        }
+
+        document.getElementById('btnExportarPPTX').onclick = generarReportePPTX;
+
+        document.addEventListener('DOMContentLoaded', cargarVisitasCliente);
+    </script>
+    <!-- filtros utility -->
+    <script src="js/filtros.js"></script>
+
+</body>
+
+</html>
