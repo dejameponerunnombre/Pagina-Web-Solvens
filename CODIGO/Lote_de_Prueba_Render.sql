@@ -1,7 +1,3 @@
--- ============================================================
--- Lote_de_Prueba.sql — adaptado a BD_Render.sql
--- ============================================================
-
 INSERT INTO tipo_usuario (tipo) VALUES ('Administrador'), ('Cliente'), ('Repositor');
 
 INSERT INTO tipo_cadena (tipo) VALUES ('Supermercado'), ('Mayorista');
